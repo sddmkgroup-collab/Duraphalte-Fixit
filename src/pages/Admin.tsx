@@ -5,7 +5,7 @@ import {
   Plus, Trash2, Edit2, Globe, Lock, Key,
   Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, saveSiteContent, saveBlogPosts, deleteBlogPost } from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
 
@@ -139,6 +139,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
   const [activeView, setActiveView] = useState<AdminView>('dashboard');
   const [analytics, setAnalytics] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [videoSourceType, setVideoSourceType] = useState(homeContent?.videoSection?.type || 'youtube');
 
   useEffect(() => {
     if (activeView === 'analytics') {
@@ -164,15 +165,17 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
   };
 
   const extractYoutubeId = (url: string) => {
+    if (!url) return "";
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : url;
   };
 
-  const handleHomeUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleHomeUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
-    const videoType = formData.get('video_type') as string;
+    const currentVideoType = formData.get('video_type') as string;
     const rawVideoId = formData.get('video_id') as string || '';
     
     const updatedContent = {
@@ -212,17 +215,44 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
         enabled: formData.get('video_enabled') === 'on',
         title: formData.get('video_title') as string,
         desc: formData.get('video_desc') as string,
-        videoId: videoType === 'youtube' ? extractYoutubeId(rawVideoId) : rawVideoId,
+        videoId: currentVideoType === 'youtube' ? extractYoutubeId(rawVideoId) : rawVideoId,
         url: formData.get('video_url') as string,
-        type: videoType,
+        type: currentVideoType,
       }
     };
-    setHomeContent(updatedContent);
-    alert("Semua Konten Berhasil Diperbarui!");
+
+    try {
+      setHomeContent(updatedContent);
+      await saveSiteContent(updatedContent);
+      alert("✅ Konten Berhasil Disinkronkan ke Database!");
+    } catch (err) {
+      alert("❌ Gagal menyimpan ke database.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleBlogDelete = (id: number) => {
-    setBlogPosts(blogPosts.filter((p: any) => p.id !== id));
+  const handleBlogDelete = async (id: number) => {
+    if (confirm("Hapus artikel ini?")) {
+      try {
+        setBlogPosts(blogPosts.filter((p: any) => p.id !== id));
+        await deleteBlogPost(id);
+      } catch (err) {
+        alert("Gagal menghapus.");
+      }
+    }
+  };
+
+  const handleBlogSave = async () => {
+    setLoading(true);
+    try {
+      await saveBlogPosts(blogPosts);
+      alert("✅ Blog Berhasil Disimpan!");
+    } catch (err) {
+      alert("❌ Gagal menyimpan blog.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -530,23 +560,28 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                         <div className="space-y-4">
                           <div>
                             <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Video Source Type</label>
-                            <select name="video_type" defaultValue={homeContent.videoSection?.type} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm">
+                            <select 
+                              name="video_type" 
+                              value={videoSourceType} 
+                              onChange={(e) => setVideoSourceType(e.target.value)}
+                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm"
+                            >
                               <option value="youtube">YouTube (Video ID)</option>
                               <option value="direct">Direct Link (MP4)</option>
                             </select>
                           </div>
                           <div>
                             <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
-                              {homeContent.videoSection?.type === 'youtube' ? 'YouTube Video ID or Link' : 'Video URL (Direct link)'}
+                              {videoSourceType === 'youtube' ? 'YouTube Video ID or Link' : 'Video URL (Direct link)'}
                             </label>
                             <input 
-                              name={homeContent.videoSection?.type === 'youtube' ? 'video_id' : 'video_url'} 
-                              defaultValue={homeContent.videoSection?.type === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
-                              placeholder={homeContent.videoSection?.type === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
+                              name={videoSourceType === 'youtube' ? 'video_id' : 'video_url'} 
+                              defaultValue={videoSourceType === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
+                              placeholder={videoSourceType === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
                               className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" 
                             />
                             <p className="text-[10px] text-slate-400 mt-2">
-                              {homeContent.videoSection?.type === 'youtube' ? 'Tip: You can paste the whole YouTube URL, we will extract the ID automatically.' : 'Note: Ensure the URL ends with .mp4 or similar.'}
+                              {videoSourceType === 'youtube' ? 'Tip: You can paste the whole YouTube URL, we will extract the ID automatically.' : 'Note: Ensure the URL ends with .mp4 or similar.'}
                             </p>
                           </div>
                         </div>
@@ -621,10 +656,18 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
             </div>
 
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-              <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
-                <ArrowRight className="w-6 h-6 text-blue-700" />
-                Manage Knowledge Hub
-              </h2>
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-black flex items-center gap-3">
+                  <ArrowRight className="w-6 h-6 text-blue-700" />
+                  Manage Knowledge Hub
+                </h2>
+                <button 
+                  onClick={handleBlogSave}
+                  className="bg-blue-700 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-800 transition-all shadow-lg shadow-blue-700/20"
+                >
+                  Save Blog Changes
+                </button>
+              </div>
               
               <div className="space-y-8">
                 {blogPosts?.map((post: any, i: number) => (

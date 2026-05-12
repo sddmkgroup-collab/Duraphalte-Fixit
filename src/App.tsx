@@ -6,7 +6,7 @@ import {
   Bolt, Timer, TrendingUp, Verified, CheckCircle, ArrowRight, Star,
   Search, Globe, Phone, Mail, Play
 } from 'lucide-react';
-import { logVisitor } from './lib/supabase';
+import { logVisitor, loadSiteContent, loadBlogPosts } from './lib/supabase';
 import AdminPage from './pages/Admin';
 
 // --- Types ---
@@ -705,23 +705,52 @@ export default function App() {
   ];
 
   // Persistence Logic
-  const [homeContent, setHomeContent] = useState(() => {
-    const saved = localStorage.getItem('duraphalte_content');
-    return saved ? JSON.parse(saved) : initialHomeContent;
-  });
+  const [homeContent, setHomeContent] = useState(initialHomeContent);
+  const [blogPosts, setBlogPosts] = useState(initialBlogPosts);
+  const [loading, setLoading] = useState(true);
 
-  const [blogPosts, setBlogPosts] = useState(() => {
-    const saved = localStorage.getItem('duraphalte_blog');
-    return saved ? JSON.parse(saved) : initialBlogPosts;
-  });
-
+  // Initial Data Fetch
   useEffect(() => {
-    localStorage.setItem('duraphalte_content', JSON.stringify(homeContent));
-  }, [homeContent]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [remoteContent, remotePosts] = await Promise.all([
+          loadSiteContent(),
+          loadBlogPosts()
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem('duraphalte_blog', JSON.stringify(blogPosts));
-  }, [blogPosts]);
+        if (remoteContent) {
+          setHomeContent(remoteContent);
+        } else {
+          const saved = localStorage.getItem('duraphalte_content');
+          if (saved) setHomeContent(JSON.parse(saved));
+        }
+
+        if (remotePosts && remotePosts.length > 0) {
+          setBlogPosts(remotePosts);
+        } else {
+          const saved = localStorage.getItem('duraphalte_blog');
+          if (saved) setBlogPosts(JSON.parse(saved));
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-bold text-slate-400 uppercase tracking-widest text-xs">Syncing Industrial Data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -729,9 +758,15 @@ export default function App() {
         <Route path="/admin" element={
           <AdminPage 
             homeContent={homeContent} 
-            setHomeContent={setHomeContent} 
+            setHomeContent={(content: any) => {
+              setHomeContent(content);
+              localStorage.setItem('duraphalte_content', JSON.stringify(content));
+            }} 
             blogPosts={blogPosts} 
-            setBlogPosts={setBlogPosts} 
+            setBlogPosts={(posts: any) => {
+              setBlogPosts(posts);
+              localStorage.setItem('duraphalte_blog', JSON.stringify(posts));
+            }} 
           />
         } />
         <Route path="/" element={<PublicLayout homeContent={homeContent} blogPosts={blogPosts} />}>
