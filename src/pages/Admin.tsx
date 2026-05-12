@@ -3,11 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, LayoutDashboard, BarChart, Settings, LogOut,
   Plus, Trash2, Edit2, Globe, Lock, Key,
-  Eye, User, Clock, TrendingUp, Menu, Mail
+  Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-type AdminView = 'dashboard' | 'editor';
+type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
 
 const ImageUpload = ({ label, currentImage, onImageChange }: { label: string, currentImage: string, onImageChange: (base64: string) => void }) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +136,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
   onExit: () => void
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState<AdminView | 'analytics'>('dashboard');
+  const [activeView, setActiveView] = useState<AdminView>('dashboard');
   const [analytics, setAnalytics] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -414,7 +414,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
             </div>
           </div>
         )}
-        {activeView === 'editor' && (
+        {activeView === 'editor' && homeContent && (
           <div className="space-y-12">
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
               <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
@@ -426,7 +426,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                 <div className="space-y-8">
                   <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Hero Slides</h3>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    {homeContent.hero.map((slide: any, i: number) => (
+                    {homeContent.hero?.map((slide: any, i: number) => (
                       <div key={i} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
                         <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Slide {i + 1}</h4>
                         <div>
@@ -453,38 +453,40 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                 </div>
 
                 {/* Innovation Section */}
-                <div className="space-y-8 pt-8 border-t border-slate-100">
-                   <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Innovation Section</h3>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
-                          <input name="innov_title" defaultValue={homeContent.innovation.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                {homeContent.innovation && (
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                     <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Innovation Section</h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
+                            <input name="innov_title" defaultValue={homeContent.innovation.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                            <textarea name="innov_desc" defaultValue={homeContent.innovation.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                          <textarea name="innov_desc" defaultValue={homeContent.innovation.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                        <div className="space-y-4">
+                          <ImageUpload 
+                            label="Innovation Image" 
+                            currentImage={homeContent.innovation.image} 
+                            onImageChange={(base64) => setHomeContent({ 
+                              ...homeContent, 
+                              innovation: { ...homeContent.innovation, image: base64 } 
+                            })} 
+                          />
+                          <input type="hidden" name="innov_image" value={homeContent.innovation.image} />
                         </div>
-                      </div>
-                      <div className="space-y-4">
-                        <ImageUpload 
-                          label="Innovation Image" 
-                          currentImage={homeContent.innovation.image} 
-                          onImageChange={(base64) => setHomeContent({ 
-                            ...homeContent, 
-                            innovation: { ...homeContent.innovation, image: base64 } 
-                          })} 
-                        />
-                        <input type="hidden" name="innov_image" value={homeContent.innovation.image} />
-                      </div>
-                   </div>
-                </div>
+                     </div>
+                  </div>
+                )}
 
                 {/* Products Section */}
                 <div className="space-y-8 pt-8 border-t border-slate-100">
                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Products Catalog</h3>
                    <div className="grid grid-cols-1 gap-8">
-                    {homeContent.products.map((prod: any, i: number) => (
+                    {homeContent.products?.map((prod: any, i: number) => (
                       <div key={prod.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
                         <div className="flex justify-between items-center">
                            <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Product: {prod.id}</h4>
@@ -553,7 +555,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
               </h2>
               
               <div className="space-y-8">
-                {blogPosts.map((post: any, i: number) => (
+                {blogPosts?.map((post: any, i: number) => (
                   <div key={post.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="space-y-4 flex-1 mr-8">
@@ -634,6 +636,39 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
               >
                 <Plus className="w-5 h-5" /> Add New Knowledge Base Article
               </button>
+            </div>
+          </div>
+        )}
+        {activeView === 'settings' && (
+          <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+            <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+              <Settings className="w-6 h-6 text-slate-400" />
+              System Settings
+            </h2>
+            <div className="space-y-6">
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h3 className="font-bold mb-4">Storage Management</h3>
+                <p className="text-sm text-slate-500 mb-4">Clear local cache to reset content to defaults (Warning: unpublished changes will be lost).</p>
+                <button 
+                  onClick={() => {
+                    if (confirm("Reset all content to defaults?")) {
+                      localStorage.removeItem('duraphalte_content');
+                      localStorage.removeItem('duraphalte_blog');
+                      window.location.reload();
+                    }
+                  }}
+                  className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-100 transition-colors"
+                >
+                  Reset Factory Defaults
+                </button>
+              </div>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h3 className="font-bold mb-4">Version Info</h3>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Engine Version</span>
+                  <span className="font-mono font-bold">v3.4.1-industrial</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
