@@ -163,9 +163,18 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
     }
   };
 
+  const extractYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url;
+  };
+
   const handleHomeUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const videoType = formData.get('video_type') as string;
+    const rawVideoId = formData.get('video_id') as string || '';
+    
     const updatedContent = {
       ...homeContent,
       hero: [
@@ -203,9 +212,9 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
         enabled: formData.get('video_enabled') === 'on',
         title: formData.get('video_title') as string,
         desc: formData.get('video_desc') as string,
-        videoId: formData.get('video_id') as string,
+        videoId: videoType === 'youtube' ? extractYoutubeId(rawVideoId) : rawVideoId,
         url: formData.get('video_url') as string,
-        type: formData.get('video_type') as string,
+        type: videoType,
       }
     };
     setHomeContent(updatedContent);
@@ -528,14 +537,17 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                           </div>
                           <div>
                             <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
-                              {homeContent.videoSection?.type === 'youtube' ? 'YouTube Video ID (e.g. dQw4w9WgXcQ)' : 'Video URL (Direct link)'}
+                              {homeContent.videoSection?.type === 'youtube' ? 'YouTube Video ID or Link' : 'Video URL (Direct link)'}
                             </label>
                             <input 
                               name={homeContent.videoSection?.type === 'youtube' ? 'video_id' : 'video_url'} 
                               defaultValue={homeContent.videoSection?.type === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
-                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono" 
+                              placeholder={homeContent.videoSection?.type === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
+                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" 
                             />
-                            <p className="text-[10px] text-slate-400 mt-2">Note: To get YouTube ID, look for the 'v=' parameter in the URL.</p>
+                            <p className="text-[10px] text-slate-400 mt-2">
+                              {homeContent.videoSection?.type === 'youtube' ? 'Tip: You can paste the whole YouTube URL, we will extract the ID automatically.' : 'Note: Ensure the URL ends with .mp4 or similar.'}
+                            </p>
                           </div>
                         </div>
                       </div>

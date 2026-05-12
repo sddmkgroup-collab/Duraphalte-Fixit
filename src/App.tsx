@@ -289,7 +289,7 @@ const HomePage = ({ content }: { content: any }) => {
                   {content.videoSection.type === 'youtube' ? (
                     <iframe 
                       className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${content.videoSection.videoId}?rel=0&showinfo=0&autoplay=0`}
+                      src={`https://www.youtube.com/embed/${content.videoSection.videoId}?rel=0&showinfo=0&autoplay=1&mute=1&playlist=${content.videoSection.videoId}&loop=1`}
                       title="Video Demonstrasi"
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -300,6 +300,10 @@ const HomePage = ({ content }: { content: any }) => {
                       src={content.videoSection.url} 
                       className="w-full h-full object-cover"
                       controls
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
                       poster={content.videoSection.poster}
                     ></video>
                   )}
