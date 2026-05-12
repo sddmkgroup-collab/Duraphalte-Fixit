@@ -669,7 +669,7 @@ export default function App() {
     videoSection: {
       enabled: true,
       type: 'youtube', // 'youtube' or 'direct'
-      videoId: 'dQw4w9WgXcQ', // Default for now
+      videoId: 'lKWVH6hLHNE', // Default for now
       url: '',
       poster: 'https://picsum.photos/1280/720',
       title: 'Lihat Ketangguhan Duraphalte Fixit di Lapangan',
