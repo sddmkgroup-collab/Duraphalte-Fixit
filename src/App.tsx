@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, X, User, ChevronRight, ChevronLeft, 
   Bolt, Timer, TrendingUp, Verified, CheckCircle, ArrowRight, Star,
-  Search, Globe, Phone, Mail
+  Search, Globe, Phone, Mail, Play
 } from 'lucide-react';
 import { logVisitor } from './lib/supabase';
 import AdminPage from './pages/Admin';
@@ -264,6 +264,58 @@ const HomePage = ({ content }: { content: any }) => {
   return (
     <div className="animate-in fade-in duration-700">
       <HeroCarousel slides={content.hero} onCtaClick={() => navigate('/products')} />
+
+      {content.videoSection?.enabled && (
+        <section className="py-16 lg:py-24 bg-[#141d23] overflow-hidden relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="space-y-6 lg:space-y-8">
+                <span className="text-blue-400 font-black uppercase tracking-[0.3em] text-[10px] lg:text-xs">Produk Beraksi</span>
+                <h2 className="text-3xl lg:text-5xl font-black text-white leading-tight">
+                  {content.videoSection.title}
+                </h2>
+                <p className="text-slate-400 text-lg leading-relaxed">
+                  {content.videoSection.desc}
+                </p>
+                <button 
+                  onClick={() => navigate('/products')}
+                  className="inline-flex items-center gap-3 bg-blue-700 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-800 transition-all active:scale-95 shadow-xl shadow-blue-700/20"
+                >
+                  Lihat Katalog Produk <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="relative group">
+                <div className="aspect-video rounded-3xl overflow-hidden shadow-2xl border-4 border-white/10 bg-slate-800">
+                  {content.videoSection.type === 'youtube' ? (
+                    <iframe 
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${content.videoSection.videoId}?rel=0&showinfo=0&autoplay=0`}
+                      title="Video Demonstrasi"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  ) : (
+                    <video 
+                      src={content.videoSection.url} 
+                      className="w-full h-full object-cover"
+                      controls
+                      poster={content.videoSection.poster}
+                    ></video>
+                  )}
+                </div>
+                {/* Decorative Elements */}
+                <div className="absolute -top-6 -right-6 w-24 h-24 bg-blue-700/20 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-6 -left-6 w-24 h-24 bg-blue-700/20 rounded-full blur-2xl"></div>
+              </div>
+            </div>
+          </div>
+          {/* Background Text Overlay */}
+          <div className="absolute top-1/2 left-0 -translate-y-1/2 text-[20rem] font-black text-white/[0.02] pointer-events-none select-none whitespace-nowrap -z-0">
+            INDUSTRIAL PERFORMANCE
+          </div>
+        </section>
+      )}
 
       <section className="py-16 lg:py-24 bg-white px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
@@ -609,7 +661,16 @@ export default function App() {
         tokopedia: "https://tokopedia.com",
         shopee: "https://shopee.co.id"
       }
-    ]
+    ],
+    videoSection: {
+      enabled: true,
+      type: 'youtube', // 'youtube' or 'direct'
+      videoId: 'dQw4w9WgXcQ', // Default for now
+      url: '',
+      poster: 'https://picsum.photos/1280/720',
+      title: 'Lihat Ketangguhan Duraphalte Fixit di Lapangan',
+      desc: 'Saksikan bagaimana tim kami melakukan aplikasi aspal dingin pada proyek perbaikan jalan raya dengan hasil instan dan tahan lama.'
+    }
   };
 
   const initialBlogPosts = [

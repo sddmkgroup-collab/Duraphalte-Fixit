@@ -197,7 +197,16 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
         image: formData.get(`prod${i}_image`) as string,
         tokopedia: formData.get(`prod${i}_tokopedia`) as string,
         shopee: formData.get(`prod${i}_shopee`) as string,
-      }))
+      })),
+      videoSection: {
+        ...homeContent.videoSection,
+        enabled: formData.get('video_enabled') === 'on',
+        title: formData.get('video_title') as string,
+        desc: formData.get('video_desc') as string,
+        videoId: formData.get('video_id') as string,
+        url: formData.get('video_url') as string,
+        type: formData.get('video_type') as string,
+      }
     };
     setHomeContent(updatedContent);
     alert("Semua Konten Berhasil Diperbarui!");
@@ -481,6 +490,57 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                      </div>
                   </div>
                 )}
+
+                <div className="space-y-8 pt-8 border-t border-slate-100">
+                   <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Video Section</h3>
+                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            name="video_enabled" 
+                            defaultChecked={homeContent.videoSection?.enabled} 
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <span className="text-sm font-bold text-slate-700">Enable Video Section on Home</span>
+                        </label>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
+                            <input name="video_title" defaultValue={homeContent.videoSection?.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                            <textarea name="video_desc" defaultValue={homeContent.videoSection?.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Video Source Type</label>
+                            <select name="video_type" defaultValue={homeContent.videoSection?.type} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm">
+                              <option value="youtube">YouTube (Video ID)</option>
+                              <option value="direct">Direct Link (MP4)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
+                              {homeContent.videoSection?.type === 'youtube' ? 'YouTube Video ID (e.g. dQw4w9WgXcQ)' : 'Video URL (Direct link)'}
+                            </label>
+                            <input 
+                              name={homeContent.videoSection?.type === 'youtube' ? 'video_id' : 'video_url'} 
+                              defaultValue={homeContent.videoSection?.type === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
+                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono" 
+                            />
+                            <p className="text-[10px] text-slate-400 mt-2">Note: To get YouTube ID, look for the 'v=' parameter in the URL.</p>
+                          </div>
+                        </div>
+                      </div>
+                   </div>
+                </div>
 
                 {/* Products Section */}
                 <div className="space-y-8 pt-8 border-t border-slate-100">
