@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Outlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, X, User, ChevronRight, ChevronLeft, 
@@ -669,15 +669,45 @@ export default function App() {
             setBlogPosts={setBlogPosts} 
           />
         } />
-        <Route path="*" element={<PublicRoutes homeContent={homeContent} blogPosts={blogPosts} />} />
+        <Route path="/" element={<PublicLayout homeContent={homeContent} blogPosts={blogPosts} />}>
+          <Route index element={<HomePage content={homeContent} />} />
+          <Route path="products" element={<ProductsPage products={homeContent.products} />} />
+          <Route path="product/:id" element={<ProductDetailPage products={homeContent.products} />} />
+          <Route path="blog" element={<BlogPage posts={blogPosts} />} />
+          <Route path="*" element={<HomePage content={homeContent} />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
-const PublicRoutes = ({ homeContent, blogPosts }: { homeContent: any, blogPosts: any[] }) => {
+const ProductsPage = ({ products }: { products: any[] }) => {
   const navigate = useNavigate();
+  return (
+    <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 px-4 sm:px-8 max-w-7xl mx-auto space-y-12 lg:space-y-20">
+       <div className="text-center space-y-4">
+          <h1 className="text-4xl lg:text-5xl font-black text-[#141d23] leading-tight">Our Industrial Catalog</h1>
+          <p className="text-base lg:text-lg text-slate-500 max-w-2xl mx-auto">High-performance material solutions engineered for the most demanding civil engineering environments.</p>
+       </div>
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {products.map((prod: any) => (
+            <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all cursor-pointer" onClick={() => navigate(`/product/${prod.id}`)}>
+              <div className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8">
+                <img src={prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
+              </div>
+              <div className="p-8 space-y-4">
+                <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
+                <h3 className="text-xl font-bold">{prod.title}</h3>
+                <div className="text-2xl font-black text-[#141d23]">Rp {prod.price}</div>
+              </div>
+            </div>
+          ))}
+       </div>
+    </div>
+  );
+};
 
+const PublicLayout = ({ homeContent, blogPosts }: { homeContent: any, blogPosts: any[] }) => {
   useEffect(() => {
     logVisitor(window.location.pathname);
   }, [window.location.pathname]);
@@ -686,33 +716,7 @@ const PublicRoutes = ({ homeContent, blogPosts }: { homeContent: any, blogPosts:
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<HomePage content={homeContent} />} />
-          <Route path="/products" element={
-            <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 px-4 sm:px-8 max-w-7xl mx-auto space-y-12 lg:space-y-20">
-               <div className="text-center space-y-4">
-                  <h1 className="text-4xl lg:text-5xl font-black text-[#141d23] leading-tight">Our Industrial Catalog</h1>
-                  <p className="text-base lg:text-lg text-slate-500 max-w-2xl mx-auto">High-performance material solutions engineered for the most demanding civil engineering environments.</p>
-               </div>
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                  {homeContent.products.map((prod: any) => (
-                    <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all cursor-pointer" onClick={() => navigate(`/product/${prod.id}`)}>
-                      <div className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8">
-                        <img src={prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
-                      </div>
-                      <div className="p-8 space-y-4">
-                        <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
-                        <h3 className="text-xl font-bold">{prod.title}</h3>
-                        <div className="text-2xl font-black text-[#141d23]">Rp {prod.price}</div>
-                      </div>
-                    </div>
-                  ))}
-               </div>
-            </div>
-          } />
-          <Route path="/product/:id" element={<ProductDetailPage products={homeContent.products} />} />
-          <Route path="/blog" element={<BlogPage posts={blogPosts} />} />
-        </Routes>
+        <Outlet />
       </main>
       <Footer />
     </div>
