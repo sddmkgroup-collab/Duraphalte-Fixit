@@ -721,6 +721,7 @@ export default function App() {
 
         if (remoteContent) {
           setHomeContent(remoteContent);
+          localStorage.setItem('duraphalte_content', JSON.stringify(remoteContent));
         } else {
           const saved = localStorage.getItem('duraphalte_content');
           if (saved) setHomeContent(JSON.parse(saved));
@@ -728,6 +729,7 @@ export default function App() {
 
         if (remotePosts && remotePosts.length > 0) {
           setBlogPosts(remotePosts);
+          localStorage.setItem('duraphalte_blog', JSON.stringify(remotePosts));
         } else {
           const saved = localStorage.getItem('duraphalte_blog');
           if (saved) setBlogPosts(JSON.parse(saved));

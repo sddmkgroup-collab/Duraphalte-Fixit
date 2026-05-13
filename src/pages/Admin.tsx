@@ -5,7 +5,9 @@ import {
   Plus, Trash2, Edit2, Globe, Lock, Key,
   Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight
 } from 'lucide-react';
-import { supabase, saveSiteContent, saveBlogPosts, deleteBlogPost } from '../lib/supabase';
+import { 
+  supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured 
+} from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
 
@@ -139,7 +141,26 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
   const [activeView, setActiveView] = useState<AdminView>('dashboard');
   const [analytics, setAnalytics] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error' | 'unconfigured'>(isSupabaseConfigured ? 'checking' : 'unconfigured');
+  const [dbError, setDbError] = useState<string | null>(null);
   const [videoSourceType, setVideoSourceType] = useState(homeContent?.videoSection?.type || 'youtube');
+
+  useEffect(() => {
+    if (isSupabaseConfigured) {
+      checkDbHealth();
+    }
+  }, []);
+
+  const checkDbHealth = async () => {
+    try {
+      const { error } = await supabase.from('site_content').select('id').limit(1);
+      if (error) throw error;
+      setDbStatus('connected');
+    } catch (err: any) {
+      setDbStatus('error');
+      setDbError(err.message || 'Unknown error');
+    }
+  };
 
   useEffect(() => {
     if (activeView === 'analytics') {
@@ -223,8 +244,12 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
 
     try {
       setHomeContent(updatedContent);
-      await saveSiteContent(updatedContent);
-      alert("✅ Konten Berhasil Disinkronkan ke Database!");
+      if (isSupabaseConfigured) {
+        await saveSiteContent(updatedContent);
+        alert("✅ Konten Berhasil Disinkronkan ke Database!");
+      } else {
+        alert("⚠️ Konten disimpan ke Browser Lokal. Hubungkan Database untuk sinkronisasi antar browser.");
+      }
     } catch (err) {
       alert("❌ Gagal menyimpan ke database.");
     } finally {
@@ -332,6 +357,23 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
               <p className="text-slate-500 font-medium text-sm lg:text-base">Duraphalte Fixit Industrial Portal</p>
             </div>
           </div>
+          
+          {!isSupabaseConfigured ? (
+            <div className="w-full lg:w-auto px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700">
+              <Key className="w-4 h-4" />
+              <span className="text-xs font-bold leading-tight">Database Not Configured</span>
+            </div>
+          ) : dbStatus === 'error' ? (
+            <div className="w-full lg:w-auto px-4 py-2 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+              <X className="w-4 h-4" />
+              <span className="text-xs font-bold leading-tight">Database Table Error</span>
+            </div>
+          ) : (
+            <div className="w-full lg:w-auto px-4 py-2 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-700">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-xs font-bold leading-tight">Database Synced</span>
+            </div>
+          )}
         </header>
 
         {activeView === 'dashboard' && (
@@ -576,7 +618,17 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
                             </label>
                             <input 
                               name={videoSourceType === 'youtube' ? 'video_id' : 'video_url'} 
-                              defaultValue={videoSourceType === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
+                              value={videoSourceType === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                const newContent = { ...homeContent };
+                                if (videoSourceType === 'youtube') {
+                                  newContent.videoSection.videoId = val;
+                                } else {
+                                  newContent.videoSection.url = val;
+                                }
+                                setHomeContent(newContent);
+                              }}
                               placeholder={videoSourceType === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
                               className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" 
                             />
@@ -761,6 +813,54 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
               System Settings
             </h2>
             <div className="space-y-6">
+              <div className={`p-6 rounded-2xl border ${dbStatus === 'connected' ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
+                <h3 className={`font-bold mb-2 ${dbStatus === 'connected' ? 'text-green-800' : 'text-amber-800'}`}>
+                  Database Status: {dbStatus.toUpperCase()}
+                </h3>
+                {dbStatus === 'unconfigured' && (
+                  <div className="space-y-4">
+                    <p className="text-xs text-amber-600 leading-relaxed">
+                      Cross-browser sync is disabled because Supabase is not configured.
+                    </p>
+                    <div className="bg-white p-4 rounded-xl border border-amber-200">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Setup Instructions:</p>
+                      <ol className="text-xs text-slate-600 space-y-2 list-decimal pl-4">
+                        <li>Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>.</li>
+                      </ol>
+                    </div>
+                  </div>
+                )}
+                {dbStatus === 'error' && (
+                  <div className="space-y-4">
+                    <p className="text-xs text-red-600">Error connecting to tables: {dbError}</p>
+                    <div className="bg-white p-4 rounded-xl border border-red-200">
+                      <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Required SQL Setup:</p>
+                      <pre className="text-[10px] bg-slate-900 text-slate-300 p-3 rounded-lg overflow-x-auto">
+{`CREATE TABLE site_content (
+  id TEXT PRIMARY KEY,
+  content JSONB,
+  updated_at TIMESTAMPTZ
+);
+
+CREATE TABLE blog_posts (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT,
+  excerpt TEXT,
+  content TEXT,
+  image TEXT,
+  category TEXT,
+  date TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);`}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+                {dbStatus === 'connected' && (
+                  <p className="text-xs text-green-600">Everything is synced. Your changes are visible to all users across all browsers.</p>
+                )}
+              </div>
+
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                 <h3 className="font-bold mb-4">Storage Management</h3>
                 <p className="text-sm text-slate-500 mb-4">Clear local cache to reset content to defaults (Warning: unpublished changes will be lost).</p>
