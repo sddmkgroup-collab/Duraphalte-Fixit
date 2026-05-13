@@ -30,14 +30,14 @@ const ImageUpload = ({ label, currentImage, onImageChange }: { label: string, cu
   return (
     <div className="space-y-2">
       <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">{label}</label>
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
           <img src={currentImage} className="w-full h-full object-cover" alt="Preview" />
         </div>
-        <label className="flex-1">
-          <div className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg text-sm cursor-pointer hover:bg-slate-50 transition-colors">
-            <span className="text-slate-500 font-medium">Select new image...</span>
-            <Plus className="w-4 h-4 text-blue-700" />
+        <label className="flex-1 min-w-0">
+          <div className="flex items-center justify-between p-2 bg-white border border-slate-200 rounded-lg text-[11px] cursor-pointer hover:bg-slate-50 transition-colors truncate">
+            <span className="text-slate-500 font-medium truncate">Upload...</span>
+            <Plus className="w-3 h-3 text-blue-700 shrink-0 ml-2" />
           </div>
           <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
         </label>
@@ -726,88 +726,90 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                           <div className="flex justify-between items-center">
                             <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Product: {prod.id}</h4>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <div className="space-y-4">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-6">
                               <div>
                                 <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Product Name</label>
-                                <input name={`prod${i}_title`} defaultValue={prod.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                                <input name={`prod${i}_title`} defaultValue={prod.title} className="w-full p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
                               </div>
+                              
                               <div>
                                 <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                                <textarea name={`prod${i}_desc`} defaultValue={prod.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                                <textarea name={`prod${i}_desc`} defaultValue={prod.desc} className="w-full p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all h-32" />
                               </div>
-                            </div>
-                            <div className="space-y-4">
+
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Current Price</label>
-                                  <input name={`prod${i}_price`} defaultValue={prod.price} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                                  <input name={`prod${i}_price`} defaultValue={prod.price} className="w-full p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
                                 </div>
                                 <div>
                                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Old Price</label>
-                                  <input name={`prod${i}_oldPrice`} defaultValue={prod.oldPrice} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                                  <input name={`prod${i}_oldPrice`} defaultValue={prod.oldPrice} className="w-full p-4 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
                                 </div>
                               </div>
-                              <div className="space-y-4">
-                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Product Images (Max 4)</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                  {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
-                                    <div key={j} className="relative group">
-                                      <ImageUpload 
-                                        label={`Gambar ${j + 1}`} 
-                                        currentImage={img} 
-                                        onImageChange={(base64) => {
-                                          const newProds = [...homeContent.products];
-                                          if (!newProds[i].images) newProds[i].images = [newProds[i].image];
-                                          newProds[i].images[j] = base64;
-                                          if (j === 0) newProds[i].image = base64;
-                                          setHomeContent({ ...homeContent, products: newProds });
-                                        }}
-                                      />
-                                      <input type="hidden" name={`prod${i}_image_${j}`} value={img} />
-                                      {(prod.images && prod.images.length > 1) && (
-                                        <button 
-                                          type="button"
-                                          onClick={() => {
-                                            const newProds = [...homeContent.products];
-                                            const filteredImages = (newProds[i].images || [newProds[i].image]).filter((_: any, idx: number) => idx !== j);
-                                            newProds[i].images = filteredImages;
-                                            newProds[i].image = filteredImages[0] || '';
-                                            setHomeContent({ ...homeContent, products: newProds });
-                                          }}
-                                          className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                                        >
-                                          <Trash2 size={10} />
-                                        </button>
-                                      )}
-                                    </div>
-                                  ))}
-                                  {( (prod.images?.length || 1) < 4 ) && (
-                                    <button 
-                                      type="button"
-                                      onClick={() => {
-                                        const newProds = [...homeContent.products];
-                                        if (!newProds[i].images) newProds[i].images = [newProds[i].image];
-                                        newProds[i].images.push('');
-                                        setHomeContent({ ...homeContent, products: newProds });
-                                      }}
-                                      className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl hover:bg-white hover:border-blue-400 transition-all text-slate-400 hover:text-blue-500 h-[100px]"
-                                    >
-                                      <Plus size={20} />
-                                      <span className="text-[9px] font-black mt-1 uppercase">Tambah</span>
-                                    </button>
-                                  )}
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Tokopedia Link</label>
+                                  <input name={`prod${i}_tokopedia`} defaultValue={prod.tokopedia} className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-mono" />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Shopee Link</label>
+                                  <input name={`prod${i}_shopee`} defaultValue={prod.shopee} className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-mono" />
                                 </div>
                               </div>
                             </div>
-                            <div className="space-y-4">
-                              <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Tokopedia Link</label>
-                                <input name={`prod${i}_tokopedia`} defaultValue={prod.tokopedia} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Shopee Link</label>
-                                <input name={`prod${i}_shopee`} defaultValue={prod.shopee} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
+
+                            <div className="bg-white/50 p-6 rounded-2xl border border-slate-200/50 space-y-4">
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4)</label>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
+                                  <div key={j} className="relative group">
+                                    <ImageUpload 
+                                      label={`Image ${j + 1}`} 
+                                      currentImage={img} 
+                                      onImageChange={(base64) => {
+                                        const newProds = [...homeContent.products];
+                                        if (!newProds[i].images) newProds[i].images = [newProds[i].image];
+                                        newProds[i].images[j] = base64;
+                                        if (j === 0) newProds[i].image = base64;
+                                        setHomeContent({ ...homeContent, products: newProds });
+                                      }}
+                                    />
+                                    <input type="hidden" name={`prod${i}_image_${j}`} value={img} />
+                                    {(prod.images && prod.images.length > 1) && (
+                                      <button 
+                                        type="button"
+                                        onClick={() => {
+                                          const newProds = [...homeContent.products];
+                                          const filteredImages = (newProds[i].images || [newProds[i].image]).filter((_: any, idx: number) => idx !== j);
+                                          newProds[i].images = filteredImages;
+                                          newProds[i].image = filteredImages[0] || '';
+                                          setHomeContent({ ...homeContent, products: newProds });
+                                        }}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-xl z-20 hover:scale-110 active:scale-95"
+                                      >
+                                        <Trash2 size={12} />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                                {( (prod.images?.length || 1) < 4 ) && (
+                                  <button 
+                                    type="button"
+                                    onClick={() => {
+                                      const newProds = [...homeContent.products];
+                                      if (!newProds[i].images) newProds[i].images = [newProds[i].image];
+                                      newProds[i].images.push('');
+                                      setHomeContent({ ...homeContent, products: newProds });
+                                    }}
+                                    className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl hover:bg-white hover:border-blue-400 transition-all text-slate-400 hover:text-blue-500 aspect-video lg:aspect-auto h-[100px]"
+                                  >
+                                    <Plus size={24} />
+                                    <span className="text-[10px] font-black mt-2 uppercase tracking-widest">Add Item</span>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </div>
