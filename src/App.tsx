@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { logVisitor, loadSiteContent, loadBlogPosts } from './lib/supabase';
 import AdminPage from './pages/Admin';
+import AboutPage from './pages/About';
 
 // --- Types ---
 type Page = 'home' | 'products' | 'product-detail' | 'blog';
@@ -65,6 +66,7 @@ const Navbar = () => {
   const navLinks = [
     { label: 'Home', path: '/' },
     { label: 'Products', path: '/products' },
+    { label: 'About Us', path: '/about' },
     { label: 'Knowledge Hub', path: '/blog' },
   ];
 
@@ -151,6 +153,7 @@ const Footer = () => {
           <ul className="space-y-4">
             <li><Link to="/" className="hover:text-blue-400 transition-all hover:translate-x-1">Home</Link></li>
             <li><Link to="/products" className="hover:text-blue-400 transition-all hover:translate-x-1">Products</Link></li>
+            <li><Link to="/about" className="hover:text-blue-400 transition-all hover:translate-x-1">About Us</Link></li>
             <li><Link to="/blog" className="hover:text-blue-400 transition-all hover:translate-x-1">Knowledge Hub</Link></li>
           </ul>
         </div>
@@ -741,8 +744,46 @@ export default function App() {
     }
   ];
 
+  const initialAboutContent = {
+    hero: {
+      badge: "Mengenal Lebih Dekat",
+      title: "Solusi Aspal Terpercaya Indonesia",
+      desc: "Berdiri sejak 1984, DMK Group telah berevolusi menjadi salah satu pemasok aspal terkemuka di Indonesia, mendukung infrastruktur nasional dengan kualitas tanpa kompromi.",
+      bgText: "WHO WE ARE",
+      image: ""
+    },
+    history: {
+      badge: "Sejarah Kami",
+      title: "PT Dhisa Manunggal Karya (DMK)",
+      content: "DMK Group dimulai dengan berdirinya PT. DHISA MANUNGGAL KARYA (DMK) di Surabaya pada tanggal 4 September 1984. Awalnya didirikan sebagai perusahaan kontraktor umum dan transportasi aspal.\n\nDMK Group kini telah berkembang menjadi salah satu pemasok aspal terkemuka di Indonesia. Grup ini saat ini memiliki dan mengoperasikan total 4 Terminal Curah Aspal di Jawa Tengah, Bali, Sumbawa, dan Halmahera serta 1 Polymer Modified Asphalt di Demak, Jawa Tengah.\n\nSelain memasok aspal ke kontraktor lokal untuk jalan nasional, provinsi, dan regional, DMK Group melalui anak perusahaannya PT WANA INDAH ASRI juga mendukung Perusahaan Milik Negara untuk Proyek Jalan Tol dan Landasan Pacu Bandara dengan mengirimkan aspal berkualitas tinggi.",
+      image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070",
+      experience: "40+",
+      video: ""
+    },
+    visionMission: {
+      vision: {
+        title: "Visi Kami",
+        desc: "Menjadi Penyedia Solusi Aspal Kelas Dunia Pertama di Indonesia dengan Pertumbuhan Penjualan dan Laba Berkelanjutan untuk Mendukung Jaringan Jalan Nasional dan Konstruksi Landasan Pacu.",
+        image: ""
+      },
+      mission: {
+        title: "Misi Kami",
+        quote: "Jalan Halus di Seluruh Indonesia",
+        desc: "Kami ingin membuat perjalanan di jalan menjadi lebih nyaman, transportasi barang lebih murah, dan membuat hidup lebih mudah. Kami berencana untuk mencapainya dengan memastikan jalan-jalan mulus di seluruh Indonesia.",
+        image: ""
+      }
+    },
+    banner: {
+      title: "Mengaspal Indonesia",
+      desc: "Kami memastikan hanya aspal terbaik yang dikirimkan kepada kontraktor agar mereka dapat menyelesaikan proyek konstruksi tanpa meninggalkan masalah.",
+      cta: "Hubungi Kami",
+      image: ""
+    }
+  };
+
   // Persistence Logic
   const [homeContent, setHomeContent] = useState(initialHomeContent);
+  const [aboutContent, setAboutContent] = useState(initialAboutContent);
   const [blogPosts, setBlogPosts] = useState(initialBlogPosts);
   const [loading, setLoading] = useState(true);
 
@@ -751,8 +792,9 @@ export default function App() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [remoteContent, remotePosts] = await Promise.all([
-          loadSiteContent(),
+        const [remoteContent, remoteAbout, remotePosts] = await Promise.all([
+          loadSiteContent('home_main'),
+          loadSiteContent('about_main'),
           loadBlogPosts()
         ]);
 
@@ -762,6 +804,14 @@ export default function App() {
         } else {
           const saved = localStorage.getItem('duraphalte_content');
           if (saved) setHomeContent(JSON.parse(saved));
+        }
+
+        if (remoteAbout) {
+          setAboutContent(remoteAbout);
+          localStorage.setItem('duraphalte_about', JSON.stringify(remoteAbout));
+        } else {
+          const saved = localStorage.getItem('duraphalte_about');
+          if (saved) setAboutContent(JSON.parse(saved));
         }
 
         if (remotePosts && remotePosts.length > 0) {
@@ -810,7 +860,12 @@ export default function App() {
             setHomeContent={(content: any) => {
               setHomeContent(content);
               localStorage.setItem('duraphalte_content', JSON.stringify(content));
-            }} 
+            }}
+            aboutContent={aboutContent}
+            setAboutContent={(content: any) => {
+              setAboutContent(content);
+              localStorage.setItem('duraphalte_about', JSON.stringify(content));
+            }}
             blogPosts={blogPosts} 
             setBlogPosts={(posts: any) => {
               setBlogPosts(posts);
@@ -822,6 +877,7 @@ export default function App() {
           <Route index element={<HomePage content={homeContent} />} />
           <Route path="products" element={<ProductsPage products={homeContent.products} />} />
           <Route path="product/:id" element={<ProductDetailPage products={homeContent.products} />} />
+          <Route path="about" element={<AboutPage content={aboutContent} />} />
           <Route path="blog" element={<BlogPage posts={blogPosts} />} />
           <Route path="*" element={<HomePage content={homeContent} />} />
         </Route>

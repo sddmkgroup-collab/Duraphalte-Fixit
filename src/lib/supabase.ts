@@ -16,13 +16,13 @@ export const supabase = isSupabaseConfigured
       }) 
     } as any;
 
-export const loadSiteContent = async () => {
+export const loadSiteContent = async (id: string = 'home_main') => {
   if (!supabaseUrl || !supabaseAnonKey) return null;
   try {
     const { data, error } = await supabase
       .from('site_content')
       .select('content')
-      .eq('id', 'home_main')
+      .eq('id', id)
       .single();
     if (error && error.code !== 'PGRST116') console.error('Error loading content:', error);
     return data?.content || null;
@@ -32,12 +32,12 @@ export const loadSiteContent = async () => {
   }
 };
 
-export const saveSiteContent = async (content: any) => {
+export const saveSiteContent = async (content: any, id: string = 'home_main') => {
   if (!supabaseUrl || !supabaseAnonKey) return;
   try {
     await supabase
       .from('site_content')
-      .upsert({ id: 'home_main', content, updated_at: new Date().toISOString() });
+      .upsert({ id, content, updated_at: new Date().toISOString() });
   } catch (err) {
     console.error('Failed to save site content:', err);
   }

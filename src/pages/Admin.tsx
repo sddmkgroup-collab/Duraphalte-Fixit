@@ -129,16 +129,19 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
   );
 };
 
-const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setBlogPosts, onExit }: { 
+const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, setAboutContent, blogPosts, setBlogPosts, onExit }: { 
   onLogout: () => void,
   homeContent: any, 
   setHomeContent: any, 
+  aboutContent: any,
+  setAboutContent: any,
   blogPosts: any[], 
   setBlogPosts: any,
   onExit: () => void
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeView, setActiveView] = useState<AdminView>('dashboard');
+  const [editorTab, setEditorTab] = useState<'home' | 'about'>('home');
   const [analytics, setAnalytics] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error' | 'unconfigured'>(isSupabaseConfigured ? 'checking' : 'unconfigured');
@@ -245,13 +248,73 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
     try {
       setHomeContent(updatedContent);
       if (isSupabaseConfigured) {
-        await saveSiteContent(updatedContent);
+        await saveSiteContent(updatedContent, 'home_main');
         alert("✅ Konten Berhasil Disinkronkan ke Database!");
       } else {
         alert("⚠️ Konten disimpan ke Browser Lokal. Hubungkan Database untuk sinkronisasi antar browser.");
       }
     } catch (err) {
       alert("❌ Gagal menyimpan ke database.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAboutUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    
+    const updatedContent = {
+      ...aboutContent,
+      hero: {
+        ...aboutContent.hero,
+        badge: formData.get('about_hero_badge') as string,
+        title: formData.get('about_hero_title') as string,
+        desc: formData.get('about_hero_desc') as string,
+        bgText: formData.get('about_hero_bgText') as string,
+        image: formData.get('about_hero_image') as string,
+      },
+      history: {
+        ...aboutContent.history,
+        badge: formData.get('about_history_badge') as string,
+        title: formData.get('about_history_title') as string,
+        content: formData.get('about_history_content') as string,
+        experience: formData.get('about_history_exp') as string,
+        image: formData.get('about_history_image') as string,
+        video: extractYoutubeId(formData.get('about_history_video') as string),
+      },
+      visionMission: {
+        vision: {
+          title: formData.get('about_vision_title') as string,
+          desc: formData.get('about_vision_desc') as string,
+          image: formData.get('about_vision_image') as string,
+        },
+        mission: {
+          title: formData.get('about_mission_title') as string,
+          quote: formData.get('about_mission_quote') as string,
+          desc: formData.get('about_mission_desc') as string,
+          image: formData.get('about_mission_image') as string,
+        }
+      },
+      banner: {
+        title: formData.get('about_banner_title') as string,
+        desc: formData.get('about_banner_desc') as string,
+        cta: formData.get('about_banner_cta') as string,
+        image: formData.get('about_banner_image') as string,
+      }
+    };
+
+    try {
+      setAboutContent(updatedContent);
+      if (isSupabaseConfigured) {
+        await saveSiteContent(updatedContent, 'about_main');
+        alert("✅ Halaman About Us Berhasil Disinkronkan!");
+      } else {
+        alert("⚠️ Halaman About Us disimpan secara lokal.");
+      }
+    } catch (err) {
+      alert("❌ Gagal menyimpan About Us.");
     } finally {
       setLoading(false);
     }
@@ -506,207 +569,378 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, blogPosts, setB
         )}
         {activeView === 'editor' && homeContent && (
           <div className="space-y-12">
-            <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-              <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
-                <Globe className="w-6 h-6 text-blue-700" />
-                Edit Website Content
-              </h2>
-              <form onSubmit={handleHomeUpdate} className="space-y-12">
-                {/* Hero Section */}
-                <div className="space-y-8">
-                  <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Hero Slides</h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                    {homeContent.hero?.map((slide: any, i: number) => (
-                      <div key={i} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                        <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Slide {i + 1}</h4>
-                        <div>
-                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Title</label>
-                          <input name={`hero${i}_title`} defaultValue={slide.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                          <textarea name={`hero${i}_desc`} defaultValue={slide.description} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
-                        </div>
-                        <ImageUpload 
-                          label="Background Image" 
-                          currentImage={slide.image} 
-                          onImageChange={(base64) => {
-                            const newHero = [...homeContent.hero];
-                            newHero[i].image = base64;
-                            setHomeContent({ ...homeContent, hero: newHero });
-                          }} 
-                        />
-                        <input type="hidden" name={`hero${i}_image`} value={slide.image} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div className="bg-white rounded-t-3xl border-x border-t border-slate-200">
+               <div className="flex">
+                  <button 
+                    onClick={() => setEditorTab('home')}
+                    className={`flex-1 px-8 py-5 font-black uppercase tracking-widest text-xs border-b-4 transition-all ${editorTab === 'home' ? 'border-blue-700 text-blue-700' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                  >
+                    Home Page
+                  </button>
+                  <button 
+                    onClick={() => setEditorTab('about')}
+                    className={`flex-1 px-8 py-5 font-black uppercase tracking-widest text-xs border-b-4 transition-all ${editorTab === 'about' ? 'border-blue-700 text-blue-700' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+                  >
+                    About Us Page
+                  </button>
+               </div>
+            </div>
 
-                {/* Innovation Section */}
-                {homeContent.innovation && (
-                  <div className="space-y-8 pt-8 border-t border-slate-100">
-                     <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Innovation Section</h3>
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-4">
+            {editorTab === 'home' && (
+              <div className="bg-white rounded-b-3xl border border-slate-200 p-8 shadow-sm">
+                <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+                  <Globe className="w-6 h-6 text-blue-700" />
+                  Edit Home Page Content
+                </h2>
+                <form onSubmit={handleHomeUpdate} className="space-y-12">
+                  {/* Hero Section */}
+                  <div className="space-y-8">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Hero Slides</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                      {homeContent.hero?.map((slide: any, i: number) => (
+                        <div key={i} className="space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                          <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Slide {i + 1}</h4>
                           <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
-                            <input name="innov_title" defaultValue={homeContent.innovation.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Title</label>
+                            <input name={`hero${i}_title`} defaultValue={slide.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
                           </div>
                           <div>
                             <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                            <textarea name="innov_desc" defaultValue={homeContent.innovation.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                            <textarea name={`hero${i}_desc`} defaultValue={slide.description} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
                           </div>
-                        </div>
-                        <div className="space-y-4">
                           <ImageUpload 
-                            label="Innovation Image" 
-                            currentImage={homeContent.innovation.image} 
-                            onImageChange={(base64) => setHomeContent({ 
-                              ...homeContent, 
-                              innovation: { ...homeContent.innovation, image: base64 } 
-                            })} 
+                            label="Background Image" 
+                            currentImage={slide.image} 
+                            onImageChange={(base64) => {
+                              const newHero = [...homeContent.hero];
+                              newHero[i].image = base64;
+                              setHomeContent({ ...homeContent, hero: newHero });
+                            }} 
                           />
-                          <input type="hidden" name="innov_image" value={homeContent.innovation.image} />
+                          <input type="hidden" name={`hero${i}_image`} value={slide.image} />
                         </div>
-                     </div>
+                      ))}
+                    </div>
                   </div>
-                )}
 
-                <div className="space-y-8 pt-8 border-t border-slate-100">
-                   <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Video Section</h3>
-                   <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
-                      <div className="flex items-center gap-4">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <input 
-                            type="checkbox" 
-                            name="video_enabled" 
-                            defaultChecked={homeContent.videoSection?.enabled} 
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                          />
-                          <span className="text-sm font-bold text-slate-700">Enable Video Section on Home</span>
-                        </label>
-                      </div>
-
+                  {/* Innovation Section */}
+                  {homeContent.innovation && (
+                    <div className="space-y-8 pt-8 border-t border-slate-100">
+                      <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Innovation Section</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
-                            <input name="video_title" defaultValue={homeContent.videoSection?.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                            <textarea name="video_desc" defaultValue={homeContent.videoSection?.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Video Source Type</label>
-                            <select 
-                              name="video_type" 
-                              value={videoSourceType} 
-                              onChange={(e) => setVideoSourceType(e.target.value)}
-                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm"
-                            >
-                              <option value="youtube">YouTube (Video ID)</option>
-                              <option value="direct">Direct Link (MP4)</option>
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
-                              {videoSourceType === 'youtube' ? 'YouTube Video ID or Link' : 'Video URL (Direct link)'}
-                            </label>
-                            <input 
-                              name={videoSourceType === 'youtube' ? 'video_id' : 'video_url'} 
-                              value={videoSourceType === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                const newContent = { ...homeContent };
-                                if (videoSourceType === 'youtube') {
-                                  newContent.videoSection.videoId = val;
-                                } else {
-                                  newContent.videoSection.url = val;
-                                }
-                                setHomeContent(newContent);
-                              }}
-                              placeholder={videoSourceType === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
-                              className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" 
-                            />
-                            <p className="text-[10px] text-slate-400 mt-2">
-                              {videoSourceType === 'youtube' ? 'Tip: You can paste the whole YouTube URL, we will extract the ID automatically.' : 'Note: Ensure the URL ends with .mp4 or similar.'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                   </div>
-                </div>
-
-                {/* Products Section */}
-                <div className="space-y-8 pt-8 border-t border-slate-100">
-                   <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Products Catalog</h3>
-                   <div className="grid grid-cols-1 gap-8">
-                    {homeContent.products?.map((prod: any, i: number) => (
-                      <div key={prod.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
-                        <div className="flex justify-between items-center">
-                           <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Product: {prod.id}</h4>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Product Name</label>
-                              <input name={`prod${i}_title`} defaultValue={prod.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
+                              <input name="innov_title" defaultValue={homeContent.innovation.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
                             </div>
                             <div>
                               <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
-                              <textarea name={`prod${i}_desc`} defaultValue={prod.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                              <textarea name="innov_desc" defaultValue={homeContent.innovation.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
                             </div>
                           </div>
                           <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Current Price</label>
-                                <input name={`prod${i}_price`} defaultValue={prod.price} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
-                              </div>
-                              <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Old Price</label>
-                                <input name={`prod${i}_oldPrice`} defaultValue={prod.oldPrice} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
-                              </div>
-                            </div>
                             <ImageUpload 
-                              label="Product Image" 
-                              currentImage={prod.image} 
-                              onImageChange={(base64) => {
-                                const newProds = [...homeContent.products];
-                                newProds[i].image = base64;
-                                setHomeContent({ ...homeContent, products: newProds });
-                              }}
+                              label="Innovation Image" 
+                              currentImage={homeContent.innovation.image} 
+                              onImageChange={(base64) => setHomeContent({ 
+                                ...homeContent, 
+                                innovation: { ...homeContent.innovation, image: base64 } 
+                              })} 
                             />
-                            <input type="hidden" name={`prod${i}_image`} value={prod.image} />
+                            <input type="hidden" name="innov_image" value={homeContent.innovation.image} />
                           </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Video Section</h3>
+                    <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
+                        <div className="flex items-center gap-4">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              name="video_enabled" 
+                              defaultChecked={homeContent.videoSection?.enabled} 
+                              className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            />
+                            <span className="text-sm font-bold text-slate-700">Enable Video Section on Home</span>
+                          </label>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                           <div className="space-y-4">
                             <div>
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Tokopedia Link</label>
-                              <input name={`prod${i}_tokopedia`} defaultValue={prod.tokopedia} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Title</label>
+                              <input name="video_title" defaultValue={homeContent.videoSection?.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
                             </div>
                             <div>
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Shopee Link</label>
-                              <input name={`prod${i}_shopee`} defaultValue={prod.shopee} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                              <textarea name="video_desc" defaultValue={homeContent.videoSection?.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Video Source Type</label>
+                              <select 
+                                name="video_type" 
+                                value={videoSourceType} 
+                                onChange={(e) => setVideoSourceType(e.target.value)}
+                                className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm"
+                              >
+                                <option value="youtube">YouTube (Video ID)</option>
+                                <option value="direct">Direct Link (MP4)</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">
+                                {videoSourceType === 'youtube' ? 'YouTube Video ID or Link' : 'Video URL (Direct link)'}
+                              </label>
+                              <input 
+                                name={videoSourceType === 'youtube' ? 'video_id' : 'video_url'} 
+                                defaultValue={videoSourceType === 'youtube' ? homeContent.videoSection?.videoId : homeContent.videoSection?.url} 
+                                placeholder={videoSourceType === 'youtube' ? "Paste YouTube link or ID..." : "https://example.com/video.mp4"}
+                                className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none" 
+                              />
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                   </div>
-                </div>
+                    </div>
+                  </div>
 
-                <div className="sticky bottom-0 pt-8 pb-4 bg-white/80 backdrop-blur-md">
-                  <button type="submit" className="w-full lg:w-auto bg-blue-700 text-white px-12 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-blue-700/20">
-                    Publish Changes to Live Site
-                  </button>
-                </div>
-              </form>
-            </div>
+                  {/* Products Section */}
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Products Catalog</h3>
+                    <div className="grid grid-cols-1 gap-8">
+                      {homeContent.products?.map((prod: any, i: number) => (
+                        <div key={prod.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Product: {prod.id}</h4>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Product Name</label>
+                                <input name={`prod${i}_title`} defaultValue={prod.title} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                                <textarea name={`prod${i}_desc`} defaultValue={prod.desc} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                              </div>
+                            </div>
+                            <div className="space-y-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Current Price</label>
+                                  <input name={`prod${i}_price`} defaultValue={prod.price} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                                </div>
+                                <div>
+                                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Old Price</label>
+                                  <input name={`prod${i}_oldPrice`} defaultValue={prod.oldPrice} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                                </div>
+                              </div>
+                              <ImageUpload 
+                                label="Product Image" 
+                                currentImage={prod.image} 
+                                onImageChange={(base64) => {
+                                  const newProds = [...homeContent.products];
+                                  newProds[i].image = base64;
+                                  setHomeContent({ ...homeContent, products: newProds });
+                                }}
+                              />
+                              <input type="hidden" name={`prod${i}_image`} value={prod.image} />
+                            </div>
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Tokopedia Link</label>
+                                <input name={`prod${i}_tokopedia`} defaultValue={prod.tokopedia} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Shopee Link</label>
+                                <input name={`prod${i}_shopee`} defaultValue={prod.shopee} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs font-mono" />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
+                  <div className="sticky bottom-0 pt-8 pb-4 bg-white/80 backdrop-blur-md">
+                    <button type="submit" disabled={loading} className="w-full lg:w-auto bg-blue-700 text-white px-12 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-blue-700/20 disabled:opacity-50">
+                      {loading ? 'Processing...' : 'Publish Home Changes'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {editorTab === 'about' && aboutContent && (
+              <div className="bg-white rounded-b-3xl border border-slate-200 p-8 shadow-sm">
+                <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+                  <User className="w-6 h-6 text-blue-700" />
+                  Edit About Us Page
+                </h2>
+                <form onSubmit={handleAboutUpdate} className="space-y-12">
+                  {/* Hero About */}
+                  <div className="space-y-8">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Hero Section</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Badge</label>
+                              <input name="about_hero_badge" defaultValue={aboutContent.hero.badge} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">BG Watermark</label>
+                              <input name="about_hero_bgText" defaultValue={aboutContent.hero.bgText} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Title</label>
+                            <input name="about_hero_title" defaultValue={aboutContent.hero.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                            <textarea name="about_hero_desc" defaultValue={aboutContent.hero.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                          </div>
+                       </div>
+                       <div className="space-y-4">
+                          <ImageUpload 
+                            label="Hero Background Image (Optional)" 
+                            currentImage={aboutContent.hero.image} 
+                            onImageChange={(base64) => setAboutContent({ 
+                              ...aboutContent, 
+                              hero: { ...aboutContent.hero, image: base64 } 
+                            })} 
+                          />
+                          <input type="hidden" name="about_hero_image" value={aboutContent.hero.image} />
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* History Section */}
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Company History</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Section Badge</label>
+                            <input name="about_history_badge" defaultValue={aboutContent.history.badge} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Main Title</label>
+                            <input name="about_history_title" defaultValue={aboutContent.history.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">History Content</label>
+                            <textarea name="about_history_content" defaultValue={aboutContent.history.content} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-64" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                               <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Years Experience</label>
+                               <input name="about_history_exp" defaultValue={aboutContent.history.experience} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                            <div>
+                               <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Youtube Video ID</label>
+                               <input name="about_history_video" defaultValue={aboutContent.history.video} placeholder="e.g. lKWVH6hLHNE" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                          </div>
+                       </div>
+                       <div className="space-y-4">
+                          <ImageUpload 
+                            label="History Sidebar Image" 
+                            currentImage={aboutContent.history.image} 
+                            onImageChange={(base64) => setAboutContent({ 
+                              ...aboutContent, 
+                              history: { ...aboutContent.history, image: base64 } 
+                            })} 
+                          />
+                          <input type="hidden" name="about_history_image" value={aboutContent.history.image} />
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* Vision & Mission */}
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Vision & Mission</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                       <div className="space-y-6">
+                         <h4 className="font-black text-blue-700 text-xs">VISI EDITOR</h4>
+                         <input name="about_vision_title" defaultValue={aboutContent.visionMission.vision.title} placeholder="Vision Title" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold" />
+                         <textarea name="about_vision_desc" defaultValue={aboutContent.visionMission.vision.desc} placeholder="Vision Description" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                         <ImageUpload 
+                            label="Vision Background" 
+                            currentImage={aboutContent.visionMission.vision.image} 
+                            onImageChange={(base64) => setAboutContent({ 
+                              ...aboutContent, 
+                              visionMission: { ...aboutContent.visionMission, vision: { ...aboutContent.visionMission.vision, image: base64 } } 
+                            })} 
+                          />
+                          <input type="hidden" name="about_vision_image" value={aboutContent.visionMission.vision.image} />
+                       </div>
+                       <div className="space-y-6">
+                         <h4 className="font-black text-blue-700 text-xs">MISI EDITOR</h4>
+                         <input name="about_mission_title" defaultValue={aboutContent.visionMission.mission.title} placeholder="Mission Title" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold" />
+                         <input name="about_mission_quote" defaultValue={aboutContent.visionMission.mission.quote} placeholder="Mission Quote" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm italic" />
+                         <textarea name="about_mission_desc" defaultValue={aboutContent.visionMission.mission.desc} placeholder="Mission Description" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-32" />
+                         <ImageUpload 
+                            label="Mission Background" 
+                            currentImage={aboutContent.visionMission.mission.image} 
+                            onImageChange={(base64) => setAboutContent({ 
+                              ...aboutContent, 
+                              visionMission: { ...aboutContent.visionMission, mission: { ...aboutContent.visionMission.mission, image: base64 } } 
+                            })} 
+                          />
+                          <input type="hidden" name="about_mission_image" value={aboutContent.visionMission.mission.image} />
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Banner */}
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">CTA Banner</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       <div className="space-y-4">
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Banner Title</label>
+                            <input name="about_banner_title" defaultValue={aboutContent.banner.title} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Description</label>
+                            <textarea name="about_banner_desc" defaultValue={aboutContent.banner.desc} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm h-24" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Button Text</label>
+                            <input name="about_banner_cta" defaultValue={aboutContent.banner.cta} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                          </div>
+                       </div>
+                       <div className="space-y-4">
+                          <ImageUpload 
+                            label="Banner Background" 
+                            currentImage={aboutContent.banner.image} 
+                            onImageChange={(base64) => setAboutContent({ 
+                              ...aboutContent, 
+                              banner: { ...aboutContent.banner, image: base64 } 
+                            })} 
+                          />
+                          <input type="hidden" name="about_banner_image" value={aboutContent.banner.image} />
+                       </div>
+                    </div>
+                  </div>
+
+                  <div className="sticky bottom-0 pt-8 pb-4 bg-white/80 backdrop-blur-md">
+                    <button type="submit" disabled={loading} className="w-full lg:w-auto bg-blue-700 text-white px-12 py-5 rounded-2xl font-black text-lg hover:shadow-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-blue-700/20 disabled:opacity-50">
+                      {loading ? 'Processing...' : 'Publish About Page Changes'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Knowledge Hub / Blog - Always visible under the tabs in Editor view */}
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-black flex items-center gap-3">
@@ -892,9 +1126,11 @@ CREATE TABLE blog_posts (
   );
 };
 
-export default function AdminPage({ homeContent, setHomeContent, blogPosts, setBlogPosts }: {
+export default function AdminPage({ homeContent, setHomeContent, aboutContent, setAboutContent, blogPosts, setBlogPosts }: {
   homeContent: any,
   setHomeContent: any,
+  aboutContent: any,
+  setAboutContent: any,
   blogPosts: any[],
   setBlogPosts: any
 }) {
@@ -921,6 +1157,8 @@ export default function AdminPage({ homeContent, setHomeContent, blogPosts, setB
       }}
       homeContent={homeContent} 
       setHomeContent={setHomeContent} 
+      aboutContent={aboutContent}
+      setAboutContent={setAboutContent}
       blogPosts={blogPosts}
       setBlogPosts={setBlogPosts}
     />
