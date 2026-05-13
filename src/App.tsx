@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Outlet, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Menu, X, User, ChevronRight, ChevronLeft, 
   Bolt, Timer, TrendingUp, Verified, CheckCircle, ArrowRight, Star,
-  Search, Globe, Phone, Mail, Play
+  Search, Globe, Mail, Play, MessageCircle, Instagram, Video,
+  Music
 } from 'lucide-react';
 import { logVisitor, loadSiteContent, loadBlogPosts } from './lib/supabase';
 import AdminPage from './pages/Admin';
@@ -75,9 +76,12 @@ const Navbar = () => {
       <div className="flex justify-between items-center h-full px-8 max-w-7xl mx-auto">
         <Link 
           to="/"
-          className="text-xl font-black tracking-tighter text-blue-700 cursor-pointer"
+          className="flex items-center gap-3 group"
         >
-          Duraphalte Fixit
+          <DMKLogo className="w-10 h-10 group-hover:scale-110 transition-transform" />
+          <span className="text-xl font-black tracking-tighter text-blue-700">
+            Duraphalte Fixit
+          </span>
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
@@ -93,7 +97,17 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-6">
-          <button className="bg-[#004497] text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block">
+          <button 
+            onClick={() => {
+              const element = document.getElementById('quote-section');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                navigate('/#quote-section');
+              }
+            }}
+            className="bg-[#004497] text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block"
+          >
             Get Quote
           </button>
           <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -122,7 +136,18 @@ const Navbar = () => {
                 </Link>
               ))}
               <hr className="border-slate-100" />
-              <button className="bg-[#004497] text-white px-6 py-3 font-semibold rounded-lg text-center">
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  const element = document.getElementById('quote-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    navigate('/#quote-section');
+                  }
+                }}
+                className="bg-[#004497] text-white px-6 py-3 font-semibold rounded-lg text-center"
+              >
                 Get Quote
               </button>
             </div>
@@ -135,7 +160,7 @@ const Navbar = () => {
 
 const Footer = () => {
   return (
-    <footer className="w-full pt-20 pb-10 bg-slate-900 text-slate-400 text-sm">
+    <footer id="contact" className="w-full pt-20 pb-10 bg-slate-900 text-slate-400 text-sm">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-7xl mx-auto">
         <div>
           <div className="text-2xl font-black text-white mb-6">Duraphalte Fixit</div>
@@ -143,9 +168,21 @@ const Footer = () => {
             Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi.
           </p>
           <div className="flex gap-4">
-            <Globe className="w-5 h-5 cursor-pointer hover:text-blue-400 transition-colors" />
-            <Mail className="w-5 h-5 cursor-pointer hover:text-blue-400 transition-colors" />
-            <Phone className="w-5 h-5 cursor-pointer hover:text-blue-400 transition-colors" />
+            <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white hover:bg-blue-600 transition-all hover:scale-110 shadow-lg shadow-black/20" title="Website">
+              <Globe className="w-5 h-5" />
+            </a>
+            <a href="mailto:ask@dmkgroup.co.id" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white hover:bg-red-600 transition-all hover:scale-110 shadow-lg shadow-black/20" title="Email">
+              <Mail className="w-5 h-5" />
+            </a>
+            <a href="https://wa.me/628113016262" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center text-white hover:bg-[#128C7E] transition-all hover:scale-110 shadow-lg shadow-[#25D366]/20" title="WhatsApp">
+              <MessageCircle className="w-6 h-6" />
+            </a>
+            <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center text-white hover:opacity-90 transition-all hover:scale-110 shadow-lg shadow-[#DD2A7B]/20" title="Instagram">
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white hover:bg-slate-900 transition-all hover:scale-110 shadow-lg shadow-black/40" title="TikTok">
+              <Music className="w-5 h-5" />
+            </a>
           </div>
         </div>
         <div>
@@ -168,8 +205,8 @@ const Footer = () => {
         <div>
           <h4 className="text-white font-bold mb-6">Legal</h4>
           <ul className="space-y-4">
-            <li><button className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Privacy Policy</button></li>
-            <li><button className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Terms of Service</button></li>
+            <li><button onClick={() => alert('Privacy Policy coming soon')} className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Privacy Policy</button></li>
+            <li><button onClick={() => alert('Terms of Service coming soon')} className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Terms of Service</button></li>
           </ul>
         </div>
       </div>
@@ -187,6 +224,7 @@ const Footer = () => {
 // --- Pages ---
 
 const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () => void }) => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -260,7 +298,10 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             >
               Beli Sekarang
             </button>
-            <button className="border-2 border-[#141d23] text-[#141d23] px-8 py-4 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95">
+            <button 
+              onClick={() => navigate('/products')}
+              className="border-2 border-[#141d23] text-[#141d23] px-8 py-4 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95"
+            >
               Pelajari Produk
             </button>
           </motion.div>
@@ -443,14 +484,17 @@ const HomePage = ({ content }: { content: any }) => {
                 </li>
               ))}
             </ul>
-            <button className="bg-[#141d23] text-white px-8 py-4 font-bold rounded-xl hover:shadow-xl transition-all active:scale-95">
+            <button 
+              onClick={() => navigate('/about')}
+              className="bg-[#141d23] text-white px-8 py-4 font-bold rounded-xl hover:shadow-xl transition-all active:scale-95"
+            >
               Tentang Perusahaan
             </button>
           </div>
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 bg-blue-700 px-4 sm:px-8 text-white relative overflow-hidden">
+      <section id="quote-section" className="py-16 lg:py-24 bg-blue-700 px-4 sm:px-8 text-white relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-3xl lg:text-5xl font-extrabold mb-6">Butuh Penawaran untuk Proyek Skala Besar?</h2>
           <p className="text-lg lg:text-xl mb-12 text-blue-100">Kami menyediakan harga khusus wholesale untuk kontraktor, instansi pemerintah, dan pengelola kawasan industri.</p>
@@ -476,7 +520,7 @@ const HomePage = ({ content }: { content: any }) => {
                   `Terima kasih.`
                 );
 
-                window.location.href = `mailto:hansen@dmkgroup.co.id?subject=${subject}&body=${body}`;
+                window.location.href = `mailto:ask@dmkgroup.co.id?subject=${subject}&body=${body}`;
               }}
             >
               <input name="name" required className="bg-white text-slate-900 px-6 py-4 rounded-xl focus:ring-2 focus:ring-white outline-none w-full" placeholder="Nama Lengkap" />
@@ -595,7 +639,14 @@ const BlogPage = ({ posts }: { posts: any[] }) => {
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-16">
           {posts.map((post) => (
-            <article key={post.id} className="group cursor-pointer">
+            <article 
+              key={post.id} 
+              className="group cursor-pointer"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                alert(`Membuka artikel: ${post.title}\n(Halaman detail sedang dalam pengembangan)`);
+              }}
+            >
               <div className="aspect-[21/9] rounded-3xl overflow-hidden mb-8 shadow-sm">
                 <img src={post.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="News" />
               </div>
@@ -641,6 +692,20 @@ const BlogPage = ({ posts }: { posts: any[] }) => {
   );
 };
 
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant'
+    });
+  }, [pathname]);
+
+  return null;
+};
 
 // --- App ---
 
@@ -853,6 +918,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/admin" element={
           <AdminPage 

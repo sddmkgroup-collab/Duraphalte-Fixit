@@ -1,8 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Target, Eye, Award, CheckCircle2, ArrowRight, ShieldCheck, Globe2, Users } from 'lucide-react';
 
 const AboutPage = ({ content }: { content: any }) => {
+  const navigate = useNavigate();
+
+  const handleContactClick = () => {
+    const element = document.getElementById('quote-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/#quote-section');
+    }
+  };
+
   return (
     <div className="bg-white">
       {/* Hero Section */}
@@ -158,7 +170,10 @@ const AboutPage = ({ content }: { content: any }) => {
                 {content.banner.desc}
               </p>
             </div>
-            <button className="relative z-10 bg-white text-blue-700 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-slate-50 transition-all flex items-center gap-3 group">
+            <button 
+              onClick={handleContactClick}
+              className="relative z-10 bg-white text-blue-700 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-slate-50 transition-all flex items-center gap-3 group"
+            >
               {content.banner.cta}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
