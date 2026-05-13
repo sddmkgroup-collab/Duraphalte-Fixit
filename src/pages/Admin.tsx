@@ -6,7 +6,8 @@ import {
   Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight
 } from 'lucide-react';
 import { 
-  supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured 
+  supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
+  supabaseUrl, supabaseAnonKey
 } from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
@@ -1136,6 +1137,16 @@ CREATE TABLE blog_posts (
   category TEXT,
   date TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE visitor_logs (
+  id BIGSERIAL PRIMARY KEY,
+  page_path TEXT,
+  referrer TEXT,
+  user_agent TEXT,
+  screen_width INTEGER,
+  language TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );`}
                       </pre>
                     </div>
@@ -1144,6 +1155,33 @@ CREATE TABLE blog_posts (
                 {dbStatus === 'connected' && (
                   <p className="text-xs text-green-600">Everything is synced. Your changes are visible to all users across all browsers.</p>
                 )}
+              </div>
+
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h3 className="font-bold mb-4">Database Diagnostic (Supabase)</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Project Region</span>
+                    <span className="font-bold text-slate-700">ap-southeast-2 (Sydney)</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">URL Configured</span>
+                    <span className={`font-bold ${supabaseUrl ? 'text-green-600' : 'text-red-500'}`}>
+                      {supabaseUrl ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Anon Key Configured</span>
+                    <span className={`font-bold ${supabaseAnonKey ? 'text-green-600' : 'text-red-500'}`}>
+                      {supabaseAnonKey ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  {supabaseUrl && (
+                    <div className="pt-2">
+                       <p className="text-[10px] text-slate-400 truncate">Target: {supabaseUrl}</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
