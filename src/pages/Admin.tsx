@@ -224,16 +224,6 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
         desc: formData.get('innov_desc') as string,
         image: formData.get('innov_image') as string
       },
-      products: homeContent.products.map((prod: any, i: number) => ({
-        ...prod,
-        title: formData.get(`prod${i}_title`) as string,
-        desc: formData.get(`prod${i}_desc`) as string,
-        price: formData.get(`prod${i}_price`) as string,
-        oldPrice: formData.get(`prod${i}_oldPrice`) as string,
-        image: formData.get(`prod${i}_image`) as string,
-        tokopedia: formData.get(`prod${i}_tokopedia`) as string,
-        shopee: formData.get(`prod${i}_shopee`) as string,
-      })),
       videoSection: {
         ...homeContent.videoSection,
         enabled: formData.get('video_enabled') === 'on',
@@ -242,7 +232,25 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
         videoId: currentVideoType === 'youtube' ? extractYoutubeId(rawVideoId) : rawVideoId,
         url: formData.get('video_url') as string,
         type: currentVideoType,
-      }
+      },
+      products: homeContent.products.map((prod: any, i: number) => {
+        const productImages: string[] = [];
+        for (let j = 0; j < 4; j++) {
+          const imgVal = formData.get(`prod${i}_image_${j}`) as string;
+          if (imgVal) productImages.push(imgVal);
+        }
+        return {
+          ...prod,
+          title: formData.get(`prod${i}_title`) as string,
+          desc: formData.get(`prod${i}_desc`) as string,
+          price: formData.get(`prod${i}_price`) as string,
+          oldPrice: formData.get(`prod${i}_oldPrice`) as string,
+          tokopedia: formData.get(`prod${i}_tokopedia`) as string,
+          shopee: formData.get(`prod${i}_shopee`) as string,
+          image: productImages[0] || prod.image, // Fallback
+          images: productImages.length > 0 ? productImages : [prod.image]
+        };
+      })
     };
 
     try {
@@ -740,16 +748,57 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                                   <input name={`prod${i}_oldPrice`} defaultValue={prod.oldPrice} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
                                 </div>
                               </div>
-                              <ImageUpload 
-                                label="Product Image" 
-                                currentImage={prod.image} 
-                                onImageChange={(base64) => {
-                                  const newProds = [...homeContent.products];
-                                  newProds[i].image = base64;
-                                  setHomeContent({ ...homeContent, products: newProds });
-                                }}
-                              />
-                              <input type="hidden" name={`prod${i}_image`} value={prod.image} />
+                              <div className="space-y-4">
+                                <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Product Images (Max 4)</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                  {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
+                                    <div key={j} className="relative group">
+                                      <ImageUpload 
+                                        label={`Gambar ${j + 1}`} 
+                                        currentImage={img} 
+                                        onImageChange={(base64) => {
+                                          const newProds = [...homeContent.products];
+                                          if (!newProds[i].images) newProds[i].images = [newProds[i].image];
+                                          newProds[i].images[j] = base64;
+                                          if (j === 0) newProds[i].image = base64;
+                                          setHomeContent({ ...homeContent, products: newProds });
+                                        }}
+                                      />
+                                      <input type="hidden" name={`prod${i}_image_${j}`} value={img} />
+                                      {(prod.images && prod.images.length > 1) && (
+                                        <button 
+                                          type="button"
+                                          onClick={() => {
+                                            const newProds = [...homeContent.products];
+                                            const filteredImages = (newProds[i].images || [newProds[i].image]).filter((_: any, idx: number) => idx !== j);
+                                            newProds[i].images = filteredImages;
+                                            newProds[i].image = filteredImages[0] || '';
+                                            setHomeContent({ ...homeContent, products: newProds });
+                                          }}
+                                          className="absolute -top-1 -right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                                        >
+                                          <Trash2 size={10} />
+                                        </button>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {( (prod.images?.length || 1) < 4 ) && (
+                                    <button 
+                                      type="button"
+                                      onClick={() => {
+                                        const newProds = [...homeContent.products];
+                                        if (!newProds[i].images) newProds[i].images = [newProds[i].image];
+                                        newProds[i].images.push('');
+                                        setHomeContent({ ...homeContent, products: newProds });
+                                      }}
+                                      className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl hover:bg-white hover:border-blue-400 transition-all text-slate-400 hover:text-blue-500 h-[100px]"
+                                    >
+                                      <Plus size={20} />
+                                      <span className="text-[9px] font-black mt-1 uppercase">Tambah</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                             <div className="space-y-4">
                               <div>

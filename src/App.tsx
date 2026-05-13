@@ -440,7 +440,7 @@ const HomePage = ({ content }: { content: any }) => {
             {content.products.map((prod: any) => (
               <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                 <div className="aspect-video overflow-hidden">
-                  <img src={prod.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={prod.title} />
+                  <img src={prod.images && prod.images.length > 0 ? prod.images[0] : prod.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={prod.title} />
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-center mb-4">
@@ -548,15 +548,15 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
         <div className="lg:sticky lg:top-32">
           <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm aspect-square flex items-center justify-center p-6 lg:p-12 group cursor-zoom-in">
             <img 
-              src={product.image} 
+              src={product.images && product.images.length > 0 ? product.images[0] : product.image} 
               className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
               alt={product.title} 
             />
           </div>
           <div className="grid grid-cols-4 gap-4 mt-6">
-            {[1,2,3,4].map(i => (
+            {(product.images && product.images.length > 0 ? product.images : [product.image]).map((img: string, i: number) => (
               <div key={i} className="bg-white border border-slate-200 rounded-xl p-2 aspect-square opacity-60 hover:opacity-100 transition-all cursor-pointer">
-                <img src={product.image} className="w-full h-full object-cover rounded-lg" alt="Thumbnail" />
+                <img src={img} className="w-full h-full object-cover rounded-lg" alt="Thumbnail" />
               </div>
             ))}
           </div>
@@ -754,6 +754,7 @@ export default function App() {
         oldPrice: "215.000",
         discount: "15%",
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC9FFAVbnNi4bM_qFtIA9bwgVNVQ68EfH29_PU1DUS6oX1f6vuaDXZL2xisgd4oepFYeGVF5vI3A9Pa2pRvJM19XfW6k-hb3Oaen1OjXrnZZCKKt-TC_LyR9BKpQYofhbkYyyAQPI_0t5Mr1WVWSvpfUAcAkFC-Tu4ZZ5ra4WPuohLGZHj0YcZpHTchqzsM5EXP8ItbfJoQcQ7hXgBLUsWOxJhlZVL-rHnyu-_LfnDbN054gCjq6vFC0rIXzBgnYYYq5-Y7kkhUlSFn",
+        images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuC9FFAVbnNi4bM_qFtIA9bwgVNVQ68EfH29_PU1DUS6oX1f6vuaDXZL2xisgd4oepFYeGVF5vI3A9Pa2pRvJM19XfW6k-hb3Oaen1OjXrnZZCKKt-TC_LyR9BKpQYofhbkYyyAQPI_0t5Mr1WVWSvpfUAcAkFC-Tu4ZZ5ra4WPuohLGZHj0YcZpHTchqzsM5EXP8ItbfJoQcQ7hXgBLUsWOxJhlZVL-rHnyu-_LfnDbN054gCjq6vFC0rIXzBgnYYYq5-Y7kkhUlSFn"],
         desc: "Premium Instant Cold Mix Asphalt for heavy-duty road repairs. Diformulasikan khusus untuk iklim tropis Indonesia, memberikan ikatan permanen seketika tanpa perlu pemanasan.",
         tokopedia: "https://tokopedia.com",
         shopee: "https://shopee.co.id"
@@ -766,6 +767,7 @@ export default function App() {
         oldPrice: "55.000",
         discount: "18%",
         image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAtnzJvZletIdbJFNjv_yE1cPMNu1CaqUpZvPQY_yB-6TL_zBOcZYsWYfZDrM5v9CPIZ7MQydDBh62j-I0QhuysPlOAgxNs_r3krnCUBi137GeQCdQgvF0bKcjbnHtF10prfQMG4o2mLOcK16tIslMchcd2UZx5SrzmU9Y3qePZkUJHIb-w-ubfbkkRRoBqzxSuaoQxKKJb6QShmc3Gj42o0M_aY193p4GwbwCndS_ynVwutL-PVmqkVVjT-Ev8MRUcYVjMBoybh5bc",
+        images: ["https://lh3.googleusercontent.com/aida-public/AB6AXuAtnzJvZletIdbJFNjv_yE1cPMNu1CaqUpZvPQY_yB-6TL_zBOcZYsWYfZDrM5v9CPIZ7MQydDBh62j-I0QhuysPlOAgxNs_r3krnCUBi137GeQCdQgvF0bKcjbnHtF10prfQMG4o2mLOcK16tIslMchcd2UZx5SrzmU9Y3qePZkUJHIb-w-ubfbkkRRoBqzxSuaoQxKKJb6QShmc3Gj42o0M_aY193p4GwbwCndS_ynVwutL-PVmqkVVjT-Ev8MRUcYVjMBoybh5bc"],
         desc: "Sempurna untuk perbaikan retakan kecil atau pemeliharaan area perumahan. Kemasan praktis untuk kebutuhan rumah tangga.",
         tokopedia: "https://tokopedia.com",
         shopee: "https://shopee.co.id"
@@ -964,7 +966,7 @@ const ProductsPage = ({ products }: { products: any[] }) => {
           {products.map((prod: any) => (
             <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all cursor-pointer" onClick={() => navigate(`/product/${prod.id}`)}>
               <div className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8">
-                <img src={prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
+                <img src={prod.images && prod.images.length > 0 ? prod.images[0] : prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
               </div>
               <div className="p-8 space-y-4">
                 <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
