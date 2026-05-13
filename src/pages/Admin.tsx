@@ -12,14 +12,28 @@ import {
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
 
-const ImageUpload = ({ label, currentImage, onImageChange }: { label: string, currentImage: string, onImageChange: (base64: string) => void }) => {
+const ImageUpload = ({ label, currentImage, onImageChange, extraValidation }: { 
+  label: string, 
+  currentImage: string, 
+  onImageChange: (base64: string) => void,
+  extraValidation?: (file: File) => string | null
+}) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        alert("File too large. Please select an image under 2MB.");
+        alert("File too large. Single image must be under 2MB.");
         return;
       }
+
+      if (extraValidation) {
+        const error = extraValidation(file);
+        if (error) {
+          alert(error);
+          return;
+        }
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         onImageChange(reader.result as string);
@@ -763,13 +777,26 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                             </div>
 
                             <div className="bg-white/50 p-6 rounded-2xl border border-slate-200/50 space-y-4">
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4)</label>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4 Images, Total 2MB)</label>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
                                   <div key={j} className="relative group">
                                     <ImageUpload 
                                       label={`Image ${j + 1}`} 
                                       currentImage={img} 
+                                      extraValidation={(file) => {
+                                        const currentImages = prod.images || [prod.image];
+                                        const gallerySizeExcludingCurrent = currentImages.reduce((sum: number, imgStr: string, idx: number) => {
+                                          if (idx === j || !imgStr || !imgStr.startsWith('data:')) return sum;
+                                          return sum + (imgStr.length * 0.75);
+                                        }, 0);
+                                        
+                                        const totalProjectedSize = gallerySizeExcludingCurrent + file.size;
+                                        if (totalProjectedSize > 2 * 1024 * 1024) {
+                                          return `Total gallery size for this product reaches ${(totalProjectedSize / (1024 * 1024)).toFixed(2)}MB (Limit: 2MB). Please optimize your images.`;
+                                        }
+                                        return null;
+                                      }}
                                       onImageChange={(base64) => {
                                         const newProds = [...homeContent.products];
                                         if (!newProds[i].images) newProds[i].images = [newProds[i].image];
@@ -1224,25 +1251,50 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
   setBlogPosts: any
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('admin_session') === 'active';
+    // Priority check: session storage for more secure ephemeral sessions
+    const session = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
+    return session === 'active';
   });
+
+  // Verify session integrity on mount and focus
+  useEffect(() => {
+    const checkSession = () => {
+      const session = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
+      if (session !== 'active' && isLoggedIn) {
+        setIsLoggedIn(false);
+      }
+    };
+
+    window.addEventListener('focus', checkSession);
+    return () => window.removeEventListener('focus', checkSession);
+  }, [isLoggedIn]);
 
   if (!isLoggedIn) {
     return <AdminLogin onLogin={() => {
       setIsLoggedIn(true);
+      // Store in both for flexible persistence but emphasize ephemeral
+      sessionStorage.setItem('admin_session', 'active');
       localStorage.setItem('admin_session', 'active');
+      // Use replace to prevent "back" into login screen
+      window.history.replaceState(null, '', '/admin');
     }} />;
   }
 
+  const handleSecureLogout = () => {
+    setIsLoggedIn(false);
+    sessionStorage.removeItem('admin_session');
+    localStorage.removeItem('admin_session');
+    
+    // Crucial: Use replace to overwrite history entry for /admin
+    // This prevents the back button from returning here
+    window.location.replace('/');
+  };
+
   return (
     <AdminDashboard 
-      onLogout={() => {
-        setIsLoggedIn(false);
-        localStorage.removeItem('admin_session');
-        window.location.href = '/';
-      }}
+      onLogout={handleSecureLogout}
       onExit={() => {
-        window.location.href = '/';
+        window.location.replace('/');
       }}
       homeContent={homeContent} 
       setHomeContent={setHomeContent} 
