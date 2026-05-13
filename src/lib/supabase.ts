@@ -61,14 +61,11 @@ export const loadBlogPosts = async () => {
 export const saveBlogPosts = async (posts: any[]) => {
   if (!supabaseUrl || !supabaseAnonKey) return;
   try {
-    // For simplicity, we'll sync the whole array by deleting and re-inserting or using upsert
-    // But since IDs might change or posts might be deleted, a full sync is easier for this context
-    // In a real app, you'd manage individual rows.
-    for (const post of posts) {
-      await supabase.from('blog_posts').upsert(post);
-    }
+    const { error } = await supabase.from('blog_posts').upsert(posts);
+    if (error) throw error;
   } catch (err) {
     console.error('Failed to save blog posts:', err);
+    throw err;
   }
 };
 

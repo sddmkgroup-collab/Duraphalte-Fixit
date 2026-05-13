@@ -14,6 +14,43 @@ type Page = 'home' | 'products' | 'product-detail' | 'blog';
 
 // --- Components ---
 
+const DMKLogo = ({ className = "w-20 h-20" }: { className?: string }) => {
+  return (
+    <div className={`relative ${className}`}>
+      {/* Top Left */}
+      <motion.div 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }} 
+        transition={{ duration: 2, repeat: Infinity, delay: 0.2, ease: "easeInOut" }}
+        className="absolute top-[5%] left-[5%] w-[35%] h-[35%] bg-blue-600 rounded-lg shadow-lg shadow-blue-600/20" 
+      />
+      {/* Top Right (Large) */}
+      <motion.div 
+        animate={{ scale: [1, 1.05, 1], opacity: [0.9, 1, 0.9] }} 
+        transition={{ duration: 2, repeat: Infinity, delay: 0.4, ease: "easeInOut" }}
+        className="absolute top-0 right-0 w-[50%] h-[50%] bg-blue-600 rounded-xl shadow-xl shadow-blue-600/30" 
+      />
+      {/* Center (Small) */}
+      <motion.div 
+        animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }} 
+        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[25%] h-[25%] bg-blue-700 rounded-md z-10 ring-4 ring-white" 
+      />
+      {/* Bottom Left */}
+      <motion.div 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }} 
+        transition={{ duration: 2, repeat: Infinity, delay: 0.6, ease: "easeInOut" }}
+        className="absolute bottom-[5%] left-[10%] w-[40%] h-[40%] bg-blue-600 rounded-lg shadow-lg shadow-blue-600/20" 
+      />
+      {/* Bottom Right */}
+      <motion.div 
+        animate={{ scale: [1, 1.1, 1], opacity: [0.9, 1, 0.9] }} 
+        transition={{ duration: 2, repeat: Infinity, delay: 0.8, ease: "easeInOut" }}
+        className="absolute bottom-0 right-[5%] w-[45%] h-[45%] bg-blue-600 rounded-lg shadow-lg shadow-blue-600/20" 
+      />
+    </div>
+  );
+};
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -745,10 +782,20 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
-          <p className="font-bold text-slate-400 uppercase tracking-widest text-xs">Syncing Industrial Data...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-12">
+          <DMKLogo className="w-24 h-24" />
+          <div className="flex flex-col items-center gap-3">
+            <h2 className="text-2xl font-black text-slate-800 tracking-tighter">DMK GROUP</h2>
+            <div className="flex items-center gap-3">
+              <div className="flex gap-1">
+                <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+                <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+                <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+              </div>
+              <p className="font-black text-slate-400 uppercase tracking-[0.4em] text-[10px]">Syncing Data</p>
+            </div>
+          </div>
         </div>
       </div>
     );
