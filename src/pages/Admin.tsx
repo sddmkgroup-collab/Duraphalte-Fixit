@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { 
   supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
-  supabaseUrl, supabaseAnonKey
+  supabaseUrl, supabaseAnonKey, uploadImage
 } from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
@@ -15,10 +15,12 @@ type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
 const ImageUpload = ({ label, currentImage, onImageChange, extraValidation }: { 
   label: string, 
   currentImage: string, 
-  onImageChange: (base64: string) => void,
+  onImageChange: (url: string) => void,
   extraValidation?: (file: File) => string | null
 }) => {
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
@@ -34,27 +36,55 @@ const ImageUpload = ({ label, currentImage, onImageChange, extraValidation }: {
         }
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onImageChange(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setUploading(true);
+      try {
+        const publicUrl = await uploadImage(file);
+        if (publicUrl) {
+          onImageChange(publicUrl);
+        } else {
+          alert("Failed to upload image. Please try again.");
+        }
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
   return (
     <div className="space-y-2">
-      <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">{label}</label>
+      <div className="flex items-center justify-between">
+        <label className="block text-[10px] font-black uppercase text-slate-400">{label}</label>
+        {uploading && (
+          <motion.span 
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+            className="text-[9px] font-bold text-blue-600 uppercase"
+          >
+            Uploading...
+          </motion.span>
+        )}
+      </div>
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
-          <img src={currentImage} className="w-full h-full object-cover" alt="Preview" />
+        <div className="w-12 h-12 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0 relative">
+          {currentImage ? (
+            <img src={currentImage} className="w-full h-full object-cover" alt="Preview" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-slate-100 italic text-[10px] text-slate-400">No img</div>
+          )}
+          {uploading && (
+            <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
         </div>
-        <label className="flex-1 min-w-0">
+        <label className={`flex-1 min-w-0 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex items-center justify-between p-2 bg-white border border-slate-200 rounded-lg text-[11px] cursor-pointer hover:bg-slate-50 transition-colors truncate">
-            <span className="text-slate-500 font-medium truncate">Upload...</span>
+            <span className="text-slate-500 font-medium truncate">
+              {uploading ? 'Processing...' : (currentImage ? 'Change Image...' : 'Upload...')}
+            </span>
             <Plus className="w-3 h-3 text-blue-700 shrink-0 ml-2" />
           </div>
-          <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+          <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} disabled={uploading} />
         </label>
       </div>
     </div>
@@ -777,31 +807,18 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                             </div>
 
                             <div className="bg-white/50 p-6 rounded-2xl border border-slate-200/50 space-y-4">
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4 Images, Total 2MB)</label>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4 Images, 2MB per Image)</label>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
                                   <div key={j} className="relative group">
                                     <ImageUpload 
                                       label={`Image ${j + 1}`} 
                                       currentImage={img} 
-                                      extraValidation={(file) => {
-                                        const currentImages = prod.images || [prod.image];
-                                        const gallerySizeExcludingCurrent = currentImages.reduce((sum: number, imgStr: string, idx: number) => {
-                                          if (idx === j || !imgStr || !imgStr.startsWith('data:')) return sum;
-                                          return sum + (imgStr.length * 0.75);
-                                        }, 0);
-                                        
-                                        const totalProjectedSize = gallerySizeExcludingCurrent + file.size;
-                                        if (totalProjectedSize > 2 * 1024 * 1024) {
-                                          return `Total gallery size for this product reaches ${(totalProjectedSize / (1024 * 1024)).toFixed(2)}MB (Limit: 2MB). Please optimize your images.`;
-                                        }
-                                        return null;
-                                      }}
-                                      onImageChange={(base64) => {
+                                      onImageChange={(url) => {
                                         const newProds = [...homeContent.products];
                                         if (!newProds[i].images) newProds[i].images = [newProds[i].image];
-                                        newProds[i].images[j] = base64;
-                                        if (j === 0) newProds[i].image = base64;
+                                        newProds[i].images[j] = url;
+                                        if (j === 0) newProds[i].image = url;
                                         setHomeContent({ ...homeContent, products: newProds });
                                       }}
                                     />
@@ -1147,8 +1164,11 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                   <div className="space-y-4">
                     <p className="text-xs text-red-600">Error connecting to tables: {dbError}</p>
                     <div className="bg-white p-4 rounded-xl border border-red-200">
-                      <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Required SQL Setup:</p>
-                      <pre className="text-[10px] bg-slate-900 text-slate-300 p-3 rounded-lg overflow-x-auto">
+                      <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-2">Required Infrastructure Setup:</p>
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">1. SQL Tables</p>
+                          <pre className="text-[10px] bg-slate-900 text-slate-300 p-3 rounded-lg overflow-x-auto">
 {`CREATE TABLE site_content (
   id TEXT PRIMARY KEY,
   content JSONB,
@@ -1175,7 +1195,15 @@ CREATE TABLE visitor_logs (
   language TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );`}
-                      </pre>
+                          </pre>
+                        </div>
+                        <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                          <p className="text-[10px] font-bold text-blue-700 uppercase mb-1">2. Storage Bucket</p>
+                          <p className="text-[10px] text-blue-600">
+                            Create a bucket named <span className="font-bold underline">images</span> in your Supabase project (Storage section) and set it to <span className="font-bold">Public</span>.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
