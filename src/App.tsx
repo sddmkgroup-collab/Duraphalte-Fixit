@@ -410,7 +410,14 @@ const HomePage = ({ content }: { content: any }) => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {content.whySection.features.map((f: any, i: number) => (
-              <div key={i} className="p-8 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+              <motion.div 
+                key={i} 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: i * 0.1, ease: "easeOut" }}
+                className="p-8 border border-slate-100 rounded-2xl bg-slate-50 hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+              >
                 <div className="mb-6">
                   {i === 0 && <Bolt className="text-blue-700 w-8 h-8" />}
                   {i === 1 && <Timer className="text-blue-700 w-8 h-8" />}
@@ -419,7 +426,7 @@ const HomePage = ({ content }: { content: any }) => {
                 </div>
                 <h3 className="text-xl font-bold mb-3">{f.title}</h3>
                 <p className="text-slate-600 text-sm leading-relaxed">{f.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
