@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Outlet, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link, Outlet, useLocation, useOutletContext } from 'react-router-dom';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'motion/react';
 import { 
   Menu, X, User, ChevronRight, ChevronLeft, 
   Bolt, Timer, TrendingUp, Verified, CheckCircle, ArrowRight, Star,
@@ -53,7 +53,7 @@ const DMKLogo = ({ className = "w-20 h-20" }: { className?: string }) => {
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -98,14 +98,7 @@ const Navbar = () => {
 
         <div className="flex items-center gap-6">
           <button 
-            onClick={() => {
-              const element = document.getElementById('quote-section');
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-              } else {
-                navigate('/#quote-section');
-              }
-            }}
+            onClick={onQuoteClick}
             className="bg-[#004497] text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block"
           >
             Get Quote
@@ -139,12 +132,7 @@ const Navbar = () => {
               <button 
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  const element = document.getElementById('quote-section');
-                  if (element) {
-                    element.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    navigate('/#quote-section');
-                  }
+                  onQuoteClick();
                 }}
                 className="bg-[#004497] text-white px-6 py-3 font-semibold rounded-lg text-center"
               >
@@ -340,11 +328,55 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
   );
 };
 
+const TestimonialsSection = ({ testimonials }: { testimonials: any[] }) => {
+  return (
+    <section className="py-16 lg:py-24 bg-white px-4 sm:px-8 border-t border-slate-100">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16 space-y-4">
+          <span className="text-blue-700 font-black uppercase tracking-[0.3em] text-[10px]">Testimonials</span>
+          <h2 className="text-3xl lg:text-4xl font-black text-[#141d23]">Apa Kata Rekanan Kami?</h2>
+          <div className="w-16 h-1.5 bg-blue-700 mx-auto rounded-full"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {testimonials?.map((t: any, i: number) => (
+            <motion.div 
+              key={t.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="bg-slate-50 p-8 rounded-3xl border border-slate-100 relative group hover:shadow-xl transition-all"
+            >
+              <div className="flex text-amber-400 mb-6">
+                {[1,2,3,4,5].map(star => <Star key={star} className="w-4 h-4 fill-current" />)}
+              </div>
+              <p className="text-slate-600 mb-8 italic leading-relaxed">"{t.content}"</p>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                  <img src={t.avatar} className="w-full h-full object-cover" alt={t.name} />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 leading-tight">{t.name}</h4>
+                  <p className="text-xs text-slate-400 font-medium">{t.role}</p>
+                </div>
+              </div>
+              <div className="absolute top-8 right-8 text-blue-100 group-hover:text-blue-200 transition-colors">
+                <MessageCircle size={48} />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const HomePage = ({ content }: { content: any }) => {
+  const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const navigate = useNavigate();
   return (
     <div className="animate-in fade-in duration-700">
-      <HeroCarousel slides={content.hero} onCtaClick={() => navigate('/products')} />
+      <HeroCarousel slides={content.hero} onCtaClick={onQuoteClick} />
 
       {content.videoSection?.enabled && (
         <section className="py-16 lg:py-24 bg-[#141d23] overflow-hidden relative">
@@ -402,6 +434,10 @@ const HomePage = ({ content }: { content: any }) => {
         </section>
       )}
 
+      {content.testimonials && content.testimonials.length > 0 && (
+        <TestimonialsSection testimonials={content.testimonials} />
+      )}
+
       <section className="py-16 lg:py-24 bg-white px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 lg:mb-20 space-y-4">
@@ -455,12 +491,20 @@ const HomePage = ({ content }: { content: any }) => {
                     <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{prod.badge}</span>
                   </div>
                   <p className="text-slate-600 mb-8">{prod.desc}</p>
-                  <button 
-                    onClick={() => navigate(`/product/${prod.id}`)}
-                    className="w-full py-4 border-2 border-blue-700 text-blue-700 font-bold rounded-xl group-hover:bg-blue-700 group-hover:text-white transition-all active:scale-95"
-                  >
-                    Pesan Sekarang
-                  </button>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => navigate(`/product/${prod.id}`)}
+                      className="py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-xs lg:text-sm"
+                    >
+                      Detail Produk
+                    </button>
+                    <button 
+                      onClick={onQuoteClick}
+                      className="py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all active:scale-95 text-xs lg:text-sm"
+                    >
+                      Pesan Sekarang
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -546,6 +590,7 @@ const HomePage = ({ content }: { content: any }) => {
 };
 
 const ProductDetailPage = ({ products }: { products: any[] }) => {
+  const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const { id } = useParams<{ id: string }>();
   const product = products.find(p => p.id === id) || products[0];
 
@@ -607,6 +652,12 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
             <a href={product.shopee} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-3 bg-[#EE4D2D] text-white py-4 px-6 rounded-xl font-bold transition-all hover:brightness-95 hover:shadow-lg active:scale-95 text-center">
               Beli di Shopee
             </a>
+            <button 
+              onClick={onQuoteClick}
+              className="sm:col-span-2 flex items-center justify-center gap-3 bg-blue-700 text-white py-4 px-6 rounded-xl font-bold transition-all hover:bg-blue-800 hover:shadow-lg active:scale-95 text-center"
+            >
+              Dapatkan Penawaran Khusus (Get Quote)
+            </button>
           </div>
 
           <div className="pt-8 border-t border-slate-200 space-y-8">
@@ -632,6 +683,7 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
 };
 
 const BlogPage = ({ posts }: { posts: any[] }) => {
+  const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   return (
     <div className="animate-in fade-in duration-700 mt-16 lg:mt-20">
       <section className="bg-slate-900 py-16 lg:py-32 px-4 sm:px-8 text-center text-white relative overflow-hidden">
@@ -693,6 +745,17 @@ const BlogPage = ({ posts }: { posts: any[] }) => {
               ))}
             </div>
           </div>
+
+          <div className="bg-blue-700 p-8 rounded-3xl text-white space-y-6">
+            <h3 className="text-xl font-extrabold">Butuh Penawaran?</h3>
+            <p className="text-blue-100 text-sm">Konsultasikan kebutuhan aspal Anda dengan tim ahli kami untuk mendapatkan harga wholesale terbaik.</p>
+            <button 
+              onClick={onQuoteClick}
+              className="w-full bg-white text-blue-700 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-all"
+            >
+              Get Quote Now
+            </button>
+          </div>
         </aside>
       </section>
     </div>
@@ -701,15 +764,22 @@ const BlogPage = ({ posts }: { posts: any[] }) => {
 
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: 'instant'
-    });
-  }, [pathname]);
+    if (!hash) {
+      window.scrollTo(0, 0);
+    } else {
+      const id = hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        // Delay slightly to ensure content is rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [pathname, hash]);
 
   return null;
 };
@@ -788,7 +858,30 @@ export default function App() {
       poster: 'https://picsum.photos/1280/720',
       title: 'Lihat Ketangguhan Duraphalte Fixit di Lapangan',
       desc: 'Saksikan bagaimana tim kami melakukan aplikasi aspal dingin pada proyek perbaikan jalan raya dengan hasil instan dan tahan lama.'
-    }
+    },
+    testimonials: [
+      {
+        id: 1,
+        name: "Bpk. Rahmat",
+        role: "Project Manager, PT Indah Karya",
+        content: "Duraphalte Fixit sangat membantu perbaikan jalan di kawasan industri kami. Aplikasinya sangat cepat dan tidak memerlukan alat berat, sehingga operasional logistik tidak terganggu.",
+        avatar: "https://i.pravatar.cc/150?u=rahmat"
+      },
+      {
+        id: 2,
+        name: "Ibu Siti",
+        role: "Pengelola Perumahan Green Valley",
+        content: "Solusi terbaik untuk lubang jalan di area perumahan. Warga sangat senang karena perbaikan bisa dilakukan sendiri dan hasilnya sangat kuat menahan beban kendaraan.",
+        avatar: "https://i.pravatar.cc/150?u=siti"
+      },
+      {
+        id: 3,
+        name: "Andi Wijaya",
+        role: "Kontraktor Infrastruktur",
+        content: "Saya telah mencoba berbagai jenis aspal dingin, tapi Duraphalte Fixit memiliki daya rekat yang luar biasa terutama di kondisi lembap. Sangat direkomendasikan.",
+        avatar: "https://i.pravatar.cc/150?u=andi"
+      }
+    ]
   };
 
   const initialBlogPosts = [
@@ -856,15 +949,34 @@ export default function App() {
   };
 
   // Persistence Logic
-  const [homeContent, setHomeContent] = useState(initialHomeContent);
-  const [aboutContent, setAboutContent] = useState(initialAboutContent);
-  const [blogPosts, setBlogPosts] = useState(initialBlogPosts);
-  const [loading, setLoading] = useState(true);
+  const [homeContent, setHomeContent] = useState(() => {
+    const saved = localStorage.getItem('duraphalte_content');
+    return saved ? JSON.parse(saved) : initialHomeContent;
+  });
+
+  const [aboutContent, setAboutContent] = useState(() => {
+    const saved = localStorage.getItem('duraphalte_about');
+    return saved ? JSON.parse(saved) : initialAboutContent;
+  });
+
+  const [blogPosts, setBlogPosts] = useState(() => {
+    const saved = localStorage.getItem('duraphalte_blog');
+    return saved ? JSON.parse(saved) : initialBlogPosts;
+  });
+
+  const [loading, setLoading] = useState(() => {
+    // Only show loading screen on first load if no local cache exists
+    const hasCache = localStorage.getItem('duraphalte_content') || 
+                     localStorage.getItem('duraphalte_about') || 
+                     localStorage.getItem('duraphalte_blog');
+    return !hasCache;
+  });
 
   // Initial Data Fetch
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      // If we don't have cache, we are already showing the loading screen
+      // If we do have cache, we fetch silently in the background
       try {
         const [remoteContent, remoteAbout, remotePosts] = await Promise.all([
           loadSiteContent('home_main'),
@@ -875,25 +987,16 @@ export default function App() {
         if (remoteContent) {
           setHomeContent(remoteContent);
           localStorage.setItem('duraphalte_content', JSON.stringify(remoteContent));
-        } else {
-          const saved = localStorage.getItem('duraphalte_content');
-          if (saved) setHomeContent(JSON.parse(saved));
         }
 
         if (remoteAbout) {
           setAboutContent(remoteAbout);
           localStorage.setItem('duraphalte_about', JSON.stringify(remoteAbout));
-        } else {
-          const saved = localStorage.getItem('duraphalte_about');
-          if (saved) setAboutContent(JSON.parse(saved));
         }
 
         if (remotePosts && remotePosts.length > 0) {
           setBlogPosts(remotePosts);
           localStorage.setItem('duraphalte_blog', JSON.stringify(remotePosts));
-        } else {
-          const saved = localStorage.getItem('duraphalte_blog');
-          if (saved) setBlogPosts(JSON.parse(saved));
         }
       } catch (error) {
         console.error("Fetch error:", error);
@@ -962,6 +1065,7 @@ export default function App() {
 }
 
 const ProductsPage = ({ products }: { products: any[] }) => {
+  const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const navigate = useNavigate();
   return (
     <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 px-4 sm:px-8 max-w-7xl mx-auto space-y-12 lg:space-y-20">
@@ -971,32 +1075,69 @@ const ProductsPage = ({ products }: { products: any[] }) => {
        </div>
        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {products.map((prod: any) => (
-            <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all cursor-pointer" onClick={() => navigate(`/product/${prod.id}`)}>
-              <div className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8">
+            <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all">
+              <div 
+                className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8 cursor-pointer"
+                onClick={() => navigate(`/product/${prod.id}`)}
+              >
                 <img src={prod.images && prod.images.length > 0 ? prod.images[0] : prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
               </div>
               <div className="p-8 space-y-4">
                 <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
                 <h3 className="text-xl font-bold">{prod.title}</h3>
-                <div className="text-2xl font-black text-[#141d23]">Rp {prod.price}</div>
+                <div className="flex justify-between items-center">
+                  <div className="text-2xl font-black text-[#141d23]">Rp {prod.price}</div>
+                  <button 
+                    onClick={onQuoteClick}
+                    className="bg-blue-700 text-white p-2 px-4 rounded-lg font-bold text-xs hover:bg-blue-800 transition-all active:scale-95"
+                  >
+                    Get Quote
+                  </button>
+                </div>
               </div>
             </div>
           ))}
+       </div>
+
+       <div className="bg-slate-900 rounded-[3rem] p-8 lg:p-16 text-center space-y-8 relative overflow-hidden">
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <h2 className="text-3xl lg:text-5xl font-black text-white">Butuh Solusi Custom?</h2>
+            <p className="text-slate-400 text-lg mt-4">Tim kami siap membantu menghitung estimasi kebutuhan aspal untuk proyek infrastruktur Anda.</p>
+            <button 
+              onClick={onQuoteClick}
+              className="mt-8 bg-blue-700 text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-blue-800 transition-all shadow-xl shadow-blue-700/20 active:scale-95"
+            >
+              Hubungi Tim Teknis Kami
+            </button>
+          </div>
+          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
        </div>
     </div>
   );
 };
 
 const PublicLayout = ({ homeContent, blogPosts }: { homeContent: any, blogPosts: any[] }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     logVisitor(window.location.pathname);
   }, [window.location.pathname]);
 
+  const handleQuoteClick = () => {
+    const element = document.getElementById('quote-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/#quote-section');
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <Navbar onQuoteClick={handleQuoteClick} />
       <main className="flex-1">
-        <Outlet />
+        <Outlet context={{ onQuoteClick: handleQuoteClick }} />
       </main>
       <Footer />
     </div>

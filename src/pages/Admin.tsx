@@ -295,7 +295,14 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           image: productImages[0] || prod.image, // Fallback
           images: productImages.length > 0 ? productImages : [prod.image]
         };
-      })
+      }),
+      testimonials: (homeContent.testimonials || []).map((t: any, i: number) => ({
+        ...t,
+        name: formData.get(`testi${i}_name`) as string,
+        role: formData.get(`testi${i}_role`) as string,
+        content: formData.get(`testi${i}_content`) as string,
+        avatar: formData.get(`testi${i}_avatar`) as string,
+      }))
     };
 
     try {
@@ -857,6 +864,69 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                                 )}
                               </div>
                             </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                      <h3 className="text-xl font-bold">Customer Testimonials</h3>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newTestimonials = [...(homeContent.testimonials || [])];
+                          newTestimonials.push({
+                            id: Date.now(),
+                            name: "New Client",
+                            role: "Manager",
+                            content: "Excellent service and high quality product.",
+                            avatar: "https://i.pravatar.cc/150"
+                          });
+                          setHomeContent({ ...homeContent, testimonials: newTestimonials });
+                        }}
+                        className="text-xs font-black text-blue-700 uppercase tracking-widest flex items-center gap-2 hover:underline"
+                      >
+                        <Plus className="w-3 h-3" /> Add Testimonial
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {(homeContent.testimonials || []).map((t: any, i: number) => (
+                        <div key={t.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4 relative group">
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const newTestimonials = homeContent.testimonials.filter((_: any, idx: number) => idx !== i);
+                              setHomeContent({ ...homeContent, testimonials: newTestimonials });
+                            }}
+                            className="absolute top-4 right-4 text-slate-400 hover:text-red-600 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="grid grid-cols-1 gap-4">
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Client Name</label>
+                              <input name={`testi${i}_name`} defaultValue={t.name} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Role / Company</label>
+                              <input name={`testi${i}_role`} defaultValue={t.role} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Testimonial Content</label>
+                              <textarea name={`testi${i}_content`} defaultValue={t.content} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                            </div>
+                            <ImageUpload 
+                              label="Client Avatar" 
+                              currentImage={t.avatar} 
+                              onImageChange={(url) => {
+                                const newTestimonials = [...homeContent.testimonials];
+                                newTestimonials[i].avatar = url;
+                                setHomeContent({ ...homeContent, testimonials: newTestimonials });
+                              }}
+                            />
+                            <input type="hidden" name={`testi${i}_avatar`} value={t.avatar} />
                           </div>
                         </div>
                       ))}

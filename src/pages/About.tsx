@@ -1,19 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { Target, Eye, Award, CheckCircle2, ArrowRight, ShieldCheck, Globe2, Users } from 'lucide-react';
 
 const AboutPage = ({ content }: { content: any }) => {
   const navigate = useNavigate();
-
-  const handleContactClick = () => {
-    const element = document.getElementById('quote-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/#quote-section');
-    }
-  };
+  const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
 
   return (
     <div className="bg-white">
@@ -171,7 +163,7 @@ const AboutPage = ({ content }: { content: any }) => {
               </p>
             </div>
             <button 
-              onClick={handleContactClick}
+              onClick={onQuoteClick}
               className="relative z-10 bg-white text-blue-700 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-slate-50 transition-all flex items-center gap-3 group"
             >
               {content.banner.cta}
