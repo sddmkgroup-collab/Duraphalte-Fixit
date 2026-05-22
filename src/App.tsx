@@ -985,13 +985,19 @@ export default function App() {
         ]);
 
         if (remoteContent) {
-          setHomeContent(remoteContent);
-          localStorage.setItem('duraphalte_content', JSON.stringify(remoteContent));
+          setHomeContent((prev: any) => {
+            const merged = { ...prev, ...remoteContent };
+            localStorage.setItem('duraphalte_content', JSON.stringify(merged));
+            return merged;
+          });
         }
 
         if (remoteAbout) {
-          setAboutContent(remoteAbout);
-          localStorage.setItem('duraphalte_about', JSON.stringify(remoteAbout));
+          setAboutContent((prev: any) => {
+            const merged = { ...prev, ...remoteAbout };
+            localStorage.setItem('duraphalte_about', JSON.stringify(merged));
+            return merged;
+          });
         }
 
         if (remotePosts && remotePosts.length > 0) {

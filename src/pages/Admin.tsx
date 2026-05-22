@@ -306,15 +306,19 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
     };
 
     try {
+      // 1. Update State and Local Storage immediately (Failsafe)
       setHomeContent(updatedContent);
+      localStorage.setItem('duraphalte_content', JSON.stringify(updatedContent));
+      
       if (isSupabaseConfigured) {
         await saveSiteContent(updatedContent, 'home_main');
-        alert("✅ Konten Berhasil Disinkronkan ke Database!");
+        alert("✅ Perubahan Berhasil Disimpan & Sinkron (Database)!");
       } else {
-        alert("⚠️ Konten disimpan ke Browser Lokal. Hubungkan Database untuk sinkronisasi antar browser.");
+        alert("⚠️ Perubahan disimpan secara lokal di browser ini.");
       }
-    } catch (err) {
-      alert("❌ Gagal menyimpan ke database.");
+    } catch (err: any) {
+      console.error("Home save error details:", err);
+      alert(`⚠️ Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}\n\nPerubahan Anda tetap aman di browser ini.`);
     } finally {
       setLoading(false);
     }
@@ -366,15 +370,19 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
     };
 
     try {
+      // 1. Update State and Local Storage immediately
       setAboutContent(updatedContent);
+      localStorage.setItem('duraphalte_about', JSON.stringify(updatedContent));
+
       if (isSupabaseConfigured) {
         await saveSiteContent(updatedContent, 'about_main');
-        alert("✅ Halaman About Us Berhasil Disinkronkan!");
+        alert("✅ Halaman About Us Berhasil Disimpan & Sinkron!");
       } else {
-        alert("⚠️ Halaman About Us disimpan secara lokal.");
+        alert("⚠️ Perubahan About Us disimpan secara lokal.");
       }
-    } catch (err) {
-      alert("❌ Gagal menyimpan About Us.");
+    } catch (err: any) {
+      console.error("About save error details:", err);
+      alert(`⚠️ Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}\n\nPerubahan Anda tetap aman di browser ini.`);
     } finally {
       setLoading(false);
     }
@@ -394,10 +402,14 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
   const handleBlogSave = async () => {
     setLoading(true);
     try {
+      // 1. Immediate local save
+      localStorage.setItem('duraphalte_blog', JSON.stringify(blogPosts));
+      
       await saveBlogPosts(blogPosts);
-      alert("✅ Blog Berhasil Disimpan!");
-    } catch (err) {
-      alert("❌ Gagal menyimpan blog.");
+      alert("✅ Blog Berhasil Disimpan & Sinkron!");
+    } catch (err: any) {
+      console.error("Blog save error details:", err);
+      alert(`⚠️ Blog Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}`);
     } finally {
       setLoading(false);
     }
