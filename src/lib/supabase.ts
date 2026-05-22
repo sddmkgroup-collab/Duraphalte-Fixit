@@ -35,11 +35,16 @@ export const loadSiteContent = async (id: string = 'home_main') => {
 export const saveSiteContent = async (content: any, id: string = 'home_main') => {
   if (!supabaseUrl || !supabaseAnonKey) return;
   try {
-    await supabase
+    const { error } = await supabase
       .from('site_content')
       .upsert({ id, content, updated_at: new Date().toISOString() });
+    if (error) {
+      console.error('Supabase upsert error:', error);
+      throw error;
+    }
   } catch (err) {
     console.error('Failed to save site content:', err);
+    throw err;
   }
 };
 
@@ -98,28 +103,57 @@ export const logVisitor = async (path: string) => {
 };
 
 export const uploadImage = async (file: File): Promise<string | null> => {
-  if (!supabaseUrl || !supabaseAnonKey) return null;
+  const toBase64 = (f: File): Promise<string> => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(f);
+  });
+
+  if (!isSupabaseConfigured) {
+    console.warn('Supabase not configured, using Base64 fallback.');
+    try {
+      return await toBase64(file);
+    } catch (e) {
+      console.error('Base64 conversion failed:', e);
+      return null;
+    }
+  }
+
   try {
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split('.').pop() || 'png';
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
+    console.log('Attempting Supabase upload:', filePath);
     const { error: uploadError } = await supabase.storage
       .from('images')
       .upload(filePath, file);
 
     if (uploadError) {
-      console.error('Error uploading image:', uploadError);
-      return null;
+      console.error('Supabase upload error:', uploadError);
+      console.warn('Falling back to Base64 due to storage error.');
+      return await toBase64(file);
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data } = supabase.storage
       .from('images')
       .getPublicUrl(filePath);
 
-    return publicUrl;
+    if (!data?.publicUrl) {
+      console.warn('Could not generate public URL, falling back to Base64.');
+      return await toBase64(file);
+    }
+
+    return data.publicUrl;
   } catch (err) {
-    console.error('Unexpected error during upload:', err);
-    return null;
+    console.error('Unexpected error during Supabase upload:', err);
+    try {
+      console.warn('Trying ultimate Base64 fallback after unexpected error.');
+      return await toBase64(file);
+    } catch (e) {
+      console.error('Ultimate Base64 fallback also failed:', e);
+      return null;
+    }
   }
 };
