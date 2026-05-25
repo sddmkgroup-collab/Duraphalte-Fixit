@@ -281,16 +281,16 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             className="flex flex-col sm:flex-row gap-4"
           >
             <button 
-              onClick={onCtaClick}
+              onClick={() => navigate('/products')}
               className="bg-[#004497] text-white px-8 py-4 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95"
             >
-              Beli Sekarang
+              Pesan Sekarang
             </button>
             <button 
-              onClick={() => navigate('/products')}
+              onClick={() => navigate('/about')}
               className="border-2 border-[#141d23] text-[#141d23] px-8 py-4 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95"
             >
-              Pelajari Produk
+              Tentang Kami
             </button>
           </motion.div>
         </div>
@@ -491,19 +491,31 @@ const HomePage = ({ content }: { content: any }) => {
                     <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{prod.badge}</span>
                   </div>
                   <p className="text-slate-600 mb-8">{prod.desc}</p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-3">
                     <button 
                       onClick={() => navigate(`/product/${prod.id}`)}
-                      className="py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-xs lg:text-sm"
+                      className="w-full py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-sm"
                     >
                       Detail Produk
                     </button>
-                    <button 
-                      onClick={onQuoteClick}
-                      className="py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all active:scale-95 text-xs lg:text-sm"
-                    >
-                      Pesan Sekarang
-                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <a 
+                        href={prod.tokopedia} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="py-3 bg-[#03AC0E] text-white font-bold rounded-xl hover:brightness-95 transition-all active:scale-95 text-xs text-center flex items-center justify-center"
+                      >
+                        Tokopedia
+                      </a>
+                      <a 
+                        href={prod.shopee} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="py-3 bg-[#EE4D2D] text-white font-bold rounded-xl hover:brightness-95 transition-all active:scale-95 text-xs text-center flex items-center justify-center"
+                      >
+                        Shopee
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1091,13 +1103,31 @@ const ProductsPage = ({ products }: { products: any[] }) => {
               <div className="p-8 space-y-4">
                 <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
                 <h3 className="text-xl font-bold">{prod.title}</h3>
-                <div className="flex justify-between items-center">
+                <div className="space-y-4">
                   <div className="text-2xl font-black text-[#141d23]">Rp {prod.price}</div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <a 
+                      href={prod.tokopedia} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="bg-[#03AC0E] text-white py-2.5 rounded-xl font-bold text-[10px] uppercase text-center flex items-center justify-center hover:brightness-95 transition-all"
+                    >
+                      Tokopedia
+                    </a>
+                    <a 
+                      href={prod.shopee} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="bg-[#EE4D2D] text-white py-2.5 rounded-xl font-bold text-[10px] uppercase text-center flex items-center justify-center hover:brightness-95 transition-all"
+                    >
+                      Shopee
+                    </a>
+                  </div>
                   <button 
-                    onClick={onQuoteClick}
-                    className="bg-blue-700 text-white p-2 px-4 rounded-lg font-bold text-xs hover:bg-blue-800 transition-all active:scale-95"
+                    onClick={() => navigate(`/product/${prod.id}`)}
+                    className="w-full py-3 border border-slate-200 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
                   >
-                    Get Quote
+                    Selengkapnya <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
               </div>
