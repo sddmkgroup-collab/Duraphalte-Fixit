@@ -53,6 +53,17 @@ const DMKLogo = ({ className = "w-20 h-20" }: { className?: string }) => {
   );
 };
 
+const TikTokIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.17-2.89-.6-4.13-1.47V18.77a6.738 6.738 0 0 1-6.76 6.76 6.738 6.738 0 0 1-6.76-6.76 6.738 6.738 0 0 1 6.76-6.76c.42-.02.84.03 1.25.12V.02z" />
+  </svg>
+);
+
 const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -169,7 +180,7 @@ const Footer = () => {
               <Instagram className="w-5 h-5" />
             </a>
             <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white hover:bg-slate-900 transition-all hover:scale-110 shadow-lg shadow-black/40" title="TikTok">
-              <Music className="w-5 h-5" />
+              <TikTokIcon className="w-5 h-5" />
             </a>
           </div>
         </div>
@@ -483,7 +494,11 @@ const HomePage = ({ content }: { content: any }) => {
             {content.products.map((prod: any) => (
               <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                 <div className="aspect-video overflow-hidden">
-                  <img src={prod.images && prod.images.length > 0 ? prod.images[0] : prod.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={prod.title} />
+                  <img 
+                    src={prod.image || (prod.images && prod.images.length > 0 ? prod.images[0] : '')} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    alt={prod.title} 
+                  />
                 </div>
                 <div className="p-8">
                   <div className="flex justify-between items-center mb-4">
@@ -491,31 +506,19 @@ const HomePage = ({ content }: { content: any }) => {
                     <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{prod.badge}</span>
                   </div>
                   <p className="text-slate-600 mb-8">{prod.desc}</p>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-4">
                     <button 
                       onClick={() => navigate(`/product/${prod.id}`)}
-                      className="w-full py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-sm"
+                      className="py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-xs lg:text-sm"
                     >
                       Detail Produk
                     </button>
-                    <div className="grid grid-cols-2 gap-3">
-                      <a 
-                        href={prod.tokopedia} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="py-3 bg-[#03AC0E] text-white font-bold rounded-xl hover:brightness-95 transition-all active:scale-95 text-xs text-center flex items-center justify-center"
-                      >
-                        Tokopedia
-                      </a>
-                      <a 
-                        href={prod.shopee} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="py-3 bg-[#EE4D2D] text-white font-bold rounded-xl hover:brightness-95 transition-all active:scale-95 text-xs text-center flex items-center justify-center"
-                      >
-                        Shopee
-                      </a>
-                    </div>
+                    <button 
+                      onClick={() => navigate('/products')}
+                      className="py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all active:scale-95 text-xs lg:text-sm"
+                    >
+                      Pesan Sekarang
+                    </button>
                   </div>
                 </div>
               </div>
@@ -612,7 +615,7 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
         <div className="lg:sticky lg:top-32">
           <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm aspect-square flex items-center justify-center p-6 lg:p-12 group cursor-zoom-in">
             <img 
-              src={product.images && product.images.length > 0 ? product.images[0] : product.image} 
+              src={product.image || (product.images && product.images.length > 0 ? product.images[0] : '')} 
               className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
               alt={product.title} 
             />
@@ -1098,7 +1101,11 @@ const ProductsPage = ({ products }: { products: any[] }) => {
                 className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8 cursor-pointer"
                 onClick={() => navigate(`/product/${prod.id}`)}
               >
-                <img src={prod.images && prod.images.length > 0 ? prod.images[0] : prod.image} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" alt={prod.title} />
+                <img 
+                  src={prod.image || (prod.images && prod.images.length > 0 ? prod.images[0] : '')} 
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
+                  alt={prod.title} 
+                />
               </div>
               <div className="p-8 space-y-4">
                 <span className="text-blue-700 text-xs font-black uppercase tracking-[0.2em]">{prod.badge}</span>
