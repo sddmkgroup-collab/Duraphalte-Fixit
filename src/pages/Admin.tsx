@@ -1361,15 +1361,52 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
   setBlogPosts: any
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    // Priority check: session storage for more secure ephemeral sessions
-    const session = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
+    // Only use sessionStorage for truly ephemeral sessions that die with the tab
+    const session = sessionStorage.getItem('admin_session');
     return session === 'active';
   });
 
-  // Verify session integrity on mount and focus
+  const handleSecureLogout = () => {
+    setIsLoggedIn(false);
+    sessionStorage.removeItem('admin_session');
+    localStorage.removeItem('admin_session'); // Cleanup legacy localStorage if exists
+    window.location.replace('/');
+  };
+
+  // 1. Inactivity Timer (3 Minutes)
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    const IDLE_TIMEOUT = 3 * 60 * 1000; // 3 minutes in milliseconds
+    let lastActivity = Date.now();
+
+    const resetTimer = () => {
+      lastActivity = Date.now();
+    };
+
+    // Events to track user activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => window.addEventListener(event, resetTimer));
+
+    // Check interval every 5 seconds
+    const interval = setInterval(() => {
+      const now = Date.now();
+      if (now - lastActivity > IDLE_TIMEOUT) {
+        console.log("Admin session expired due to inactivity.");
+        handleSecureLogout();
+      }
+    }, 5000);
+
+    return () => {
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+      clearInterval(interval);
+    };
+  }, [isLoggedIn]);
+
+  // 2. Verify session integrity on mount and focus
   useEffect(() => {
     const checkSession = () => {
-      const session = sessionStorage.getItem('admin_session') || localStorage.getItem('admin_session');
+      const session = sessionStorage.getItem('admin_session');
       if (session !== 'active' && isLoggedIn) {
         setIsLoggedIn(false);
       }
@@ -1382,23 +1419,12 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
   if (!isLoggedIn) {
     return <AdminLogin onLogin={() => {
       setIsLoggedIn(true);
-      // Store in both for flexible persistence but emphasize ephemeral
+      // Store ONLY in sessionStorage for maximum security (tab-level lifecycle)
       sessionStorage.setItem('admin_session', 'active');
-      localStorage.setItem('admin_session', 'active');
       // Use replace to prevent "back" into login screen
       window.history.replaceState(null, '', '/admin');
     }} />;
   }
-
-  const handleSecureLogout = () => {
-    setIsLoggedIn(false);
-    sessionStorage.removeItem('admin_session');
-    localStorage.removeItem('admin_session');
-    
-    // Crucial: Use replace to overwrite history entry for /admin
-    // This prevents the back button from returning here
-    window.location.replace('/');
-  };
 
   return (
     <AdminDashboard 
