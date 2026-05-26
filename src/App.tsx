@@ -936,9 +936,9 @@ export default function App() {
     },
     history: {
       badge: "Sejarah Kami",
-      title: "PT Dhisa Manunggal Karya (DMK)",
-      content: "DMK Group dimulai dengan berdirinya PT. DHISA MANUNGGAL KARYA (DMK) di Surabaya pada tanggal 4 September 1984. Awalnya didirikan sebagai perusahaan kontraktor umum dan transportasi aspal.\n\nDMK Group kini telah berkembang menjadi salah satu pemasok aspal terkemuka di Indonesia. Grup ini saat ini memiliki dan mengoperasikan total 4 Terminal Curah Aspal di Jawa Tengah, Bali, Sumbawa, dan Halmahera serta 1 Polymer Modified Asphalt di Demak, Jawa Tengah.\n\nSelain memasok aspal ke kontraktor lokal untuk jalan nasional, provinsi, dan regional, DMK Group melalui anak perusahaannya PT WANA INDAH ASRI juga mendukung Perusahaan Milik Negara untuk Proyek Jalan Tol dan Landasan Pacu Bandara dengan mengirimkan aspal berkualitas tinggi.",
-      image: "https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&q=80&w=2070",
+      title: "PT DHISA MANUNGGAL KARYA",
+      content: "DMK Group dimulai dengan berdirinya PT DHISA MANUNGGAL KARYA (DMK) di Surabaya pada tanggal 4 September 1984. Awalnya didirikan sebagai perusahaan kontraktor umum dan transportasi aspal.\n\nDMK Group kini telah berkembang menjadi salah satu pemasok aspal terkemuka di Indonesia. Grup ini saat ini memiliki dan mengoperasikan total 4 Terminal Curah Aspal di Jawa Tengah, Bali, Sumbawa, dan Halmahera serta 1 Polymer Modified Asphalt di Demak, Jawa Tengah.\n\nSelain memasok aspal ke kontraktor lokal untuk jalan nasional, provinsi, dan regional, DMK Group melalui anak perusahaannya PT WANA INDAH ASRI juga mendukung Perusahaan Milik Negara untuk Proyek Jalan Tol dan Landasan Pacu Bandara dengan mengirimkan aspal berkualitas tinggi.",
+      image: "/src/assets/images/dmk_asphalt_facility_1779760680117.png",
       experience: "40+",
       video: ""
     },
@@ -1034,7 +1034,7 @@ export default function App() {
         <div className="flex flex-col items-center gap-12">
           <DMKLogo className="w-24 h-24" />
           <div className="flex flex-col items-center gap-3">
-            <h2 className="text-2xl font-black text-slate-800 tracking-tighter">DMK GROUP</h2>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tighter">PT DHISA MANUNGGAL KARYA</h2>
             <div className="flex items-center gap-3">
               <div className="flex gap-1">
                 <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 bg-blue-600 rounded-full" />

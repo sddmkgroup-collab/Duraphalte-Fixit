@@ -494,9 +494,13 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           </div>
           
           {!isSupabaseConfigured ? (
-            <div className="w-full lg:w-auto px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-700">
-              <Key className="w-4 h-4" />
-              <span className="text-xs font-bold leading-tight">Database Not Configured</span>
+            <div className="w-full lg:w-auto px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center gap-3 text-amber-700">
+              <div className="flex items-center gap-3">
+                <Key className="w-4 h-4 flex-shrink-0" />
+                <span className="text-xs font-bold leading-tight">Database Cloud Belum Terhubung</span>
+              </div>
+              <div className="h-px w-full sm:w-px sm:h-4 bg-amber-300 hidden sm:block"></div>
+              <span className="text-[10px] sm:text-xs font-medium">Buka Menu "Settings" untuk menghubungkan Supabase agar data sinkron di semua device.</span>
             </div>
           ) : dbStatus === 'error' ? (
             <div className="w-full lg:w-auto px-4 py-2 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
@@ -506,7 +510,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           ) : (
             <div className="w-full lg:w-auto px-4 py-2 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-700">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold leading-tight">Database Synced</span>
+              <span className="text-xs font-bold leading-tight">Database Sinkron (Multi-Device Active)</span>
             </div>
           )}
         </header>
@@ -1336,6 +1340,16 @@ CREATE TABLE visitor_logs (
                 >
                   Reset Factory Defaults
                 </button>
+              </div>
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h3 className="font-bold mb-4">Security Policy</h3>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-500">Auto Logout (Idle)</span>
+                  <span className="font-bold text-blue-700">3 Menit</span>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2 italic">
+                  Sesuai permintaan keamanan, sesi admin akan berakhir otomatis setelah 3 menit tidak ada aktivitas untuk melindungi akses dari cache browser bersama/device lain.
+                </p>
               </div>
               <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
                 <h3 className="font-bold mb-4">Version Info</h3>
