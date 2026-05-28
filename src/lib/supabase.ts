@@ -1,7 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-export const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-export const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Safe helper to read from localstorage before safeLocalStorage is declared
+const getLocalStorageOverride = (key: string): string => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return window.localStorage.getItem(key) || '';
+    }
+  } catch (e) {
+    // ignore
+  }
+  return '';
+};
+
+export const supabaseUrl = getLocalStorageOverride('supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
+export const supabaseAnonKey = getLocalStorageOverride('supabase_anon_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 

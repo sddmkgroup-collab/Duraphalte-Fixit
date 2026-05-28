@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   X, LayoutDashboard, BarChart, Settings, LogOut,
   Plus, Trash2, Edit2, Globe, Lock, Key,
-  Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight
+  Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight,
+  Database
 } from 'lucide-react';
 import { 
   supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
@@ -1237,6 +1238,83 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
               System Settings
             </h2>
             <div className="space-y-6">
+              {/* Form Input Supabase Credentials */}
+              <div className="p-6 bg-[#f8fafc] rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                  <Database className="w-5 h-5 text-blue-600" />
+                  Konfigurasi Supabase Mandiri
+                </h3>
+                <p className="text-xs text-slate-500 mb-4">
+                  Masukkan detail kredensial Supabase Anda di bawah ini agar data disimpan pada database cloud Supabase, bukan database lokal browser lagi.
+                </p>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  const url = (formData.get('sb_url') as string || '').trim();
+                  const key = (formData.get('sb_key') as string || '').trim();
+                  
+                  if (url) {
+                    safeLocalStorage.setItem('supabase_url', url);
+                  } else {
+                    safeLocalStorage.removeItem('supabase_url');
+                  }
+                  
+                  if (key) {
+                    safeLocalStorage.setItem('supabase_anon_key', key);
+                  } else {
+                    safeLocalStorage.removeItem('supabase_anon_key');
+                  }
+                  
+                  alert('✅ Kredensial Supabase berhasil disimpan! Halaman ini akan memuat ulang untuk menghubungkan ulang.');
+                  window.location.reload();
+                }} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-extrabold text-slate-500 mb-1">SUPABASE URL</label>
+                    <input 
+                      type="text" 
+                      name="sb_url" 
+                      defaultValue={safeLocalStorage.getItem('supabase_url') || ''} 
+                      placeholder="https://xxxxx.supabase.co" 
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider font-extrabold text-slate-500 mb-1">SUPABASE ANON KEY</label>
+                    <input 
+                      type="password" 
+                      name="sb_key" 
+                      defaultValue={safeLocalStorage.getItem('supabase_anon_key') || ''} 
+                      placeholder="eyJhbGciOiJIUzI1Ni..." 
+                      className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button 
+                      type="submit"
+                      className="bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs hover:bg-blue-800 transition-all active:scale-95 cursor-pointer shadow-sm"
+                    >
+                      Simpan Kredensial & Hubungkan
+                    </button>
+                    {(safeLocalStorage.getItem('supabase_url') || safeLocalStorage.getItem('supabase_anon_key')) && (
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          if (confirm('Hapus konfigurasi Supabase kustom Anda? Aplikasi akan kembali menggunakan fallback default.')) {
+                            safeLocalStorage.removeItem('supabase_url');
+                            safeLocalStorage.removeItem('supabase_anon_key');
+                            alert('✅ Konfigurasi kustom berhasil dihapus dan dikembalikan ke bawaan!');
+                            window.location.reload();
+                          }
+                        }}
+                        className="bg-red-50 text-red-600 px-4 py-3 rounded-xl font-bold text-xs hover:bg-red-100 transition-all active:scale-95 cursor-pointer"
+                      >
+                        Reset Kredensial
+                      </button>
+                    )}
+                  </div>
+                </form>
+              </div>
+
               <div className={`p-6 rounded-2xl border ${dbStatus === 'connected' ? 'bg-green-50 border-green-100' : 'bg-amber-50 border-amber-100'}`}>
                 <h3 className={`font-bold mb-2 ${dbStatus === 'connected' ? 'text-green-800' : 'text-amber-800'}`}>
                   Database Status: {dbStatus.toUpperCase()}
