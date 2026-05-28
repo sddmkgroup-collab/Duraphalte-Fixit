@@ -5,7 +5,7 @@ import {
   Menu, X, User, ChevronRight, ChevronLeft, 
   Bolt, Timer, TrendingUp, Verified, CheckCircle, ArrowRight, Star,
   Search, Globe, Mail, Play, MessageCircle, Instagram, Video,
-  Music
+  Music, MapPin
 } from 'lucide-react';
 import { logVisitor, loadSiteContent, loadBlogPosts, loadProducts, safeLocalStorage } from './lib/supabase';
 import AdminPage from './pages/Admin';
@@ -160,11 +160,11 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
 const Footer = () => {
   return (
     <footer id="contact" className="w-full pt-20 pb-10 bg-slate-900 text-slate-400 text-sm">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-7xl mx-auto">
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-12 px-8 max-w-7xl mx-auto">
+        <div className="md:col-span-4">
           <div className="text-2xl font-black text-white mb-6">Duraphalte Fixit</div>
           <p className="mb-6 leading-relaxed">
-            Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi.
+            Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi. Part of DMK Group.
           </p>
           <div className="flex gap-4">
             <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white hover:bg-blue-600 transition-all hover:scale-110 shadow-lg shadow-black/20" title="Website">
@@ -184,7 +184,7 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        <div>
+        <div className="md:col-span-2">
           <h4 className="text-white font-bold mb-6">Navigation</h4>
           <ul className="space-y-4">
             <li><Link to="/" className="hover:text-blue-400 transition-all hover:translate-x-1">Home</Link></li>
@@ -193,20 +193,34 @@ const Footer = () => {
             <li><Link to="/blog" className="hover:text-blue-400 transition-all hover:translate-x-1">Knowledge Hub</Link></li>
           </ul>
         </div>
-        <div>
-          <h4 className="text-white font-bold mb-6">Technical Data</h4>
-          <ul className="space-y-4">
-            <li><Link to="/blog" className="hover:text-blue-400 transition-all hover:translate-x-1">Specification Sheets</Link></li>
-            <li><Link to="/blog" className="hover:text-blue-400 transition-all hover:translate-x-1">Application Guide</Link></li>
-            <li><Link to="/blog" className="hover:text-blue-400 transition-all hover:translate-x-1">Testing Reports</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-white font-bold mb-6">Legal</h4>
-          <ul className="space-y-4">
-            <li><button onClick={() => alert('Privacy Policy coming soon')} className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Privacy Policy</button></li>
-            <li><button onClick={() => alert('Terms of Service coming soon')} className="hover:text-blue-400 transition-all hover:translate-x-1 text-left">Terms of Service</button></li>
-          </ul>
+        <div className="md:col-span-6 space-y-4">
+          <h4 className="text-white font-bold mb-3 flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-blue-500" />
+            Lokasi Kantor Pusat  PT Dhisa Manunggal Karya
+          </h4>
+          <p className="text-xs text-slate-400 leading-relaxed font-sans">
+            The Samator Office Tower, Jl. Raya Kedung Baruk No.25-28, Kedung Baruk, Rungkut, Surabaya, East Java 60298
+          </p>
+          <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-800 shadow-md relative">
+            <iframe 
+              src="https://maps.google.com/maps?q=The%20Samator%20Office%20Tower%2C%20Surabaya&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 0 }} 
+              allowFullScreen={true} 
+              loading="lazy" 
+              referrerPolicy="no-referrer"
+              title="Peta Lokasi Kantor Pusat PT DMK & PT WIA"
+            ></iframe>
+          </div>
+          <a 
+            href="https://maps.google.com/?q=The+Samator+Office+Tower,+Jl.+Raya+Kedung+Baruk+No.25-28,+Kedung+Baruk,+Rungkut,+Surabaya" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="inline-flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            <span>Buka di Google Maps →</span>
+          </a>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-8 mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
