@@ -7,7 +7,8 @@ import {
 } from 'lucide-react';
 import { 
   supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
-  supabaseUrl, supabaseAnonKey, uploadImage
+  supabaseUrl, supabaseAnonKey, uploadImage, loadProducts, saveProducts, deleteProductInDb,
+  safeLocalStorage, safeSessionStorage
 } from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
@@ -201,8 +202,12 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
 
   const checkDbHealth = async () => {
     try {
-      const { error } = await supabase.from('site_content').select('id').limit(1);
-      if (error) throw error;
+      const { error: error1 } = await supabase.from('site_content').select('id').limit(1);
+      if (error1) throw new Error(`site_content: ${error1.message}`);
+      
+      const { error: error2 } = await supabase.from('products').select('id').limit(1);
+      if (error2) throw new Error(`products: ${error2.message}`);
+      
       setDbStatus('connected');
     } catch (err: any) {
       setDbStatus('error');
@@ -308,10 +313,13 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
     try {
       // 1. Update State and Local Storage immediately (Failsafe)
       setHomeContent(updatedContent);
-      localStorage.setItem('duraphalte_content', JSON.stringify(updatedContent));
+      safeLocalStorage.setItem('duraphalte_content', JSON.stringify(updatedContent));
       
       if (isSupabaseConfigured) {
-        await saveSiteContent(updatedContent, 'home_main');
+        await Promise.all([
+          saveSiteContent(updatedContent, 'home_main'),
+          saveProducts(updatedContent.products)
+        ]);
         alert("✅ Perubahan Berhasil Disimpan & Sinkron (Database)!");
       } else {
         alert("⚠️ Perubahan disimpan secara lokal di browser ini.");
@@ -372,7 +380,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
     try {
       // 1. Update State and Local Storage immediately
       setAboutContent(updatedContent);
-      localStorage.setItem('duraphalte_about', JSON.stringify(updatedContent));
+      safeLocalStorage.setItem('duraphalte_about', JSON.stringify(updatedContent));
 
       if (isSupabaseConfigured) {
         await saveSiteContent(updatedContent, 'about_main');
@@ -403,7 +411,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
     setLoading(true);
     try {
       // 1. Immediate local save
-      localStorage.setItem('duraphalte_blog', JSON.stringify(blogPosts));
+      safeLocalStorage.setItem('duraphalte_blog', JSON.stringify(blogPosts));
       
       await saveBlogPosts(blogPosts);
       alert("✅ Blog Berhasil Disimpan & Sinkron!");
@@ -1280,6 +1288,22 @@ CREATE TABLE visitor_logs (
   screen_width INTEGER,
   language TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE products (
+  id TEXT PRIMARY KEY,
+  title TEXT,
+  badge TEXT,
+  price TEXT,
+  old_price TEXT,
+  discount TEXT,
+  image TEXT,
+  images TEXT[] DEFAULT '{}',
+  "desc" TEXT,
+  tokopedia TEXT,
+  shopee TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );`}
                           </pre>
                         </div>
@@ -1331,8 +1355,8 @@ CREATE TABLE visitor_logs (
                 <button 
                   onClick={() => {
                     if (confirm("Reset all content to defaults?")) {
-                      localStorage.removeItem('duraphalte_content');
-                      localStorage.removeItem('duraphalte_blog');
+                      safeLocalStorage.removeItem('duraphalte_content');
+                      safeLocalStorage.removeItem('duraphalte_blog');
                       window.location.reload();
                     }
                   }}
@@ -1376,14 +1400,14 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     // Only use sessionStorage for truly ephemeral sessions that die with the tab
-    const session = sessionStorage.getItem('admin_session');
+    const session = safeSessionStorage.getItem('admin_session');
     return session === 'active';
   });
 
   const handleSecureLogout = () => {
     setIsLoggedIn(false);
-    sessionStorage.removeItem('admin_session');
-    localStorage.removeItem('admin_session'); // Cleanup legacy localStorage if exists
+    safeSessionStorage.removeItem('admin_session');
+    safeLocalStorage.removeItem('admin_session'); // Cleanup legacy localStorage if exists
     window.location.replace('/');
   };
 
@@ -1420,7 +1444,7 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
   // 2. Verify session integrity on mount and focus
   useEffect(() => {
     const checkSession = () => {
-      const session = sessionStorage.getItem('admin_session');
+      const session = safeSessionStorage.getItem('admin_session');
       if (session !== 'active' && isLoggedIn) {
         setIsLoggedIn(false);
       }
@@ -1434,7 +1458,7 @@ export default function AdminPage({ homeContent, setHomeContent, aboutContent, s
     return <AdminLogin onLogin={() => {
       setIsLoggedIn(true);
       // Store ONLY in sessionStorage for maximum security (tab-level lifecycle)
-      sessionStorage.setItem('admin_session', 'active');
+      safeSessionStorage.setItem('admin_session', 'active');
       // Use replace to prevent "back" into login screen
       window.history.replaceState(null, '', '/admin');
     }} />;

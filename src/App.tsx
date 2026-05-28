@@ -7,7 +7,7 @@ import {
   Search, Globe, Mail, Play, MessageCircle, Instagram, Video,
   Music
 } from 'lucide-react';
-import { logVisitor, loadSiteContent, loadBlogPosts } from './lib/supabase';
+import { logVisitor, loadSiteContent, loadBlogPosts, loadProducts, safeLocalStorage } from './lib/supabase';
 import AdminPage from './pages/Admin';
 import AboutPage from './pages/About';
 
@@ -965,25 +965,25 @@ export default function App() {
 
   // Persistence Logic
   const [homeContent, setHomeContent] = useState(() => {
-    const saved = localStorage.getItem('duraphalte_content');
+    const saved = safeLocalStorage.getItem('duraphalte_content');
     return saved ? JSON.parse(saved) : initialHomeContent;
   });
 
   const [aboutContent, setAboutContent] = useState(() => {
-    const saved = localStorage.getItem('duraphalte_about');
+    const saved = safeLocalStorage.getItem('duraphalte_about');
     return saved ? JSON.parse(saved) : initialAboutContent;
   });
 
   const [blogPosts, setBlogPosts] = useState(() => {
-    const saved = localStorage.getItem('duraphalte_blog');
+    const saved = safeLocalStorage.getItem('duraphalte_blog');
     return saved ? JSON.parse(saved) : initialBlogPosts;
   });
 
   const [loading, setLoading] = useState(() => {
     // Only show loading screen on first load if no local cache exists
-    const hasCache = localStorage.getItem('duraphalte_content') || 
-                     localStorage.getItem('duraphalte_about') || 
-                     localStorage.getItem('duraphalte_blog');
+    const hasCache = safeLocalStorage.getItem('duraphalte_content') || 
+                     safeLocalStorage.getItem('duraphalte_about') || 
+                     safeLocalStorage.getItem('duraphalte_blog');
     return !hasCache;
   });
 
@@ -993,16 +993,26 @@ export default function App() {
       // If we don't have cache, we are already showing the loading screen
       // If we do have cache, we fetch silently in the background
       try {
-        const [remoteContent, remoteAbout, remotePosts] = await Promise.all([
+        const [remoteContent, remoteAbout, remotePosts, remoteProducts] = await Promise.all([
           loadSiteContent('home_main'),
           loadSiteContent('about_main'),
-          loadBlogPosts()
+          loadBlogPosts(),
+          loadProducts()
         ]);
 
         if (remoteContent) {
           setHomeContent((prev: any) => {
             const merged = { ...prev, ...remoteContent };
-            localStorage.setItem('duraphalte_content', JSON.stringify(merged));
+            if (remoteProducts && remoteProducts.length > 0) {
+              merged.products = remoteProducts;
+            }
+            safeLocalStorage.setItem('duraphalte_content', JSON.stringify(merged));
+            return merged;
+          });
+        } else if (remoteProducts && remoteProducts.length > 0) {
+          setHomeContent((prev: any) => {
+            const merged = { ...prev, products: remoteProducts };
+            safeLocalStorage.setItem('duraphalte_content', JSON.stringify(merged));
             return merged;
           });
         }
@@ -1010,14 +1020,14 @@ export default function App() {
         if (remoteAbout) {
           setAboutContent((prev: any) => {
             const merged = { ...prev, ...remoteAbout };
-            localStorage.setItem('duraphalte_about', JSON.stringify(merged));
+            safeLocalStorage.setItem('duraphalte_about', JSON.stringify(merged));
             return merged;
           });
         }
 
         if (remotePosts && remotePosts.length > 0) {
           setBlogPosts(remotePosts);
-          localStorage.setItem('duraphalte_blog', JSON.stringify(remotePosts));
+          safeLocalStorage.setItem('duraphalte_blog', JSON.stringify(remotePosts));
         }
       } catch (error) {
         console.error("Fetch error:", error);
@@ -1058,17 +1068,17 @@ export default function App() {
             homeContent={homeContent} 
             setHomeContent={(content: any) => {
               setHomeContent(content);
-              localStorage.setItem('duraphalte_content', JSON.stringify(content));
+              safeLocalStorage.setItem('duraphalte_content', JSON.stringify(content));
             }}
             aboutContent={aboutContent}
             setAboutContent={(content: any) => {
               setAboutContent(content);
-              localStorage.setItem('duraphalte_about', JSON.stringify(content));
+              safeLocalStorage.setItem('duraphalte_about', JSON.stringify(content));
             }}
             blogPosts={blogPosts} 
             setBlogPosts={(posts: any) => {
               setBlogPosts(posts);
-              localStorage.setItem('duraphalte_blog', JSON.stringify(posts));
+              safeLocalStorage.setItem('duraphalte_blog', JSON.stringify(posts));
             }} 
           />
         } />

@@ -102,6 +102,87 @@ export const logVisitor = async (path: string) => {
   }
 };
 
+export const loadProducts = async () => {
+  if (!supabaseUrl || !supabaseAnonKey) return null;
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .order('id', { ascending: true });
+    
+    if (error) {
+      // If table doesn't exist yet, it'll gracefully return null so we use fallback
+      if (error.code !== 'PGRST116') {
+        console.warn('Products database select returned error (table might not exist yet):', error);
+      }
+      return null;
+    }
+    
+    if (data) {
+      return data.map((p: any) => ({
+        id: p.id,
+        title: p.title || '',
+        badge: p.badge || '',
+        price: p.price || '',
+        oldPrice: p.old_price || '',
+        discount: p.discount || '',
+        image: p.image || '',
+        images: p.images || [p.image || ''],
+        desc: p.desc || '',
+        tokopedia: p.tokopedia || '',
+        shopee: p.shopee || ''
+      }));
+    }
+    return null;
+  } catch (err) {
+    console.error('Failed to fetch products:', err);
+    return null;
+  }
+};
+
+export const saveProducts = async (products: any[]) => {
+  if (!supabaseUrl || !supabaseAnonKey) return;
+  try {
+    const dbProducts = products.map((p: any) => ({
+      id: p.id,
+      title: p.title,
+      badge: p.badge || '',
+      price: p.price,
+      old_price: p.oldPrice || p.old_price || '',
+      discount: p.discount || '',
+      image: p.image,
+      images: p.images || [p.image],
+      desc: p.desc || p.description || '',
+      tokopedia: p.tokopedia || '',
+      shopee: p.shopee || '',
+      updated_at: new Date().toISOString()
+    }));
+    
+    const { error } = await supabase.from('products').upsert(dbProducts);
+    if (error) {
+      console.error('Supabase query error on upserting products:', error);
+      throw error;
+    }
+  } catch (err) {
+    console.error('Failed to save products:', err);
+    throw err;
+  }
+};
+
+export const deleteProductInDb = async (id: string) => {
+  if (!supabaseUrl || !supabaseAnonKey) return;
+  try {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting product from DB:', error);
+      throw error;
+    }
+  } catch (err) {
+    console.error('Failed to delete product:', err);
+    throw err;
+  }
+};
+
 export const uploadImage = async (file: File): Promise<string | null> => {
   const toBase64 = (f: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -157,3 +238,57 @@ export const uploadImage = async (file: File): Promise<string | null> => {
     }
   }
 };
+
+export const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return localStorage.getItem(key);
+    } catch (e) {
+      console.warn(`Error reading from localStorage key "${key}":`, e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      localStorage.setItem(key, value);
+    } catch (e: any) {
+      console.warn(`Error writing to localStorage key "${key}":`, e);
+      if (e.name === 'QuotaExceededError' || e.code === 22) {
+        console.warn('LocalStorage quota exceeded! Gracefully ignoring to prevent failure.');
+      }
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn(`Error removing from localStorage key "${key}":`, e);
+    }
+  }
+};
+
+export const safeSessionStorage = {
+  getItem: (key: string): string | null => {
+    try {
+      return sessionStorage.getItem(key);
+    } catch (e) {
+      console.warn(`Error reading from sessionStorage key "${key}":`, e);
+      return null;
+    }
+  },
+  setItem: (key: string, value: string): void => {
+    try {
+      sessionStorage.setItem(key, value);
+    } catch (e) {
+      console.warn(`Error writing to sessionStorage key "${key}":`, e);
+    }
+  },
+  removeItem: (key: string): void => {
+    try {
+      sessionStorage.removeItem(key);
+    } catch (e) {
+      console.warn(`Error removing from sessionStorage key "${key}":`, e);
+    }
+  }
+};
+
