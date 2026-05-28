@@ -12,8 +12,8 @@ const getLocalStorageOverride = (key: string): string => {
   return '';
 };
 
-export const supabaseUrl = getLocalStorageOverride('supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
-export const supabaseAnonKey = getLocalStorageOverride('supabase_anon_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+export const supabaseUrl = getLocalStorageOverride('supabase_url') || import.meta.env.VITE_SUPABASE_URL || 'https://kljjcxkyqffqsphuodcu.supabase.co';
+export const supabaseAnonKey = getLocalStorageOverride('supabase_anon_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsampjeGt5cWZmcXNwaHVvZGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NjUyNTAsImV4cCI6MjA5NDE0MTI1MH0.LwNKOedyerLsv0ynQa0nB2OV7_whA1PIXcJbiFPzfC4';
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
 
