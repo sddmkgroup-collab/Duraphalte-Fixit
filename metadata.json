@@ -2,5 +2,5 @@
   "name": "Duraphalte Fixit",
   "description": "Solusi Aspal Dingin Instan Berkualitas Tinggi - Industrial Grade Paving Solutions",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
