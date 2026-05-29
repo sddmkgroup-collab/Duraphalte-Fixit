@@ -9,7 +9,7 @@ import {
 import { 
   supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
   supabaseUrl, supabaseAnonKey, uploadImage, loadProducts, saveProducts, deleteProductInDb,
-  safeLocalStorage, safeSessionStorage
+  safeLocalStorage, safeSessionStorage, isCustomSupabaseConfigured
 } from '../lib/supabase';
 
 type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
@@ -570,24 +570,26 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
             </div>
           </div>
           
-          {!isSupabaseConfigured ? (
-            <div className="w-full lg:w-auto px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center gap-3 text-amber-700">
-              <div className="flex items-center gap-3">
-                <Key className="w-4 h-4 flex-shrink-0" />
-                <span className="text-xs font-bold leading-tight">Database Cloud Belum Terhubung</span>
+          {!isCustomSupabaseConfigured ? (
+            <div className="w-full lg:w-auto px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-center gap-3 text-amber-700 shadow-sm">
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4 flex-shrink-0 text-amber-650" />
+                <span className="text-xs font-black uppercase tracking-tight leading-tight">Database Demo Bersama</span>
               </div>
               <div className="h-px w-full sm:w-px sm:h-4 bg-amber-300 hidden sm:block"></div>
-              <span className="text-[10px] sm:text-xs font-medium">Buka Menu "Settings" untuk menghubungkan Supabase agar data sinkron di semua device.</span>
+              <span className="text-[10px] sm:text-xs font-semibold leading-relaxed">
+                Anda terhubung ke database demo publik. Masukkan kredensial Supabase Anda di menu <strong>Settings</strong> agar data & gambar tidak terlepas/tertimpa.
+              </span>
             </div>
           ) : dbStatus === 'error' ? (
-            <div className="w-full lg:w-auto px-4 py-2 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
-              <X className="w-4 h-4" />
-              <span className="text-xs font-bold leading-tight">Database Table Error</span>
+            <div className="w-full lg:w-auto px-4 py-3 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-3 text-rose-700 shadow-sm">
+              <X className="w-4 h-4 flex-shrink-0" />
+              <span className="text-xs font-black uppercase tracking-tight leading-tight font-sans">Koneksi Database Gagal</span>
             </div>
           ) : (
-            <div className="w-full lg:w-auto px-4 py-2 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-700">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-xs font-bold leading-tight">Database Sinkron (Multi-Device Active)</span>
+            <div className="w-full lg:w-auto px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-emerald-800 shadow-sm">
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shrink-0" />
+              <span className="text-xs font-black uppercase tracking-tight leading-tight">Database Kustom Sinkron (Multi-Device Aktif)</span>
             </div>
           )}
         </header>
@@ -1375,9 +1377,29 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                   <Database className="w-5 h-5 text-blue-600" />
                   Konfigurasi Supabase Mandiri
                 </h3>
-                <p className="text-xs text-slate-500 mb-4">
-                  Masukkan detail kredensial Supabase Anda di bawah ini agar data disimpan pada database cloud Supabase, bukan database lokal browser lagi.
+                <p className="text-xs text-slate-400 mb-4 leading-relaxed">
+                  Masukkan detail kredensial Supabase Anda di bawah ini agar data disimpan pada database cloud Supabase kustom pribadi Anda. Ini mencegah isi website Anda tertimpa oleh pengguna demo lainnya.
                 </p>
+
+                {isCustomSupabaseConfigured ? (
+                  <div className="mb-4 p-4 bg-emerald-50 border border-emerald-150 rounded-xl flex gap-2.5 items-start text-emerald-800 text-xs">
+                    <span className="shrink-0 w-2 h-2 bg-emerald-500 rounded-full animate-pulse mt-1.5" />
+                    <div>
+                      <p className="font-bold">Koneksi Kustom Aktif</p>
+                      <p className="text-[10px] text-emerald-600 font-mono mt-0.5">URL: {supabaseUrl}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4 p-4 bg-amber-50 border border-amber-150 rounded-xl flex gap-2.5 items-start text-amber-800 text-xs leading-relaxed">
+                    <span className="shrink-0 text-base leading-none">⚠️</span>
+                    <div>
+                      <p className="font-bold">Mode Database Bersama Publik</p>
+                      <p className="text-[10px] text-amber-600 mt-1">
+                        Situs Anda saat ini menggunakan database demo publik. Setiap kali pengguna demo lain mengedit tulisan, produk, atau gambar, data demo bersama Anda akan berubah dan gambar Anda bisa terlepas / tidak sesuai. <strong>Silakan hubungkan database Supabase pribadi Anda agar data aman dan permanen.</strong>
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <form onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.currentTarget);

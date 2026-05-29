@@ -1024,10 +1024,10 @@ export default function App() {
       try {
         // Fetch values concurrently with structured timeout to avoid holding the loading sequence
         const [remoteContent, remoteAbout, remotePosts, remoteProducts] = await Promise.all([
-          withTimeout(loadSiteContent('home_main'), 2500, null),
-          withTimeout(loadSiteContent('about_main'), 2500, null),
-          withTimeout(loadBlogPosts(), 2500, null),
-          withTimeout(loadProducts(), 2500, null)
+          withTimeout(loadSiteContent('home_main'), 7500, null),
+          withTimeout(loadSiteContent('about_main'), 7500, null),
+          withTimeout(loadBlogPosts(), 7500, null),
+          withTimeout(loadProducts(), 7500, null)
         ]);
 
         if (remoteContent) {
