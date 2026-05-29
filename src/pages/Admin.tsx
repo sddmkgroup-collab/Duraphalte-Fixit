@@ -889,22 +889,38 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                                       label={`Image ${j + 1}`} 
                                       currentImage={img} 
                                       onImageChange={(url) => {
-                                        const newProds = [...homeContent.products];
-                                        if (!newProds[i].images) newProds[i].images = [newProds[i].image];
-                                        newProds[i].images[j] = url;
-                                        if (j === 0) newProds[i].image = url;
+                                        const newProds = homeContent.products.map((p: any, idx: number) => {
+                                          if (idx !== i) return p;
+                                          const currentImgs = p.images && p.images.length > 0 ? [...p.images] : [p.image || ''];
+                                          const updatedImgs = [...currentImgs];
+                                          while (updatedImgs.length <= j) {
+                                            updatedImgs.push('');
+                                          }
+                                          updatedImgs[j] = url;
+                                          return {
+                                            ...p,
+                                            image: j === 0 ? url : (p.image || url),
+                                            images: updatedImgs
+                                          };
+                                        });
                                         setHomeContent({ ...homeContent, products: newProds });
                                       }}
                                     />
                                     <input type="hidden" name={`prod${i}_image_${j}`} value={img} />
-                                    {(prod.images && prod.images.length > 1) && (
+                                    {((prod.images && prod.images.length > 1) || (!prod.images && prod.image)) && (
                                       <button 
                                         type="button"
                                         onClick={() => {
-                                          const newProds = [...homeContent.products];
-                                          const filteredImages = (newProds[i].images || [newProds[i].image]).filter((_: any, idx: number) => idx !== j);
-                                          newProds[i].images = filteredImages;
-                                          newProds[i].image = filteredImages[0] || '';
+                                          const newProds = homeContent.products.map((p: any, idx: number) => {
+                                            if (idx !== i) return p;
+                                            const currentImgs = p.images && p.images.length > 0 ? [...p.images] : [p.image || ''];
+                                            const filteredImages = currentImgs.filter((_: any, idx2: number) => idx2 !== j);
+                                            return {
+                                              ...p,
+                                              image: filteredImages[0] || '',
+                                              images: filteredImages
+                                            };
+                                          });
                                           setHomeContent({ ...homeContent, products: newProds });
                                         }}
                                         className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-xl z-20 hover:scale-110 active:scale-95"
@@ -918,9 +934,14 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                                   <button 
                                     type="button"
                                     onClick={() => {
-                                      const newProds = [...homeContent.products];
-                                      if (!newProds[i].images) newProds[i].images = [newProds[i].image];
-                                      newProds[i].images.push('');
+                                      const newProds = homeContent.products.map((p: any, idx: number) => {
+                                        if (idx !== i) return p;
+                                        const currentImgs = p.images && p.images.length > 0 ? [...p.images] : [p.image || ''];
+                                        return {
+                                          ...p,
+                                          images: [...currentImgs, '']
+                                        };
+                                      });
                                       setHomeContent({ ...homeContent, products: newProds });
                                     }}
                                     className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl hover:bg-white hover:border-blue-400 transition-all text-slate-400 hover:text-blue-500 aspect-video lg:aspect-auto h-[100px]"
@@ -1431,6 +1452,7 @@ CREATE TABLE products (
 );
 
 -- For existing tables, run these lines in Supabase SQL Editor:
+ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS berat_bersih TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS cakupan TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS masa_simpan TEXT;
