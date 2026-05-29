@@ -99,7 +99,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
             <Link
               key={link.label}
               to={link.path}
-              className="font-medium transition-all duration-200 text-slate-600 hover:text-blue-600"
+              className="font-menseal-bold transition-all duration-200 text-slate-600 hover:text-blue-600 tracking-wide text-sm"
             >
               {link.label}
             </Link>
@@ -133,7 +133,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
                   key={link.label}
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-left font-medium py-2 text-slate-600"
+                  className="text-left font-menseal-bold py-2 text-slate-600 tracking-wide"
                 >
                   {link.label}
                 </Link>
@@ -504,7 +504,7 @@ const HomePage = ({ content }: { content: any }) => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {content.products.map((prod: any) => (
+            {content.products.slice(0, 2).map((prod: any) => (
               <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                 <div className="aspect-video overflow-hidden">
                   <img 
