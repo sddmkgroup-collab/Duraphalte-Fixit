@@ -1125,14 +1125,73 @@ export default function App() {
 const ProductsPage = ({ products }: { products: any[] }) => {
   const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const navigate = useNavigate();
+  const [itemsPerPage, setItemsPerPage] = useState<number>(6);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Safe reset of page if items per page or products list changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [itemsPerPage, products.length]);
+
+  const totalProducts = products.length;
+  const indexOfLastProduct = currentPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
   return (
     <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 px-4 sm:px-8 max-w-7xl mx-auto space-y-12 lg:space-y-20">
        <div className="text-center space-y-4">
           <h1 className="text-4xl lg:text-5xl font-black text-[#141d23] leading-tight">Our Industrial Catalog</h1>
           <p className="text-base lg:text-lg text-slate-500 max-w-2xl mx-auto">High-performance material solutions engineered for the most demanding civil engineering environments.</p>
        </div>
+
+       {/* Control Section: Selection Filter for Items Limit */}
+       <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-slate-50 p-4 sm:p-6 rounded-3xl gap-4 border border-slate-100 shadow-sm">
+         <div className="text-sm font-semibold text-slate-500">
+           Menampilkan <span className="text-[#141d23] font-black">{totalProducts > 0 ? indexOfFirstProduct + 1 : 0}-{Math.min(indexOfLastProduct, totalProducts)}</span> dari <span className="text-[#141d23] font-black">{totalProducts}</span> Produk
+         </div>
+         <div className="flex items-center gap-3">
+           <label htmlFor="items-per-page-select" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+             Tampilkan per halaman:
+           </label>
+           <div className="relative">
+             <select
+               id="items-per-page-select"
+               value={itemsPerPage}
+               onChange={(e) => setItemsPerPage(Number(e.target.value))}
+               className="appearance-none bg-white border border-slate-200 text-[#141d23] font-bold text-sm px-4 py-2 pr-10 rounded-xl focus:border-blue-500 focus:outline-none transition-all cursor-pointer shadow-sm hover:bg-slate-50/50"
+             >
+               <option value={6}>6 Produk (Max 6)</option>
+               <option value={10}>10 Produk</option>
+               <option value={15}>15 Produk</option>
+               <option value={20}>20 Produk</option>
+             </select>
+             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+               <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+               </svg>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       {/* Products Grid */}
        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {products.map((prod: any) => (
+          {currentProducts.map((prod: any) => (
             <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition-all">
               <div 
                 className="aspect-square overflow-hidden bg-slate-50 flex items-center justify-center p-8 cursor-pointer"
@@ -1178,6 +1237,45 @@ const ProductsPage = ({ products }: { products: any[] }) => {
             </div>
           ))}
        </div>
+
+       {/* Pagination Control UI */}
+       {totalPages > 1 && (
+         <div className="flex justify-center items-center gap-2 pt-6">
+           <button
+             onClick={handlePrevPage}
+             disabled={currentPage === 1}
+             className="p-3 bg-white hover:bg-slate-50 text-[#141d23] border border-slate-200 rounded-xl font-bold transition-all disabled:opacity-40 disabled:pointer-events-none shadow-sm flex items-center gap-1.5"
+           >
+             <ChevronLeft size={16} />
+             <span className="hidden sm:inline text-xs uppercase tracking-wider">Sebelumnya</span>
+           </button>
+           
+           <div className="flex items-center gap-1.5">
+             {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+               <button
+                 key={pageNum}
+                 onClick={() => setCurrentPage(pageNum)}
+                 className={`w-11 h-11 rounded-xl font-bold text-sm transition-all shadow-sm ${
+                   currentPage === pageNum
+                     ? 'bg-blue-700 text-white'
+                     : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'
+                 }`}
+               >
+                 {pageNum}
+               </button>
+             ))}
+           </div>
+
+           <button
+             onClick={handleNextPage}
+             disabled={currentPage === totalPages}
+             className="p-3 bg-white hover:bg-slate-50 text-[#141d23] border border-slate-200 rounded-xl font-bold transition-all disabled:opacity-40 disabled:pointer-events-none shadow-sm flex items-center gap-1.5"
+           >
+             <span className="hidden sm:inline text-xs uppercase tracking-wider">Selanjutnya</span>
+             <ChevronRight size={16} />
+           </button>
+         </div>
+       )}
 
        <div className="bg-slate-900 rounded-[3rem] p-8 lg:p-16 text-center space-y-8 relative overflow-hidden">
           <div className="relative z-10 max-w-2xl mx-auto">
