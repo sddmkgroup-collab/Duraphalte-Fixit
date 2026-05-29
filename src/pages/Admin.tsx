@@ -866,12 +866,71 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
 
                   {/* Products Section */}
                   <div className="space-y-8 pt-8 border-t border-slate-100">
-                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4">Products Catalog</h3>
+                    <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-100 pb-4">
+                      <h3 className="text-xl font-bold">Products Catalog</h3>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const randId = Math.random().toString(36).substring(2, 9);
+                          const newId = `prod_${randId}`;
+                          const newProduct = {
+                            id: newId,
+                            title: `DURAPHALTE Produk ${randId.toUpperCase()}`,
+                            desc: "Teknologi aspal dingin berkualitas tinggi untuk perbaikan jalan instan dan permanen.",
+                            price: "250.000",
+                            oldPrice: "300.000",
+                            badge: "Baru",
+                            image: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=400&auto=format&fit=crop",
+                            images: ["https://images.unsplash.com/photo-1515162305285-0293e4767cc2?q=80&w=400&auto=format&fit=crop"],
+                            tokopedia: "",
+                            shopee: "",
+                            berat_bersih: "25.0 kg",
+                            cakupan: "± 0.5m² (tebal 25mm)",
+                            masa_simpan: "12 Bulan (Tertutup)",
+                            waktu_pengeringan: "Instan"
+                          };
+                          const updatedProducts = [...(homeContent.products || []), newProduct];
+                          setHomeContent({ ...homeContent, products: updatedProducts });
+                          showToast("Produk Baru Ditambahkan", "info", 3000, "Silakan lengkapi detail produk baru dan klik Simpan Perbaikan.");
+                        }}
+                        className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-700 text-white rounded-xl text-xs font-bold hover:bg-blue-800 transition-all shadow-md active:scale-95 self-start sm:self-auto"
+                      >
+                        <Plus size={14} />
+                        Tambah Produk Baru
+                      </button>
+                    </div>
                     <div className="grid grid-cols-1 gap-8">
                       {homeContent.products?.map((prod: any, i: number) => (
-                        <div key={prod.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-black text-blue-700 uppercase tracking-widest text-xs">Product: {prod.id}</h4>
+                        <div key={prod.id ?? i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
+                          <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                            <h4 className="font-extrabold text-blue-700 uppercase tracking-widest text-xs">ID Produk: {prod.id}</h4>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (window.confirm(`Apakah Anda yakin ingin menghapus produk "${prod.title || prod.id}"? Tindakan ini tidak dapat dibatalkan.`)) {
+                                  // Remove from local state
+                                  const updatedProducts = homeContent.products.filter((p: any) => p.id !== prod.id);
+                                  setHomeContent({ ...homeContent, products: updatedProducts });
+                                  
+                                  // Also delete in Supabase if configured 
+                                  if (isSupabaseConfigured) {
+                                    try {
+                                      showToast("Menghapus produk dari database...", "loading", 0);
+                                      await deleteProductInDb(prod.id);
+                                      showToast("Produk Dihapus", "success", 3000, "Produk berhasil dihapus secara permanen dari database.");
+                                    } catch (err: any) {
+                                      showToast("Gagal Menghapus dari Database", "error", 5000, err.message || "Gagal menghubungi database");
+                                    }
+                                  } else {
+                                    showToast("Produk Dihapus", "success", 3000, "Produk berhasil dihapus dari formulir.");
+                                  }
+                                }
+                              }}
+                              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-red-600 bg-red-50 hover:bg-red-100 rounded-lg hover:text-red-700 font-extrabold transition-all"
+                            >
+                              <Trash2 size={13} />
+                              Hapus Produk
+                            </button>
                           </div>
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <div className="space-y-6">
