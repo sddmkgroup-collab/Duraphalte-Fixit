@@ -643,8 +643,10 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
             />
           </div>
           <div className="grid grid-cols-4 gap-4 mt-6">
-            {(product.images && product.images.length > 0 ? product.images : [product.image]).map((img: string, i: number) => (
-              <div 
+            {(product.images && product.images.length > 0 ? product.images : [product.image])
+              .filter((img: string) => img && img.trim() !== '')
+              .map((img: string, i: number) => (
+                <div 
                 key={i} 
                 onClick={() => setActiveImage(img)}
                 className={`bg-white border rounded-xl p-2 aspect-square hover:opacity-100 transition-all cursor-pointer ${
