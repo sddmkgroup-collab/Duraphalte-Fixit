@@ -623,20 +623,34 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
   const { id } = useParams<{ id: string }>();
   const product = products.find(p => p.id === id) || products[0];
 
+  const [activeImage, setActiveImage] = useState<string>('');
+
+  useEffect(() => {
+    if (product) {
+      setActiveImage(product.image || (product.images && product.images.length > 0 ? product.images[0] : ''));
+    }
+  }, [product]);
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-5 duration-700 mt-16 lg:mt-20">
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
         <div className="lg:sticky lg:top-32">
           <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm aspect-square flex items-center justify-center p-6 lg:p-12 group cursor-zoom-in">
             <img 
-              src={product.image || (product.images && product.images.length > 0 ? product.images[0] : '')} 
+              src={activeImage || product.image || (product.images && product.images.length > 0 ? product.images[0] : '')} 
               className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" 
               alt={product.title} 
             />
           </div>
           <div className="grid grid-cols-4 gap-4 mt-6">
             {(product.images && product.images.length > 0 ? product.images : [product.image]).map((img: string, i: number) => (
-              <div key={i} className="bg-white border border-slate-200 rounded-xl p-2 aspect-square opacity-60 hover:opacity-100 transition-all cursor-pointer">
+              <div 
+                key={i} 
+                onClick={() => setActiveImage(img)}
+                className={`bg-white border rounded-xl p-2 aspect-square hover:opacity-100 transition-all cursor-pointer ${
+                  activeImage === img ? 'border-blue-600 ring-2 ring-blue-500/20 opacity-100' : 'border-slate-200 opacity-60'
+                }`}
+              >
                 <img src={img} className="w-full h-full object-cover rounded-lg" alt="Thumbnail" />
               </div>
             ))}
@@ -993,25 +1007,25 @@ export default function App() {
     return saved ? JSON.parse(saved) : initialBlogPosts;
   });
 
-  const [loading, setLoading] = useState(() => {
-    // Only show loading screen on first load if no local cache exists
-    const hasCache = safeLocalStorage.getItem('duraphalte_content') || 
-                     safeLocalStorage.getItem('duraphalte_about') || 
-                     safeLocalStorage.getItem('duraphalte_blog');
-    return !hasCache;
-  });
+  const [loading, setLoading] = useState(false);
 
   // Initial Data Fetch
   useEffect(() => {
+    const withTimeout = <T,>(promise: Promise<T>, ms: number, defaultValue: T): Promise<T> => {
+      return Promise.race([
+        promise,
+        new Promise<T>((resolve) => setTimeout(() => resolve(defaultValue), ms))
+      ]);
+    };
+
     const fetchData = async () => {
-      // If we don't have cache, we are already showing the loading screen
-      // If we do have cache, we fetch silently in the background
       try {
+        // Fetch values concurrently with structured timeout to avoid holding the loading sequence
         const [remoteContent, remoteAbout, remotePosts, remoteProducts] = await Promise.all([
-          loadSiteContent('home_main'),
-          loadSiteContent('about_main'),
-          loadBlogPosts(),
-          loadProducts()
+          withTimeout(loadSiteContent('home_main'), 2500, null),
+          withTimeout(loadSiteContent('about_main'), 2500, null),
+          withTimeout(loadBlogPosts(), 2500, null),
+          withTimeout(loadProducts(), 2500, null)
         ]);
 
         if (remoteContent) {
@@ -1045,8 +1059,6 @@ export default function App() {
         }
       } catch (error) {
         console.error("Fetch error:", error);
-      } finally {
-        setLoading(false);
       }
     };
     fetchData();

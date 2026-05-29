@@ -285,11 +285,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
         type: currentVideoType,
       },
       products: homeContent.products.map((prod: any, i: number) => {
-        const productImages: string[] = [];
-        for (let j = 0; j < 4; j++) {
-          const imgVal = formData.get(`prod${i}_image_${j}`) as string;
-          if (imgVal) productImages.push(imgVal);
-        }
+        const productImages = (prod.images || [prod.image || '']).filter((url: string) => !!url);
         return {
           ...prod,
           title: formData.get(`prod${i}_title`) as string,
@@ -302,8 +298,8 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           cakupan: (formData.get(`prod${i}_cakupan`) as string) || '',
           masa_simpan: (formData.get(`prod${i}_masa_simpan`) as string) || '',
           waktu_pengeringan: (formData.get(`prod${i}_waktu_pengeringan`) as string) || '',
-          image: productImages[0] || prod.image, // Fallback
-          images: productImages.length > 0 ? productImages : [prod.image]
+          image: productImages[0] || prod.image || '',
+          images: productImages.length > 0 ? productImages : [prod.image || '']
         };
       }),
       testimonials: (homeContent.testimonials || []).map((t: any, i: number) => ({
