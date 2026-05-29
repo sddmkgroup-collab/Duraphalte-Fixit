@@ -203,6 +203,71 @@ export const deleteProductInDb = async (id: string) => {
   }
 };
 
+const compressImage = (file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.75): Promise<File> => {
+  return new Promise((resolve) => {
+    // If not an image, resolve directly
+    if (!file.type.startsWith('image/')) {
+      resolve(file);
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        
+        // Calculate new dimensions preserving aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        
+        // Fill white background (useful for transparent PNG backgrounds converted to JPEG)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Convert to blob and then to file
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', quality);
+      };
+      
+      img.onerror = () => resolve(file);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+};
+
 export const uploadImage = async (file: File): Promise<string | null> => {
   const toBase64 = (f: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -211,10 +276,19 @@ export const uploadImage = async (file: File): Promise<string | null> => {
     reader.readAsDataURL(f);
   });
 
+  // Prioritize compressing image before sending to Supabase or Base64 fallback
+  let processedFile = file;
+  try {
+    processedFile = await compressImage(file);
+    console.log(`[Image Compressor] Reduced size from ${(file.size / 1024).toFixed(1)}KB to ${(processedFile.size / 1024).toFixed(1)}KB`);
+  } catch (compErr) {
+    console.warn('[Image Compressor] Failed to compress image, using original file instead.', compErr);
+  }
+
   if (!isSupabaseConfigured) {
     console.warn('Supabase not configured, using Base64 fallback.');
     try {
-      return await toBase64(file);
+      return await toBase64(processedFile);
     } catch (e) {
       console.error('Base64 conversion failed:', e);
       return null;
@@ -222,19 +296,19 @@ export const uploadImage = async (file: File): Promise<string | null> => {
   }
 
   try {
-    const fileExt = file.name.split('.').pop() || 'png';
+    const fileExt = processedFile.name.split('.').pop() || 'jpg';
     const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
     const filePath = `uploads/${fileName}`;
 
     console.log('Attempting Supabase upload:', filePath);
     const { error: uploadError } = await supabase.storage
       .from('images')
-      .upload(filePath, file);
+      .upload(filePath, processedFile);
 
     if (uploadError) {
       console.error('Supabase upload error:', uploadError);
       console.warn('Falling back to Base64 due to storage error.');
-      return await toBase64(file);
+      return await toBase64(processedFile);
     }
 
     const { data } = supabase.storage
@@ -243,7 +317,7 @@ export const uploadImage = async (file: File): Promise<string | null> => {
 
     if (!data?.publicUrl) {
       console.warn('Could not generate public URL, falling back to Base64.');
-      return await toBase64(file);
+      return await toBase64(processedFile);
     }
 
     return data.publicUrl;
@@ -251,7 +325,7 @@ export const uploadImage = async (file: File): Promise<string | null> => {
     console.error('Unexpected error during Supabase upload:', err);
     try {
       console.warn('Trying ultimate Base64 fallback after unexpected error.');
-      return await toBase64(file);
+      return await toBase64(processedFile);
     } catch (e) {
       console.error('Ultimate Base64 fallback also failed:', e);
       return null;

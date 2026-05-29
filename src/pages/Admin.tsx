@@ -25,8 +25,8 @@ const ImageUpload = ({ label, currentImage, onImageChange, extraValidation }: {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File too large. Single image must be under 2MB.");
+      if (file.size > 10 * 1024 * 1024) {
+        alert("File too large. Single image must be under 10MB.");
         return;
       }
 
@@ -881,7 +881,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                             </div>
 
                             <div className="bg-white/50 p-6 rounded-2xl border border-slate-200/50 space-y-4">
-                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4 Images, 2MB per Image)</label>
+                              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2">Product Gallery (Max 4 Images, up to 10MB per Image)</label>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 {(prod.images && prod.images.length > 0 ? prod.images : [prod.image]).map((img: string, j: number) => (
                                   <div key={j} className="relative group">
