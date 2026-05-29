@@ -142,7 +142,11 @@ export const loadProducts = async () => {
         images: p.images || [p.image || ''],
         desc: p.desc || '',
         tokopedia: p.tokopedia || '',
-        shopee: p.shopee || ''
+        shopee: p.shopee || '',
+        berat_bersih: p.berat_bersih || '',
+        cakupan: p.cakupan || '',
+        masa_simpan: p.masa_simpan || '',
+        waktu_pengeringan: p.waktu_pengeringan || ''
       }));
     }
     return null;
@@ -167,6 +171,10 @@ export const saveProducts = async (products: any[]) => {
       desc: p.desc || p.description || '',
       tokopedia: p.tokopedia || '',
       shopee: p.shopee || '',
+      berat_bersih: p.berat_bersih || '',
+      cakupan: p.cakupan || '',
+      masa_simpan: p.masa_simpan || '',
+      waktu_pengeringan: p.waktu_pengeringan || '',
       updated_at: new Date().toISOString()
     }));
     

@@ -298,6 +298,10 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           oldPrice: formData.get(`prod${i}_oldPrice`) as string,
           tokopedia: formData.get(`prod${i}_tokopedia`) as string,
           shopee: formData.get(`prod${i}_shopee`) as string,
+          berat_bersih: (formData.get(`prod${i}_berat_bersih`) as string) || '',
+          cakupan: (formData.get(`prod${i}_cakupan`) as string) || '',
+          masa_simpan: (formData.get(`prod${i}_masa_simpan`) as string) || '',
+          waktu_pengeringan: (formData.get(`prod${i}_waktu_pengeringan`) as string) || '',
           image: productImages[0] || prod.image, // Fallback
           images: productImages.length > 0 ? productImages : [prod.image]
         };
@@ -834,6 +838,48 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                                 <div>
                                   <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Shopee Link</label>
                                   <input name={`prod${i}_shopee`} defaultValue={prod.shopee} className="w-full p-4 bg-white border border-slate-200 rounded-xl text-xs font-mono" />
+                                </div>
+                              </div>
+
+                              <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100/50 space-y-4">
+                                <h5 className="font-extrabold text-[10px] text-blue-800 uppercase tracking-wider">Spesifikasi Teknis (Technical Specifications)</h5>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Berat Bersih</label>
+                                    <input 
+                                      name={`prod${i}_berat_bersih`} 
+                                      defaultValue={prod.berat_bersih || (prod.id === '5kg' ? "5.0 kg" : "25.0 kg")} 
+                                      placeholder="e.g., 25.0 kg" 
+                                      className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Cakupan</label>
+                                    <input 
+                                      name={`prod${i}_cakupan`} 
+                                      defaultValue={prod.cakupan || (prod.id === '5kg' ? "± 0.1m² (tebal 25mm)" : "± 0.5m² (tebal 25mm)")} 
+                                      placeholder="e.g., ± 0.5m² (tebal 25mm)" 
+                                      className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Masa Simpan</label>
+                                    <input 
+                                      name={`prod${i}_masa_simpan`} 
+                                      defaultValue={prod.masa_simpan || "12 Bulan (Tertutup)"} 
+                                      placeholder="e.g., 12 Bulan (Tertutup)" 
+                                      className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs" 
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Waktu Pengeringan</label>
+                                    <input 
+                                      name={`prod${i}_waktu_pengeringan`} 
+                                      defaultValue={prod.waktu_pengeringan || "Instan (Lalu Lintas Langsung)"} 
+                                      placeholder="e.g., Instan" 
+                                      className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs" 
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -1380,9 +1426,19 @@ CREATE TABLE products (
   "desc" TEXT,
   tokopedia TEXT,
   shopee TEXT,
+  berat_bersih TEXT,
+  cakupan TEXT,
+  masa_simpan TEXT,
+  waktu_pengeringan TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
-);`}
+);
+
+-- For existing tables, run these lines in Supabase SQL Editor:
+ALTER TABLE products ADD COLUMN IF NOT EXISTS berat_bersih TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS cakupan TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS masa_simpan TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS waktu_pengeringan TEXT;`}
                           </pre>
                         </div>
                         <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">

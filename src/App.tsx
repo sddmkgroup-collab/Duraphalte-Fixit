@@ -693,10 +693,10 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
             <h3 className="text-2xl font-bold">Spesifikasi Teknis</h3>
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
               {[
-                { label: "Berat Bersih", val: "25.0 kg" },
-                { label: "Cakupan", val: "± 0.5m² (tebal 25mm)" },
-                { label: "Masa Simpan", val: "12 Bulan (Tertutup)" },
-                { label: "Waktu Pengeringan", val: "Instan (Lalu Lintas Langsung)" }
+                { label: "Berat Bersih", val: product.berat_bersih || (product.id === '5kg' ? "5.0 kg" : "25.0 kg") },
+                { label: "Cakupan", val: product.cakupan || (product.id === '5kg' ? "± 0.1m² (tebal 25mm)" : "± 0.5m² (tebal 25mm)") },
+                { label: "Masa Simpan", val: product.masa_simpan || "12 Bulan (Tertutup)" },
+                { label: "Waktu Pengeringan", val: product.waktu_pengeringan || "Instan (Lalu Lintas Langsung)" }
               ].map((row, i) => (
                 <div key={i} className={`flex justify-between p-4 ${i % 2 === 0 ? '' : 'bg-slate-50'}`}>
                   <span className="font-bold text-slate-500">{row.label}</span>
