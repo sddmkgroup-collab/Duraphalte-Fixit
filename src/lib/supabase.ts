@@ -228,7 +228,7 @@ export const deleteProductInDb = async (id: string) => {
   }
 };
 
-const compressImage = (file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.75): Promise<File> => {
+const compressImage = (file: File, maxWidth = 900, maxHeight = 900, quality = 0.65): Promise<File> => {
   return new Promise((resolve) => {
     // If not an image, resolve directly
     if (!file.type.startsWith('image/')) {

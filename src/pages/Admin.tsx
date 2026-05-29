@@ -195,6 +195,35 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
   const [dbError, setDbError] = useState<string | null>(null);
   const [videoSourceType, setVideoSourceType] = useState(homeContent?.videoSection?.type || 'youtube');
 
+  const [toast, setToast] = useState<{ 
+    message: string; 
+    type: 'success' | 'error' | 'loading' | 'info'; 
+    id: number;
+    description?: string;
+  } | null>(null);
+
+  const toastTimeoutRef = React.useRef<any>(null);
+  
+  const showToast = (message: string, type: 'success' | 'error' | 'loading' | 'info', duration = 4000, description?: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast({ message, type, id: Date.now(), description });
+    if (type !== 'loading' && duration > 0) {
+      toastTimeoutRef.current = setTimeout(() => {
+        setToast(null);
+      }, duration);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (isSupabaseConfigured) {
       checkDbHealth();
@@ -325,19 +354,28 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
       setHomeContent(updatedContent);
       safeLocalStorage.setItem('duraphalte_content', JSON.stringify(updatedContent));
       
+      // Release button loading and show elegant Toast
+      setLoading(false);
+      showToast("Menyimpan perubahan...", "loading", 0, "Sedang mensinkronisasikan konten dan produk Anda ke database");
+
       if (isSupabaseConfigured) {
-        await Promise.all([
+        Promise.all([
           saveSiteContent(updatedContent, 'home_main'),
           saveProducts(updatedContent.products)
-        ]);
-        alert("✅ Perubahan Berhasil Disimpan & Sinkron (Database)!");
+        ])
+          .then(() => {
+            showToast("Perubahan Berhasil Disimpan", "success", 4000, "Semua teks dan data produk telah tersinkronisasi ke database");
+          })
+          .catch((err: any) => {
+            console.error("Home save error details:", err);
+            showToast("Gagal Sinkronisasi Database", "error", 6000, `Tersimpan lokal. Error: ${err.message || 'Unknown Error'}`);
+          });
       } else {
-        alert("⚠️ Perubahan disimpan secara lokal di browser ini.");
+        showToast("Tersimpan Secara Lokal", "success", 4000, "Perubahan disimpan secara lokal di browser ini.");
       }
     } catch (err: any) {
       console.error("Home save error details:", err);
-      alert(`⚠️ Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}\n\nPerubahan Anda tetap aman di browser ini.`);
-    } finally {
+      showToast("Gagal Menyimpan", "error", 6000, `Error: ${err.message || 'Unknown Error'}`);
       setLoading(false);
     }
   };
@@ -392,16 +430,25 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
       setAboutContent(updatedContent);
       safeLocalStorage.setItem('duraphalte_about', JSON.stringify(updatedContent));
 
+      // Release button loading and show elegant Toast
+      setLoading(false);
+      showToast("Menyimpan halaman About...", "loading", 0, "Sedang mensinkronisasikan data ke database");
+
       if (isSupabaseConfigured) {
-        await saveSiteContent(updatedContent, 'about_main');
-        alert("✅ Halaman About Us Berhasil Disimpan & Sinkron!");
+        saveSiteContent(updatedContent, 'about_main')
+          .then(() => {
+            showToast("About Us Berhasil Disimpan", "success", 4000, "Semua data halaman About telah disinkronisasikan");
+          })
+          .catch((err: any) => {
+            console.error("About save error details:", err);
+            showToast("Gagal Sinkronisasi Database", "error", 6000, `Tersimpan lokal. Error: ${err.message || 'Unknown Error'}`);
+          });
       } else {
-        alert("⚠️ Perubahan About Us disimpan secara lokal.");
+        showToast("Tersimpan Secara Lokal", "success", 4000, "Perubahan About Us disimpan secara lokal.");
       }
     } catch (err: any) {
       console.error("About save error details:", err);
-      alert(`⚠️ Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}\n\nPerubahan Anda tetap aman di browser ini.`);
-    } finally {
+      showToast("Gagal Menyimpan", "error", 6000, `Error: ${err.message || 'Unknown Error'}`);
       setLoading(false);
     }
   };
@@ -418,17 +465,29 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
   };
 
   const handleBlogSave = async () => {
-    setLoading(true);
     try {
       // 1. Immediate local save
       safeLocalStorage.setItem('duraphalte_blog', JSON.stringify(blogPosts));
       
-      await saveBlogPosts(blogPosts);
-      alert("✅ Blog Berhasil Disimpan & Sinkron!");
+      // Release loading state immediately
+      setLoading(false);
+      showToast("Menyimpan artikel blog...", "loading", 0, "Sedang mensinkronisasikan daftar artikel ke database");
+
+      if (isSupabaseConfigured) {
+        saveBlogPosts(blogPosts)
+          .then(() => {
+            showToast("Blog Berhasil Disimpan", "success", 4000, "Semua artikel telah sinkron dengan database");
+          })
+          .catch((err: any) => {
+            console.error("Blog save error details:", err);
+            showToast("Gagal Sinkronisasi Database", "error", 6000, `Tersimpan lokal. Error: ${err.message || 'Unknown Error'}`);
+          });
+      } else {
+        showToast("Tersimpan Secara Lokal", "success", 4000, "Artikel blog disimpan lokal di browser ini.");
+      }
     } catch (err: any) {
       console.error("Blog save error details:", err);
-      alert(`⚠️ Blog Tersimpan Lokal, tapi Gagal Sinkron Ke Database.\nError: ${err.message || 'Unknown Error'}`);
-    } finally {
+      showToast("Gagal Menyimpan", "error", 6000, err.message || 'Unknown Error');
       setLoading(false);
     }
   };
@@ -1547,6 +1606,55 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS waktu_pengeringan TEXT;`}
           </div>
         )}
       </main>
+
+      {/* Sleek Floating Toast Notifications */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+            className="fixed bottom-6 right-6 z-[100] max-w-sm w-80 sm:w-96 bg-white rounded-2xl border border-slate-100 p-4 flex gap-3 items-start overflow-hidden leading-relaxed"
+            style={{ boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
+          >
+            {/* Left Indicator Decor */}
+            <div className={`w-1.5 absolute left-0 top-0 bottom-0 ${
+              toast.type === 'success' ? 'bg-emerald-500' :
+              toast.type === 'error' ? 'bg-rose-500' :
+              toast.type === 'loading' ? 'bg-blue-600' :
+              'bg-blue-500'
+            }`} />
+
+            <div className="flex-1 pl-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  {toast.type === 'loading' && (
+                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin shrink-0" />
+                  )}
+                  {toast.type === 'success' && (
+                    <span className="text-emerald-500 font-bold shrink-0 text-sm">✓</span>
+                  )}
+                  {toast.type === 'error' && (
+                    <span className="text-rose-500 font-bold shrink-0 text-sm">✕</span>
+                  )}
+                  <p className="font-extrabold text-xs text-slate-800 tracking-tight">{toast.message}</p>
+                </div>
+                {toast.type !== 'loading' && (
+                  <button 
+                    onClick={() => setToast(null)}
+                    className="text-slate-400 hover:text-slate-600 text-xs font-bold transition-all p-1"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              {toast.description && (
+                <p className="text-[11px] text-slate-500 font-medium mt-1 leading-normal">{toast.description}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
