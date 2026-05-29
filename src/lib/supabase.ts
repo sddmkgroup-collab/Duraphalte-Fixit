@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Safe helper to read from localstorage before safeLocalStorage is declared
+// Masukkan URL dan Anon Key Anda di sini agar tersimpan secara permanen dan tidak hilang saat reload!
+const MY_CUSTOM_URL = ''; // Contoh: 'https://xxxxxxx.supabase.co'
+const MY_CUSTOM_ANON_KEY = ''; // Contoh: 'eyJhbGciOi...'
+
 const getLocalStorageOverride = (key: string): string => {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -12,18 +15,18 @@ const getLocalStorageOverride = (key: string): string => {
   return '';
 };
 
-const customUrl = getLocalStorageOverride('supabase_url');
-const customKey = getLocalStorageOverride('supabase_anon_key');
+const customUrl = MY_CUSTOM_URL || getLocalStorageOverride('supabase_url');
+const customKey = MY_CUSTOM_ANON_KEY || getLocalStorageOverride('supabase_anon_key');
 
-export const isCustomSupabaseConfigured = !!(customUrl && customKey);
+export const isCustomSupabaseConfigured = !!(MY_CUSTOM_URL || customUrl && customKey);
 export const isDefaultSupabaseActive = !isCustomSupabaseConfigured;
 
 export const supabaseUrl = isCustomSupabaseConfigured 
-  ? customUrl 
+  ? (MY_CUSTOM_URL || customUrl)
   : (import.meta.env.VITE_SUPABASE_URL || 'https://kljjcxkyqffqsphuodcu.supabase.co');
 
 export const supabaseAnonKey = isCustomSupabaseConfigured 
-  ? customKey 
+  ? (MY_CUSTOM_ANON_KEY || customKey)
   : (import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsampjeGt5cWZmcXNwaHVvZGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NjUyNTAsImV4cCI6MjA5NDE0MTI1MH0.LwNKOedyerLsv0ynQa0nB2OV7_whA1PIXcJbiFPzfC4');
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);
