@@ -642,20 +642,20 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
               alt={product.title} 
             />
           </div>
-          <div className="grid grid-cols-4 gap-4 mt-6">
+          <div className="flex flex-wrap gap-3 mt-6">
             {(product.images && product.images.length > 0 ? product.images : [product.image])
               .filter((img: string) => img && img.trim() !== '')
               .map((img: string, i: number) => (
                 <div 
-                key={i} 
-                onClick={() => setActiveImage(img)}
-                className={`bg-white border rounded-xl p-2 aspect-square hover:opacity-100 transition-all cursor-pointer ${
-                  activeImage === img ? 'border-blue-600 ring-2 ring-blue-500/20 opacity-100' : 'border-slate-200 opacity-60'
-                }`}
-              >
-                <img src={img} className="w-full h-full object-cover rounded-lg" alt="Thumbnail" />
-              </div>
-            ))}
+                  key={i} 
+                  onClick={() => setActiveImage(img)}
+                  className={`bg-white border rounded-xl p-1.5 w-16 h-16 sm:w-20 sm:h-20 shrink-0 hover:opacity-100 transition-all cursor-pointer flex items-center justify-center ${
+                    activeImage === img ? 'border-blue-600 ring-2 ring-blue-500/20 opacity-100' : 'border-slate-200 opacity-60'
+                  }`}
+                >
+                  <img src={img} className="w-full h-full object-cover rounded-lg" alt="Thumbnail" />
+                </div>
+              ))}
           </div>
         </div>
 

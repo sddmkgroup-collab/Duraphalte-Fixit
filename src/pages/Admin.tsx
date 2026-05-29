@@ -285,7 +285,16 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
         type: currentVideoType,
       },
       products: homeContent.products.map((prod: any, i: number) => {
-        const productImages = (prod.images || [prod.image || '']).filter((url: string) => !!url);
+        const formImages: string[] = [];
+        for (let j = 0; j < 5; j++) {
+          const imgUrl = formData.get(`prod${i}_image_${j}`) as string;
+          if (imgUrl !== null && imgUrl !== undefined) {
+            formImages.push(imgUrl);
+          }
+        }
+        const sourceImages = formImages.length > 0 ? formImages : (prod.images || [prod.image || '']);
+        const productImages = sourceImages.filter((url: string) => !!url && url.trim() !== '');
+        
         return {
           ...prod,
           title: formData.get(`prod${i}_title`) as string,

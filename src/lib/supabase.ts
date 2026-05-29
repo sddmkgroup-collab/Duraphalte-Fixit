@@ -131,23 +131,48 @@ export const loadProducts = async () => {
     }
     
     if (data) {
-      return data.map((p: any) => ({
-        id: p.id,
-        title: p.title || '',
-        badge: p.badge || '',
-        price: p.price || '',
-        oldPrice: p.old_price || '',
-        discount: p.discount || '',
-        image: p.image || '',
-        images: (p.images || [p.image || '']).filter((img: string) => img && img.trim() !== ''),
-        desc: p.desc || '',
-        tokopedia: p.tokopedia || '',
-        shopee: p.shopee || '',
-        berat_bersih: p.berat_bersih || '',
-        cakupan: p.cakupan || '',
-        masa_simpan: p.masa_simpan || '',
-        waktu_pengeringan: p.waktu_pengeringan || ''
-      }));
+      return data.map((p: any) => {
+        let parsedImages: string[] = [];
+        if (p.images) {
+          if (Array.isArray(p.images)) {
+            parsedImages = p.images;
+          } else if (typeof p.images === 'string') {
+            try {
+              if (p.images.startsWith('{') && p.images.endsWith('}')) {
+                const content = p.images.substring(1, p.images.length - 1);
+                parsedImages = content ? content.split(',').map(s => s.trim().replace(/^"|"$/g, '')) : [];
+              } else {
+                const parsed = JSON.parse(p.images);
+                if (Array.isArray(parsed)) {
+                  parsedImages = parsed;
+                }
+              }
+            } catch (e) {
+              parsedImages = p.images.split(',').map((s: string) => s.trim());
+            }
+          }
+        }
+        
+        const finalImages = parsedImages.filter((img: string) => img && img.trim() !== '');
+        
+        return {
+          id: p.id,
+          title: p.title || '',
+          badge: p.badge || '',
+          price: p.price || '',
+          oldPrice: p.old_price || '',
+          discount: p.discount || '',
+          image: p.image || '',
+          images: finalImages.length > 0 ? finalImages : [p.image || ''],
+          desc: p.desc || '',
+          tokopedia: p.tokopedia || '',
+          shopee: p.shopee || '',
+          berat_bersih: p.berat_bersih || '',
+          cakupan: p.cakupan || '',
+          masa_simpan: p.masa_simpan || '',
+          waktu_pengeringan: p.waktu_pengeringan || ''
+        };
+      });
     }
     return null;
   } catch (err) {
