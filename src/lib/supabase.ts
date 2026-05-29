@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Masukkan URL dan Anon Key Anda di sini agar tersimpan secara permanen dan tidak hilang saat reload!
-const MY_CUSTOM_URL = ''; // Contoh: 'https://xxxxxxx.supabase.co'
-const MY_CUSTOM_ANON_KEY = ''; // Contoh: 'eyJhbGciOi...'
+const MY_CUSTOM_URL = 'https://kljjcxkyqffqsphuodcu.supabase.co'; // Contoh: 'https://xxxxxxx.supabase.co'
+const MY_CUSTOM_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsampjeGt5cWZmcXNwaHVvZGN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NjUyNTAsImV4cCI6MjA5NDE0MTI1MH0.LwNKOedyerLsv0ynQa0nB2OV7_whA1PIXcJbiFPzfC4'; // Contoh: 'eyJhbGciOi...'
 
 const getLocalStorageOverride = (key: string): string => {
   try {

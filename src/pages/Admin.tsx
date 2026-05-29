@@ -110,7 +110,7 @@ const AdminLogin = ({ onLogin }: { onLogin: () => void }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="admin-portal min-h-screen bg-slate-900 flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -493,7 +493,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 animate-in fade-in duration-500 relative">
+    <div className="admin-portal flex min-h-screen bg-slate-50 animate-in fade-in duration-500 relative">
       {/* Sidebar Overlay for Mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -511,7 +511,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
       <aside className={`fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-white flex flex-col z-[70] transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-8 border-b border-slate-100 mb-6 flex justify-between items-center">
           <div>
-            <div className="text-xl font-black text-blue-700 tracking-tighter">Duraphalte FIXIT</div>
+            <div className="text-lg font-eurostile-logo text-[#0066FF]">DURAPHALTE</div>
             <div className="text-[10px] font-black uppercase text-slate-400 mt-1 tracking-[0.2em]">Management Console</div>
           </div>
           <button className="lg:hidden p-2 text-slate-400" onClick={() => setIsSidebarOpen(false)}>
@@ -566,7 +566,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                 {activeView === 'dashboard' ? 'Dashboard Overview' : 
                  activeView === 'analytics' ? 'Visitor Analytics' : 'Content Management'}
               </h1>
-              <p className="text-slate-500 font-medium text-sm lg:text-base">Duraphalte Fixit Industrial Portal</p>
+              <p className="text-slate-500 font-medium text-sm lg:text-base">Duraphalte Industrial Portal</p>
             </div>
           </div>
           

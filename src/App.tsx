@@ -87,11 +87,10 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
       <div className="flex justify-between items-center h-full px-8 max-w-7xl mx-auto">
         <Link 
           to="/"
-          className="flex items-center gap-3 group"
+          className="flex items-center group"
         >
-          <DMKLogo className="w-10 h-10 group-hover:scale-110 transition-transform" />
-          <span className="text-xl font-black tracking-tighter text-blue-700">
-            Duraphalte Fixit
+          <span className="text-2xl md:text-3xl font-eurostile-logo text-[#0066FF] select-none">
+            DURAPHALTE
           </span>
         </Link>
         
@@ -162,7 +161,7 @@ const Footer = () => {
     <footer id="contact" className="w-full pt-20 pb-10 bg-slate-900 text-slate-400 text-sm">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 px-8 max-w-7xl mx-auto">
         <div className="md:col-span-4">
-          <div className="text-2xl font-black text-white mb-6">Duraphalte Fixit</div>
+          <div className="text-2xl md:text-3xl font-eurostile-logo text-white mb-6 select-none">DURAPHALTE</div>
           <p className="mb-6 leading-relaxed">
             Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi. Part of DMK Group.
           </p>
@@ -224,7 +223,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-8 mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p>© 2024 Duraphalte Fixit Industrial. All rights reserved.</p>
+        <p>© 2024 DURAPHALTE. All rights reserved.</p>
         <div className="flex gap-6 text-xs font-semibold uppercase tracking-widest opacity-50">
           <span>Certified Quality</span>
           <span>Indonesian Made</span>

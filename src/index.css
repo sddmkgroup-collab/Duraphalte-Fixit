@@ -1,17 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&family=Michroma&family=Syncopate:wght@700&family=Montserrat:ital,wght@1,900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Work Sans", sans-serif;
+  --font-eurostile: "Eurostile Bold Italic Extended", "Eurostile Extended Bold Italic", "EurostileLTStd-BoldEx2", "EurostileLTStd-BoldEx", "Eurostile-BoldItalic", "Eurostile Extended", "Eurostile", "Arial Black", "Montserrat", "Michroma", "Syncopate", "Arial Black", sans-serif;
 }
 
 :root {
   font-family: var(--font-body);
 }
 
-h1, h2, h3, h4, h5, h6, .font-inter {
+h1, h2 {
+  font-family: var(--font-eurostile);
+  font-weight: 950;
+  font-style: italic;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+h3, h4, h5, h6, .font-inter {
   font-family: var(--font-sans);
+}
+
+/* Exclude the admin portal so its form fields and text stay crisp and normal */
+.admin-portal h1,
+.admin-portal h2,
+.admin-portal h3,
+.admin-portal h4,
+.admin-portal h5,
+.admin-portal h6 {
+  font-family: var(--font-sans) !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+.font-eurostile {
+  font-family: var(--font-eurostile);
+  font-weight: 950;
+  font-style: italic;
+  letter-spacing: -0.015em;
+}
+
+.font-eurostile-logo {
+  font-family: var(--font-eurostile);
+  font-weight: 950;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  display: inline-block;
+  transform: scaleX(1.15);
+  transform-origin: left;
 }
 
 .material-symbols-outlined {
