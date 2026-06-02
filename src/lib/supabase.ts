@@ -180,7 +180,8 @@ export const loadProducts = async () => {
           berat_bersih: p.berat_bersih || '',
           cakupan: p.cakupan || '',
           masa_simpan: p.masa_simpan || '',
-          waktu_pengeringan: p.waktu_pengeringan || ''
+          waktu_pengeringan: p.waktu_pengeringan || '',
+          hidden: p.hidden === true || p.hidden === 'true' || p.hidden === 1 || p.hidden === '1'
         };
       });
     }
@@ -210,6 +211,7 @@ export const saveProducts = async (products: any[]) => {
       cakupan: p.cakupan || '',
       masa_simpan: p.masa_simpan || '',
       waktu_pengeringan: p.waktu_pengeringan || '',
+      hidden: p.hidden || false,
       updated_at: new Date().toISOString()
     }));
     

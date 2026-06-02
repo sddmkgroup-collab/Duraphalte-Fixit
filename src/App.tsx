@@ -504,7 +504,7 @@ const HomePage = ({ content }: { content: any }) => {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {content.products.slice(0, 2).map((prod: any) => (
+            {(content.products || []).filter((p: any) => !p.hidden).slice(0, 2).map((prod: any) => (
               <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
                 <div className="aspect-video overflow-hidden">
                   <img 
@@ -1111,7 +1111,7 @@ export default function App() {
         } />
         <Route path="/" element={<PublicLayout homeContent={homeContent} blogPosts={blogPosts} />}>
           <Route index element={<HomePage content={homeContent} />} />
-          <Route path="products" element={<ProductsPage products={homeContent.products} />} />
+          <Route path="products" element={<ProductsPage products={(homeContent.products || []).filter((p: any) => !p.hidden)} />} />
           <Route path="product/:id" element={<ProductDetailPage products={homeContent.products} />} />
           <Route path="about" element={<AboutPage content={aboutContent} />} />
           <Route path="blog" element={<BlogPage posts={blogPosts} />} />
@@ -1307,6 +1307,11 @@ const WhatsAppFloatingWidget = () => {
 
   const salesChannels = [
     {
+      region: "Admin Support",
+      phone: "+62 812-2916-6263",
+      url: "https://wa.me/6281229166263?text=Halo%20Admin%20Support%20DURAPHALTE%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+    },
+    {
       region: "Wilayah Sidoarjo",
       phone: "+62 811-3010-3689",
       url: "https://wa.me/6281130103689?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Sidoarjo%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
@@ -1393,43 +1398,39 @@ const WhatsAppFloatingWidget = () => {
       </AnimatePresence>
 
       {/* Floating Action Button */}
-      <div className="flex items-center gap-3">
-        {/* Helper Tooltip label popup */}
-        <AnimatePresence>
-          {showTooltip && !isOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="hidden sm:flex bg-white text-[#141d23] border border-slate-100 shadow-xl px-4 py-2.5 rounded-2xl text-xs font-bold items-center gap-2 max-w-xs relative pointer-events-none"
-            >
-              <span className="w-2 h-2 bg-[#25D366] rounded-full animate-ping shrink-0" />
-              <span>Hubungi Sales WhatsApp Kami!</span>
-              <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-r border-t border-slate-100" />
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex items-center gap-2">
+        {/* Helper Tooltip label popup - Elegant, Small, and Less Obtrusive */}
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="flex bg-white/95 backdrop-blur-sm text-slate-800 hover:text-blue-700 hover:bg-white shadow-md px-3 py-1.5 rounded-full text-[10px] font-extrabold items-center gap-1.5 select-none hover:scale-105 active:scale-95 transition-all duration-200 border border-slate-150 cursor-pointer"
+          >
+            <span className="w-1.5 h-1.5 bg-[#25D366] rounded-full animate-pulse shrink-0" />
+            <span className="tracking-wider font-menseal-bold uppercase">
+              Tanya Sales WA
+            </span>
+          </button>
+        )}
 
-        {/* Real Button wrapper */}
+        {/* Real Button wrapper - Slightly more compact */}
         <button
           onClick={() => {
             setIsOpen(!isOpen);
-            setShowTooltip(false);
           }}
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white transition-all shadow-2xl relative group cursor-pointer ${
+          className={`w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center text-white transition-all shadow-lg relative group cursor-pointer ${
             isOpen ? 'bg-slate-800 rotate-90 scale-95' : 'bg-[#25D366] hover:bg-[#128C7E] hover:scale-105 active:scale-95'
           }`}
-          title="WhatsApp Sales Chat"
+          title="Hubungi Sales WhatsApp"
         >
           {/* Animated Pulsing Ring */}
           {!isOpen && (
-            <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping pointer-events-none" />
+            <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-25 animate-ping pointer-events-none" />
           )}
 
           {isOpen ? (
-            <X size={24} className="text-white" />
+            <X size={18} className="text-white" />
           ) : (
-            <MessageCircle className="w-8 h-8 fill-current text-white" />
+            <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
           )}
         </button>
       </div>

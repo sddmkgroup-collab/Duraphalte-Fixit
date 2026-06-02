@@ -337,7 +337,8 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
           masa_simpan: (formData.get(`prod${i}_masa_simpan`) as string) || '',
           waktu_pengeringan: (formData.get(`prod${i}_waktu_pengeringan`) as string) || '',
           image: productImages[0] || prod.image || '',
-          images: productImages.length > 0 ? productImages : [prod.image || '']
+          images: productImages.length > 0 ? productImages : [prod.image || ''],
+          hidden: formData.get(`prod${i}_hidden`) === 'on' || formData.get(`prod${i}_hidden`) === 'true' || false
         };
       }),
       testimonials: (homeContent.testimonials || []).map((t: any, i: number) => ({
@@ -902,8 +903,22 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                     <div className="grid grid-cols-1 gap-8">
                       {homeContent.products?.map((prod: any, i: number) => (
                         <div key={prod.id ?? i} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-6">
-                          <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                            <h4 className="font-extrabold text-blue-700 uppercase tracking-widest text-xs">ID Produk: {prod.id}</h4>
+                          <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex-wrap gap-2">
+                            <div className="flex items-center gap-3 flex-wrap">
+                              <h4 className="font-extrabold text-blue-700 uppercase tracking-widest text-xs">ID Produk: {prod.id}</h4>
+                              <label className="flex items-center gap-1.5 cursor-pointer bg-slate-100 px-2.5 py-1 rounded-lg select-none hover:bg-slate-200 transition-all">
+                                <input 
+                                  type="checkbox" 
+                                  name={`prod${i}_hidden`} 
+                                  defaultChecked={prod.hidden === true} 
+                                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 transition-all cursor-pointer"
+                                />
+                                <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Sembunyikan Produk</span>
+                                {prod.hidden && (
+                                  <span className="bg-amber-100 text-amber-800 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">Hidden</span>
+                                )}
+                              </label>
+                            </div>
                             <button
                               type="button"
                               onClick={async () => {
@@ -1596,6 +1611,7 @@ CREATE TABLE products (
   cakupan TEXT,
   masa_simpan TEXT,
   waktu_pengeringan TEXT,
+  hidden BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1605,7 +1621,8 @@ ALTER TABLE products ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS berat_bersih TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS cakupan TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS masa_simpan TEXT;
-ALTER TABLE products ADD COLUMN IF NOT EXISTS waktu_pengeringan TEXT;`}
+ALTER TABLE products ADD COLUMN IF NOT EXISTS waktu_pengeringan TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS hidden BOOLEAN DEFAULT FALSE;`}
                           </pre>
                         </div>
                         <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg">
