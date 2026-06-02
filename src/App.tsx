@@ -1294,6 +1294,149 @@ const ProductsPage = ({ products }: { products: any[] }) => {
   );
 };
 
+const WhatsAppFloatingWidget = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowTooltip(false);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const salesChannels = [
+    {
+      region: "Wilayah Sidoarjo",
+      phone: "+62 811-3010-3689",
+      url: "https://wa.me/6281130103689?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Sidoarjo%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+    },
+    {
+      region: "Wilayah Jatim",
+      phone: "+62 811-301-3945",
+      url: "https://wa.me/628113013945?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jatim%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+    },
+    {
+      region: "Wilayah Jateng",
+      phone: "+62 811-3078-8002",
+      url: "https://wa.me/6281130788002?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jateng%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+    },
+    {
+      region: "Wilayah Bali",
+      phone: "+62 811-3012-1178",
+      url: "https://wa.me/6281130121178?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Bali%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+    }
+  ];
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
+      {/* Popover / Dialog */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="mb-4 w-76 sm:w-80 bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-[#141d23] text-white p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#25D366] rounded-full blur-3xl opacity-20 pointer-events-none" />
+              <div className="flex justify-between items-start relative z-10">
+                <div>
+                  <h4 className="font-menseal text-base tracking-wide uppercase text-white">WhatsApp Sales</h4>
+                  <p className="text-[10px] uppercase font-black text-[#25D366] tracking-widest mt-1">DURAPHALTE INDONESIA</p>
+                  <p className="text-xs text-slate-300 mt-2">Selamat datang! Silakan pilih layanan sales wilayah terdekat Anda:</p>
+                </div>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer"
+                  aria-label="Tutup"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="p-4 max-h-[380px] overflow-y-auto space-y-3 bg-slate-50/50">
+              {salesChannels.map((chan, idx) => (
+                <a
+                  key={idx}
+                  href={chan.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center justify-between p-3.5 bg-white hover:bg-slate-50 rounded-2xl border border-slate-100 transition-all hover:-translate-y-0.5 hover:shadow-md group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all">
+                      <MessageCircle className="w-5 h-5 fill-current" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-slate-700 group-hover:text-blue-700 transition-colors">{chan.region}</div>
+                      <div className="text-[11px] font-mono text-slate-400 mt-0.5">{chan.phone}</div>
+                    </div>
+                  </div>
+                  <ChevronRight size={14} className="text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+                </a>
+              ))}
+            </div>
+            
+            {/* Footer helper */}
+            <div className="p-3 text-center bg-slate-100 border-t border-slate-150 text-[10px] text-slate-500 font-medium">
+              Senin - Sabtu (Jam Operasional Kerja)
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Action Button */}
+      <div className="flex items-center gap-3">
+        {/* Helper Tooltip label popup */}
+        <AnimatePresence>
+          {showTooltip && !isOpen && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="hidden sm:flex bg-white text-[#141d23] border border-slate-100 shadow-xl px-4 py-2.5 rounded-2xl text-xs font-bold items-center gap-2 max-w-xs relative pointer-events-none"
+            >
+              <span className="w-2 h-2 bg-[#25D366] rounded-full animate-ping shrink-0" />
+              <span>Hubungi Sales WhatsApp Kami!</span>
+              <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rotate-45 border-r border-t border-slate-100" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Real Button wrapper */}
+        <button
+          onClick={() => {
+            setIsOpen(!isOpen);
+            setShowTooltip(false);
+          }}
+          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white transition-all shadow-2xl relative group cursor-pointer ${
+            isOpen ? 'bg-slate-800 rotate-90 scale-95' : 'bg-[#25D366] hover:bg-[#128C7E] hover:scale-105 active:scale-95'
+          }`}
+          title="WhatsApp Sales Chat"
+        >
+          {/* Animated Pulsing Ring */}
+          {!isOpen && (
+            <span className="absolute inset-0 rounded-full bg-[#25D366] opacity-30 animate-ping pointer-events-none" />
+          )}
+
+          {isOpen ? (
+            <X size={24} className="text-white" />
+          ) : (
+            <MessageCircle className="w-8 h-8 fill-current text-white" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const PublicLayout = ({ homeContent, blogPosts }: { homeContent: any, blogPosts: any[] }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -1318,6 +1461,7 @@ const PublicLayout = ({ homeContent, blogPosts }: { homeContent: any, blogPosts:
         <Outlet context={{ onQuoteClick: handleQuoteClick }} />
       </main>
       <Footer />
+      <WhatsAppFloatingWidget />
     </div>
   );
 };

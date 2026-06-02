@@ -1485,7 +1485,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                     <input 
                       type="text" 
                       name="sb_url" 
-                      defaultValue={safeLocalStorage.getItem('supabase_url') || ''} 
+                      defaultValue={safeLocalStorage.getItem('supabase_url') || supabaseUrl || ''} 
                       placeholder="https://xxxxx.supabase.co" 
                       className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-mono"
                     />
@@ -1495,7 +1495,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                     <input 
                       type="password" 
                       name="sb_key" 
-                      defaultValue={safeLocalStorage.getItem('supabase_anon_key') || ''} 
+                      defaultValue={safeLocalStorage.getItem('supabase_anon_key') || supabaseAnonKey || ''} 
                       placeholder="eyJhbGciOiJIUzI1Ni..." 
                       className="w-full p-3 bg-white border border-slate-200 rounded-xl text-xs font-mono"
                     />
