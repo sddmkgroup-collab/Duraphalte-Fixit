@@ -217,8 +217,22 @@ export const saveProducts = async (products: any[]) => {
     
     const { error } = await supabase.from('products').upsert(dbProducts);
     if (error) {
-      console.error('Supabase query error on upserting products:', error);
-      throw error;
+      console.warn('First upsert attempt failed:', error);
+      const errorMessage = error.message || '';
+      const errorDetails = error.details || '';
+      const isHiddenError = errorMessage.includes('hidden') || errorDetails.includes('hidden');
+      
+      if (isHiddenError) {
+        console.info('Retrying upsert without the "hidden" column...');
+        const cleanDbProducts = dbProducts.map(({ hidden, ...rest }: any) => rest);
+        const { error: retryError } = await supabase.from('products').upsert(cleanDbProducts);
+        if (retryError) {
+          console.error('Retry upsert failed:', retryError);
+          throw retryError;
+        }
+      } else {
+        throw error;
+      }
     }
   } catch (err) {
     console.error('Failed to save products:', err);

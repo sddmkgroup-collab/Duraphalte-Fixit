@@ -1033,7 +1033,13 @@ export default function App() {
           setHomeContent((prev: any) => {
             const merged = { ...prev, ...remoteContent };
             if (remoteProducts && remoteProducts.length > 0) {
-              merged.products = remoteProducts;
+              merged.products = remoteProducts.map((p: any) => {
+                const prevInJson = (remoteContent.products || []).find((oldP: any) => oldP.id === p.id);
+                return {
+                  ...p,
+                  hidden: prevInJson ? prevInJson.hidden === true : (p.hidden === true)
+                };
+              });
             }
             safeLocalStorage.setItem('duraphalte_content', JSON.stringify(merged));
             return merged;
