@@ -283,7 +283,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-[36px] font-extrabold text-[#141d23] mb-6 leading-[1.1]"
+            className="text-[42px] font-extrabold text-[#141d23] mb-6 leading-[1.1]"
           >
             {slides[currentSlide].title.split(" ").map((word, i) => (
               <span key={i} className={word === "Instan" ? "text-blue-700" : ""}>{word} </span>
