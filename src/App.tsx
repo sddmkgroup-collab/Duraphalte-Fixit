@@ -248,7 +248,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
   }, []);
 
   return (
-    <section className="relative min-h-[600px] lg:h-[800px] flex items-center overflow-hidden bg-slate-50 pt-20 lg:pt-0">
+    <section className="relative min-h-[500px] lg:h-[580px] flex items-center overflow-hidden bg-slate-50 pt-20 lg:pt-16">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -267,13 +267,13 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
           <motion.div
             key={`badge-${currentSlide}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/10 text-blue-700 font-bold text-xs rounded mb-6 uppercase tracking-wider"
+            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/10 text-blue-700 font-bold text-xs rounded mb-4 uppercase tracking-wider"
           >
             <span className="w-2 h-2 rounded-full bg-blue-700 animate-pulse"></span>
             {slides[currentSlide].badge}
@@ -283,7 +283,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-[42px] font-extrabold text-[#141d23] mb-6 leading-[1.1]"
+            className="text-[42px] font-extrabold text-[#141d23] mb-4 leading-[1.1]"
           >
             {slides[currentSlide].title.split(" ").map((word, i) => (
               <span key={i} className={word === "Instan" ? "text-blue-700" : ""}>{word} </span>
@@ -294,7 +294,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg text-slate-600 mb-10 max-w-xl leading-relaxed"
+            className="text-base text-slate-600 mb-6 max-w-xl leading-relaxed"
           >
             {slides[currentSlide].description}
           </motion.p>
@@ -302,17 +302,17 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-3"
           >
             <button 
               onClick={() => navigate('/products')}
-              className="bg-[#004497] text-white px-8 py-4 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95"
+              className="bg-[#004497] text-white px-8 py-3.5 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95 text-sm"
             >
               Pesan Sekarang
             </button>
             <button 
               onClick={() => navigate('/about')}
-              className="border-2 border-[#141d23] text-[#141d23] px-8 py-4 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95"
+              className="border-2 border-[#141d23] text-[#141d23] px-8 py-3.5 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-sm"
             >
               Tentang Kami
             </button>
@@ -323,28 +323,28 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
              key={`img-${currentSlide}`}
              initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-             className="relative z-10 w-full aspect-square md:aspect-video rounded-2xl overflow-hidden shadow-2xl border-4 border-white"
+             className="relative z-10 w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white"
            >
              <img src={slides[currentSlide].image} className="w-full h-full object-cover" alt="Banner" />
            </motion.div>
         </div>
       </div>
 
-      <div className="absolute bottom-10 right-8 z-20 flex gap-2">
-        <button onClick={prevSlide} className="p-3 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-colors shadow-sm">
-          <ChevronLeft className="w-6 h-6" />
+      <div className="absolute bottom-6 right-8 z-20 flex gap-2">
+        <button onClick={prevSlide} className="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-colors shadow-sm">
+          <ChevronLeft className="w-5 h-5" />
         </button>
-        <button onClick={nextSlide} className="p-3 bg-[#004497] text-white rounded-full hover:bg-blue-800 transition-colors shadow-lg">
-          <ChevronRight className="w-6 h-6" />
+        <button onClick={nextSlide} className="p-2.5 bg-[#004497] text-white rounded-full hover:bg-blue-800 transition-colors shadow-lg">
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
-      <div className="absolute bottom-10 left-8 z-20 flex gap-2">
+      <div className="absolute bottom-6 left-8 z-20 flex gap-2">
         {slides.map((_, i) => (
           <button 
             key={i} 
             onClick={() => setCurrentSlide(i)}
-            className={`h-1.5 transition-all duration-300 rounded-full ${currentSlide === i ? 'w-12 bg-blue-700' : 'w-4 bg-slate-300'}`}
+            className={`h-1.5 transition-all duration-300 rounded-full ${currentSlide === i ? 'w-10 bg-blue-700' : 'w-3.5 bg-slate-200'}`}
           />
         ))}
       </div>
@@ -354,9 +354,9 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
 
 const TestimonialsSection = ({ testimonials }: { testimonials: any[] }) => {
   return (
-    <section className="py-16 lg:py-24 bg-white px-4 sm:px-8 border-t border-slate-100">
+    <section className="pt-12 pb-8 lg:pt-16 lg:pb-12 bg-white px-4 sm:px-8 border-t border-slate-100">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-center mb-10 space-y-4">
           <span className="text-blue-700 font-black uppercase tracking-[0.3em] text-[10px]">Testimonials</span>
           <h2 className="text-3xl lg:text-4xl font-black text-[#141d23]">Apa Kata Rekanan Kami?</h2>
           <div className="w-16 h-1.5 bg-blue-700 mx-auto rounded-full"></div>
@@ -403,7 +403,7 @@ const HomePage = ({ content }: { content: any }) => {
       <HeroCarousel slides={content.hero} onCtaClick={onQuoteClick} />
 
       {content.videoSection?.enabled && (
-        <section className="py-16 lg:py-24 bg-[#141d23] overflow-hidden relative">
+        <section className="py-12 lg:py-16 bg-[#141d23] overflow-hidden relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
               <div className="space-y-6 lg:space-y-8">
@@ -462,9 +462,9 @@ const HomePage = ({ content }: { content: any }) => {
         <TestimonialsSection testimonials={content.testimonials} />
       )}
 
-      <section className="py-16 lg:py-24 bg-white px-4 sm:px-8">
+      <section className="pt-8 pb-10 lg:pt-10 lg:pb-12 bg-white px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 lg:mb-20 space-y-4">
+          <div className="text-center mb-8 lg:mb-12 space-y-4">
             <h2 className="text-3xl lg:text-4xl font-bold text-[#141d23]">{content.whySection.title}</h2>
             <div className="w-20 h-1.5 bg-blue-700 mx-auto rounded-full"></div>
           </div>
@@ -492,7 +492,7 @@ const HomePage = ({ content }: { content: any }) => {
         </div>
       </section>
 
-      <section className="py-10 lg:py-14 bg-slate-50 px-4 sm:px-8">
+      <section className="pt-8 pb-10 lg:pt-10 lg:pb-12 bg-slate-50 px-4 sm:px-8">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 lg:mb-10 gap-4">
             <div className="space-y-2">
@@ -540,7 +540,7 @@ const HomePage = ({ content }: { content: any }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 bg-white px-4 sm:px-8 overflow-hidden">
+      <section className="pt-8 pb-10 lg:pt-10 lg:pb-12 bg-white px-4 sm:px-8 overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative order-2 lg:order-1">
             <img 
@@ -573,7 +573,7 @@ const HomePage = ({ content }: { content: any }) => {
         </div>
       </section>
 
-      <section id="quote-section" className="py-16 lg:py-24 bg-blue-700 px-4 sm:px-8 text-white relative overflow-hidden">
+      <section id="quote-section" className="pt-10 pb-12 lg:pt-14 lg:pb-16 bg-blue-700 px-4 sm:px-8 text-white relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-3xl lg:text-5xl font-extrabold mb-6">Butuh Penawaran untuk Proyek Skala Besar?</h2>
           <p className="text-lg lg:text-xl mb-12 text-blue-100">Kami menyediakan harga khusus wholesale untuk kontraktor, instansi pemerintah, dan pengelola kawasan industri.</p>
