@@ -492,43 +492,43 @@ const HomePage = ({ content }: { content: any }) => {
         </div>
       </section>
 
-      <section className="py-16 lg:py-24 bg-slate-50 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 lg:mb-16 gap-6">
-            <div className="space-y-4">
-              <h2 className="text-3xl lg:text-4xl font-bold text-[#141d23]">Varian Produk Kami</h2>
-              <p className="text-slate-600 text-base lg:text-lg max-w-lg">Pilih kapasitas yang sesuai dengan kebutuhan proyek perbaikan Anda.</p>
+      <section className="py-10 lg:py-14 bg-slate-50 px-4 sm:px-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 lg:mb-10 gap-4">
+            <div className="space-y-2">
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-[#141d23] tracking-tight uppercase italic">Varian Produk Kami</h2>
+              <p className="text-slate-500 text-xs sm:text-sm max-w-md">Pilih kapasitas yang sesuai dengan kebutuhan proyek perbaikan Anda.</p>
             </div>
-            <Link to="/products" className="text-blue-700 font-bold flex items-center gap-2 hover:underline">
+            <Link to="/products" className="text-blue-700 font-bold flex items-center gap-2 hover:underline text-xs sm:text-sm shrink-0">
               Lihat Semua Spesifikasi <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
             {(content.products || []).filter((p: any) => !p.hidden).slice(0, 2).map((prod: any) => (
-              <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                <div className="aspect-video overflow-hidden">
+              <div key={prod.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
+                <div className="aspect-[16/10] overflow-hidden">
                   <img 
                     src={prod.image || (prod.images && prod.images.length > 0 ? prod.images[0] : '')} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                     alt={prod.title} 
                   />
                 </div>
-                <div className="p-8">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-2xl font-bold">{prod.title}</h3>
-                    <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full">{prod.badge}</span>
+                <div className="p-5 sm:p-6">
+                  <div className="flex justify-between items-center mb-3 gap-2">
+                    <h3 className="text-lg md:text-xl font-bold text-[#141d23] tracking-tight">{prod.title}</h3>
+                    <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-wider rounded-md shrink-0">{prod.badge}</span>
                   </div>
-                  <p className="text-slate-600 mb-8">{prod.desc}</p>
-                  <div className="grid grid-cols-2 gap-4">
+                  <p className="text-slate-500 text-xs sm:text-sm mb-5 leading-relaxed">{prod.desc}</p>
+                  <div className="grid grid-cols-2 gap-3">
                     <button 
                       onClick={() => navigate(`/product/${prod.id}`)}
-                      className="py-4 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-xs lg:text-sm"
+                      className="py-2.5 md:py-3 border-2 border-[#141d23] text-[#141d23] font-bold rounded-xl hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-xs"
                     >
                       Detail Produk
                     </button>
                     <button 
                       onClick={() => navigate('/products')}
-                      className="py-4 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all active:scale-95 text-xs lg:text-sm"
+                      className="py-2.5 md:py-3 bg-blue-700 text-white font-bold rounded-xl hover:bg-blue-800 transition-all active:scale-95 text-xs"
                     >
                       Pesan Sekarang
                     </button>
