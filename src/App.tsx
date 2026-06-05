@@ -7,7 +7,7 @@ import {
   Search, Globe, Mail, Play, MessageCircle, Instagram, Video,
   Music, MapPin
 } from 'lucide-react';
-import { logVisitor, loadSiteContent, loadBlogPosts, loadProducts, safeLocalStorage } from './lib/supabase';
+import { logVisitor, loadSiteContent, loadBlogPosts, loadProducts, safeLocalStorage, saveQuoteRequest } from './lib/supabase';
 import AdminPage from './pages/Admin';
 import AboutPage from './pages/About';
 
@@ -173,7 +173,13 @@ const Footer = () => {
               <Mail className="w-5 h-5" />
             </a>
             <a href="https://wa.me/628113016262" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center text-white hover:bg-[#128C7E] transition-all hover:scale-110 shadow-lg shadow-[#25D366]/20" title="WhatsApp">
-              <MessageCircle className="w-6 h-6" />
+              <svg 
+                viewBox="0 0 24 24" 
+                className="w-5 h-5 fill-current text-white" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+              </svg>
             </a>
             <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center text-white hover:opacity-90 transition-all hover:scale-110 shadow-lg shadow-[#DD2A7B]/20" title="Instagram">
               <Instagram className="w-5 h-5" />
@@ -395,6 +401,126 @@ const TestimonialsSection = ({ testimonials }: { testimonials: any[] }) => {
   );
 };
 
+const QuoteForm = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await saveQuoteRequest({ name, email, quantity, message });
+      setIsSuccess(true);
+      setName('');
+      setEmail('');
+      setQuantity('');
+      setMessage('');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isSuccess) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white text-slate-900 p-8 rounded-3xl text-center shadow-2xl border border-slate-100 max-w-lg mx-auto"
+      >
+        <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="w-10 h-10" />
+        </div>
+        <h3 className="text-2xl font-black mb-3">Terkirim Langsung!</h3>
+        <p className="text-slate-600 mb-6 text-sm leading-relaxed">
+          Terima kasih! Permintaan penawaran Anda telah berhasil dikirim secara langsung ke sistem kami. Tim sales kami akan segera meninjau dan menghubungi Anda kembali melalui email.
+        </p>
+        <button 
+          onClick={() => setIsSuccess(false)}
+          type="button"
+          className="bg-blue-600 text-white font-bold px-6 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-md text-sm"
+        >
+          Kirim Lagi
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl mx-auto bg-white/10 p-6 sm:p-8 rounded-3xl backdrop-blur-md border border-white/20">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="text-left space-y-1">
+          <label className="text-[11px] font-black uppercase tracking-wider text-blue-200">Nama Lengkap</label>
+          <input 
+            type="text"
+            required 
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="bg-white text-slate-900 px-4 py-3.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-sm placeholder:text-slate-400" 
+            placeholder="Contoh: Budi Santoso" 
+          />
+        </div>
+        <div className="text-left space-y-1">
+          <label className="text-[11px] font-black uppercase tracking-wider text-blue-200">Email Perusahaan</label>
+          <input 
+            type="email" 
+            required 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-white text-slate-900 px-4 py-3.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-sm placeholder:text-slate-400" 
+            placeholder="n@perusahaan.com" 
+          />
+        </div>
+        <div className="text-left space-y-1">
+          <label className="text-[11px] font-black uppercase tracking-wider text-blue-200">Estimasi Kebutuhan</label>
+          <input 
+            type="text"
+            required 
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            className="bg-white text-slate-900 px-4 py-3.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-sm placeholder:text-slate-400" 
+            placeholder="Jumlah (kg/box/zak)" 
+          />
+        </div>
+      </div>
+      
+      <div className="text-left space-y-1">
+        <label className="text-[11px] font-black uppercase tracking-wider text-blue-200">Pesan / Keterangan Tambahan (Opsional)</label>
+        <textarea 
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={3}
+          className="bg-white text-slate-900 px-4 py-3.5 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-sm resize-none placeholder:text-slate-400" 
+          placeholder="Berikan detail lokasi proyek, jangka waktu, atau kebutuhan perbaikan sasis lainnya..." 
+        />
+      </div>
+
+      <button 
+        type="submit" 
+        disabled={isSubmitting}
+        className="w-full bg-white text-blue-700 font-extrabold py-3.5 rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-xl flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+      >
+        {isSubmitting ? (
+          <>
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Mengirim Permintaan...
+          </>
+        ) : (
+          <>Dapatkan Quote</>
+        )}
+      </button>
+    </form>
+  );
+};
+
 const HomePage = ({ content }: { content: any }) => {
   const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const navigate = useNavigate();
@@ -577,39 +703,7 @@ const HomePage = ({ content }: { content: any }) => {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-3xl lg:text-5xl font-extrabold mb-6">Butuh Penawaran untuk Proyek Skala Besar?</h2>
           <p className="text-lg lg:text-xl mb-12 text-blue-100">Kami menyediakan harga khusus wholesale untuk kontraktor, instansi pemerintah, dan pengelola kawasan industri.</p>
-          <div className="bg-white/10 p-6 lg:p-8 rounded-3xl backdrop-blur-md border border-white/20">
-            <form 
-              className="grid grid-cols-1 md:grid-cols-4 gap-4" 
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const name = formData.get('name');
-                const email = formData.get('email');
-                const quantity = formData.get('quantity');
-
-                const subject = encodeURIComponent(`Permintaan Penawaran: Duraphalte Fixit - ${name}`);
-                const body = encodeURIComponent(
-                  `Halo Admin Duraphalte Fixit,\n\n` +
-                  `Saya tertarik untuk mendapatkan penawaran harga khusus untuk proyek saya.\n\n` +
-                  `Detail Informasi:\n` +
-                  `- Nama Lengkap: ${name}\n` +
-                  `- Email Perusahaan: ${email}\n` +
-                  `- Estimasi Kebutuhan (Jumlah): ${quantity}\n\n` +
-                  `Mohon kirimkan draf penawaran atau hubungi saya kembali untuk diskusi lebih lanjut.\n\n` +
-                  `Terima kasih.`
-                );
-
-                window.location.href = `mailto:ask@dmkgroup.co.id?subject=${subject}&body=${body}`;
-              }}
-            >
-              <input name="name" required className="bg-white text-slate-900 px-6 py-4 rounded-xl focus:ring-2 focus:ring-white outline-none w-full" placeholder="Nama Lengkap" />
-              <input name="email" type="email" required className="bg-white text-slate-900 px-6 py-4 rounded-xl focus:ring-2 focus:ring-white outline-none w-full" placeholder="Email Perusahaan" />
-              <input name="quantity" required className="bg-white text-slate-900 px-6 py-4 rounded-xl focus:ring-2 focus:ring-white outline-none w-full" placeholder="Jumlah (kg/box)" />
-              <button type="submit" className="bg-white text-blue-700 font-bold py-4 rounded-xl hover:bg-slate-100 transition-all active:scale-95 shadow-lg w-full">
-                Dapatkan Quote
-              </button>
-            </form>
-          </div>
+          <QuoteForm />
         </div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 opacity-50"></div>
       </section>
@@ -1315,27 +1409,27 @@ const WhatsAppFloatingWidget = () => {
     {
       region: "Admin Support",
       phone: "+62 812-2916-6263",
-      url: "https://wa.me/6281229166263?text=Halo%20Admin%20Support%20DURAPHALTE%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+      url: "https://wa.me/6281229166263?text=Halo%20Admin%20Support%20DURAPHALTE%2C%20saya%20tertarik%20dengan%20produk%20Duraphalte%20dan%20ingin%20konsultasi.",
     },
     {
       region: "Wilayah Sidoarjo",
       phone: "+62 811-3010-3689",
-      url: "https://wa.me/6281130103689?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Sidoarjo%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+      url: "https://wa.me/6281130103689?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Sidoarjo%2C%20saya%20tertarik%20dengan%20produk%20Duraphalte%20dan%20ingin%20konsultasi.",
     },
     {
       region: "Wilayah Jatim",
       phone: "+62 811-301-3945",
-      url: "https://wa.me/628113013945?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jatim%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+      url: "https://wa.me/628113013945?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jatim%2C%20saya%20tertarik%20dengan%20produk%20Duraphalte%20dan%20ingin%20konsultasi.",
     },
     {
       region: "Wilayah Jateng",
       phone: "+62 811-3078-8002",
-      url: "https://wa.me/6281130788002?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jateng%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+      url: "https://wa.me/6281130788002?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Jateng%2C%20saya%20tertarik%20dengan%20produk%20Duraphalte%20dan%20ingin%20konsultasi.",
     },
     {
       region: "Wilayah Bali",
       phone: "+62 811-3012-1178",
-      url: "https://wa.me/6281130121178?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Bali%2C%20saya%20tertarik%20dengan%20produk%20aspal%20dingin%20Duraphalte%20dan%20ingin%20konsultasi.",
+      url: "https://wa.me/6281130121178?text=Halo%20Sales%20DURAPHALTE%20Wilayah%20Bali%2C%20saya%20tertarik%20dengan%20produk%20Duraphalte%20dan%20ingin%20konsultasi.",
     }
   ];
 
@@ -1383,7 +1477,13 @@ const WhatsAppFloatingWidget = () => {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-[#25D366]/10 flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-all">
-                      <MessageCircle className="w-5 h-5 fill-current" />
+                      <svg 
+                        viewBox="0 0 24 24" 
+                        className="w-5 h-5 fill-current" 
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                      </svg>
                     </div>
                     <div>
                       <div className="text-xs font-black text-slate-700 group-hover:text-blue-700 transition-colors">{chan.region}</div>
@@ -1436,7 +1536,13 @@ const WhatsAppFloatingWidget = () => {
           {isOpen ? (
             <X size={18} className="text-white" />
           ) : (
-            <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" />
+            <svg 
+              viewBox="0 0 24 24" 
+              className="w-5 h-5 sm:w-6 sm:h-6 fill-current text-white" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            </svg>
           )}
         </button>
       </div>

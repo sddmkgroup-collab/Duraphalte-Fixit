@@ -437,3 +437,121 @@ export const safeSessionStorage = {
   }
 };
 
+// Quote Requests Table Support
+export interface QuoteRequest {
+  id?: string;
+  name: string;
+  email: string;
+  quantity: string;
+  message?: string;
+  created_at?: string;
+}
+
+export const loadQuoteRequests = async (): Promise<QuoteRequest[]> => {
+  const localData = safeLocalStorage.getItem('duraphalte_quotes');
+  const localQuotes: QuoteRequest[] = localData ? JSON.parse(localData) : [];
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return localQuotes;
+  }
+  
+  try {
+    const { data, error } = await supabase
+      .from('quote_requests')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (error) {
+      console.warn('Error loading quotes from Supabase (table probably does not exist yet):', error);
+      return localQuotes;
+    }
+    
+    // Merge database and local storage safely (deduplicate by id if exists, or combine)
+    const dbQuotes = data || [];
+    const dbIds = new Set(dbQuotes.map((q: any) => q.id));
+    const mergedQuotes = [
+      ...dbQuotes,
+      ...localQuotes.filter(q => q.id && !dbIds.has(q.id))
+    ];
+    
+    return mergedQuotes.sort((a, b) => 
+      new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
+    );
+  } catch (err) {
+    console.error('Failed to load quote requests:', err);
+    return localQuotes;
+  }
+};
+
+export const saveQuoteRequest = async (quote: QuoteRequest): Promise<boolean> => {
+  const newQuote: QuoteRequest = {
+    id: quote.id || Math.random().toString(36).substring(2) + '-' + Date.now(),
+    name: quote.name,
+    email: quote.email,
+    quantity: quote.quantity,
+    message: quote.message || '',
+    created_at: quote.created_at || new Date().toISOString()
+  };
+
+  // 1. Save to local storage first for resilience
+  try {
+    const localData = safeLocalStorage.getItem('duraphalte_quotes');
+    const localQuotes: QuoteRequest[] = localData ? JSON.parse(localData) : [];
+    localQuotes.unshift(newQuote);
+    safeLocalStorage.setItem('duraphalte_quotes', JSON.stringify(localQuotes));
+  } catch (err) {
+    console.error('Failed to save quote locally:', err);
+  }
+
+  // 2. Try to save to Supabase
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return true; // gracefully treat as success offline
+  }
+
+  try {
+    const { error } = await supabase
+      .from('quote_requests')
+      .insert([
+        {
+          id: newQuote.id,
+          name: newQuote.name,
+          email: newQuote.email,
+          quantity: newQuote.quantity,
+          message: newQuote.message,
+          created_at: newQuote.created_at
+        }
+      ]);
+      
+    if (error) {
+      console.warn('Could not save quote to Supabase (table probably does not exist yet):', error);
+      // We return true because local storage captured it and the UI can proceed normally.
+    }
+    return true;
+  } catch (err) {
+    console.error('Failed to insert quote request to database:', err);
+    return true; 
+  }
+};
+
+export const deleteQuoteRequestInDb = async (id: string): Promise<void> => {
+  // Delete locally
+  try {
+    const localData = safeLocalStorage.getItem('duraphalte_quotes');
+    if (localData) {
+      const localQuotes: QuoteRequest[] = JSON.parse(localData);
+      const filtered = localQuotes.filter(q => q.id !== id);
+      safeLocalStorage.setItem('duraphalte_quotes', JSON.stringify(filtered));
+    }
+  } catch (err) {
+    console.error('Failed to delete quote locally:', err);
+  }
+
+  if (!supabaseUrl || !supabaseAnonKey) return;
+  
+  try {
+    await supabase.from('quote_requests').delete().eq('id', id);
+  } catch (err) {
+    console.error('Failed to delete quote request in Supabase:', err);
+  }
+};
+

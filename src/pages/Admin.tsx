@@ -4,15 +4,16 @@ import {
   X, LayoutDashboard, BarChart, Settings, LogOut,
   Plus, Trash2, Edit2, Globe, Lock, Key,
   Eye, User, Clock, TrendingUp, Menu, Mail, ArrowRight,
-  Database
+  Database, CheckCircle
 } from 'lucide-react';
 import { 
   supabase, saveSiteContent, saveBlogPosts, deleteBlogPost, isSupabaseConfigured,
   supabaseUrl, supabaseAnonKey, uploadImage, loadProducts, saveProducts, deleteProductInDb,
-  safeLocalStorage, safeSessionStorage, isCustomSupabaseConfigured
+  safeLocalStorage, safeSessionStorage, isCustomSupabaseConfigured, loadQuoteRequests, deleteQuoteRequestInDb,
+  QuoteRequest
 } from '../lib/supabase';
 
-type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings';
+type AdminView = 'dashboard' | 'editor' | 'analytics' | 'settings' | 'quotes';
 
 const ImageUpload = ({ label, currentImage, onImageChange, extraValidation }: { 
   label: string, 
@@ -190,6 +191,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
   const [activeView, setActiveView] = useState<AdminView>('dashboard');
   const [editorTab, setEditorTab] = useState<'home' | 'about'>('home');
   const [analytics, setAnalytics] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [dbStatus, setDbStatus] = useState<'checking' | 'connected' | 'error' | 'unconfigured'>(isSupabaseConfigured ? 'checking' : 'unconfigured');
   const [dbError, setDbError] = useState<string | null>(null);
@@ -265,6 +267,39 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
       console.error('Error fetching analytics:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeView === 'quotes') {
+      fetchQuotes();
+    }
+  }, [activeView]);
+
+  const fetchQuotes = async () => {
+    setLoading(true);
+    try {
+      const data = await loadQuoteRequests();
+      setQuotes(data || []);
+    } catch (err) {
+      showToast('Gagal memuat permintaan quote', 'error');
+      console.error('Error fetching quotes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteQuote = async (id: string) => {
+    if (!window.confirm('Apakah Anda yakin ingin menghapus katalog permintaan quote ini?')) return;
+    
+    showToast('Menghapus...', 'loading');
+    try {
+      await deleteQuoteRequestInDb(id);
+      setQuotes(prev => prev.filter(q => q.id !== id));
+      showToast('Berhasil dihapus', 'success');
+    } catch (err) {
+      showToast('Gagal menghapus quote', 'error');
+      console.error(err);
     }
   };
 
@@ -525,6 +560,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
             { id: 'dashboard', icon: <LayoutDashboard className="w-4 h-4" />, label: "Dashboard" },
             { id: 'editor', icon: <Edit2 className="w-4 h-4" />, label: "Content Editor" },
             { id: 'analytics', icon: <BarChart className="w-4 h-4" />, label: "Analytics" },
+            { id: 'quotes', icon: <Mail className="w-4 h-4" />, label: "Inbox Quotes" },
             { id: 'settings', icon: <Settings className="w-4 h-4" />, label: "Settings" }
           ].map((item) => (
             <button 
@@ -565,7 +601,9 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
             <div>
               <h1 className="text-2xl lg:text-3xl font-black text-slate-900">
                 {activeView === 'dashboard' ? 'Dashboard Overview' : 
-                 activeView === 'analytics' ? 'Visitor Analytics' : 'Content Management'}
+                 activeView === 'analytics' ? 'Visitor Analytics' : 
+                 activeView === 'quotes' ? 'Inbox Quote Requests' : 
+                 activeView === 'settings' ? 'System & Credentials' : 'Content Management'}
               </h1>
               <p className="text-slate-500 font-medium text-sm lg:text-base">Duraphalte Industrial Portal</p>
             </div>
@@ -723,6 +761,149 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
             </div>
           </div>
         )}
+
+        {activeView === 'quotes' && (
+          <div className="space-y-8 animate-in fade-in duration-350">
+            <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+              <div className="p-6 lg:p-8 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-900">Inbox Permintaan Quote Penawaran</h2>
+                  <p className="text-sm text-slate-500 mt-1">Daftar kontak masuk dari form penawaran wholesale halaman utama.</p>
+                </div>
+                <button 
+                  onClick={fetchQuotes}
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 rounded-xl text-blue-700 transition-all border border-slate-200 text-xs font-bold"
+                >
+                  <TrendingUp className="w-4 h-4 rotate-95" /> Refresh Data
+                </button>
+              </div>
+
+              {loading ? (
+                <div className="p-12 text-center text-slate-400 font-bold">Memuat data permintaan quote...</div>
+              ) : quotes.length === 0 ? (
+                <div className="p-16 text-center text-slate-400">
+                  <Mail className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                  <p className="font-extrabold text-slate-500 text-base">Belum Ada Permintaan Masuk</p>
+                  <p className="text-xs text-slate-400 mt-1">Gunakan formulir quote di halaman utama untuk mengirim data.</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-slate-100">
+                  {quotes.map((q) => (
+                    <div key={q.id} className="p-6 lg:p-8 hover:bg-slate-50/40 transition-colors">
+                      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+                        <div className="space-y-3 flex-1 flex-col">
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <span className="font-extrabold text-slate-900 text-base">{q.name}</span>
+                            <span className="text-xs text-slate-400 font-mono">({new Date(q.created_at || '').toLocaleString('id-ID')})</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="bg-blue-50/60 border border-blue-100/50 p-3 rounded-2xl">
+                              <span className="block text-[10px] font-black uppercase text-blue-600 tracking-wider">Email Perusahaan</span>
+                              <a href={`mailto:${q.email}`} className="text-slate-700 font-bold text-sm hover:underline hover:text-blue-700">{q.email}</a>
+                            </div>
+                            <div className="bg-emerald-50/60 border border-emerald-100/50 p-3 rounded-2xl">
+                              <span className="block text-[10px] font-black uppercase text-emerald-600 tracking-wider">Estimasi Kebutuhan</span>
+                              <span className="text-slate-700 font-black text-sm">{q.quantity}</span>
+                            </div>
+                          </div>
+
+                          {q.message && (
+                            <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl mt-2 text-sm text-slate-700 leading-relaxed italic">
+                              <span className="block not-italic text-[10px] font-black uppercase text-slate-400 tracking-wider mb-1">Pesan Tambahan</span>
+                              "{q.message}"
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end lg:self-start shrink-0 mt-4 lg:mt-0">
+                          <a 
+                            href={`mailto:${q.email}?subject=Balasan%20Permintaan%20Quote%20Duraphalte&body=Halo%20${encodeURIComponent(q.name || '')}%2C%0A%0ATerima%20kasih%20telah%20mengisi%20formulir%20penawaran%20wholesale%20Duraphalte%20Fixit.%0A%0A%5BTuliskan%20balasan%20Anda%20di%20sini%5D`}
+                            className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm active:scale-95"
+                          >
+                            <Mail className="w-4 h-4" /> Balas Email
+                          </a>
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const text = `Nama: ${q.name}\nEmail: ${q.email}\nKebutuhan: ${q.quantity}\nPesan: ${q.message || '-'}`;
+                              navigator.clipboard.writeText(text);
+                              showToast('Detail disalin ke clipboard!', 'success');
+                            }}
+                            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all border border-slate-200 active:scale-95"
+                          >
+                            Salin Info
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => handleDeleteQuote(q.id || '')}
+                            className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-xl transition-all border border-transparent hover:border-red-150"
+                            title="Hapus"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* SQL Guide Section */}
+            <div className="bg-slate-900 text-slate-100 p-6 lg:p-8 rounded-3xl space-y-4 shadow-xl border border-slate-800">
+              <div className="flex items-center gap-3">
+                <Database className="w-6 h-6 text-blue-400" />
+                <h3 className="font-extrabold text-lg text-white">Petunjuk Setup Database Supabase</h3>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
+                Ya, perubahan alur ini membutuhkan satu tabel baru di database bernama <code className="bg-slate-800 px-1.5 py-0.5 rounded text-blue-300 font-mono">quote_requests</code> agar semua data dari customer dapat ditampung langsung. Jalankan perintah SQL berikut di dashboard Supabase Anda di menu <strong>SQL Editor</strong> &gt; <strong>New Query</strong> untuk membuatnya secara instan:
+              </p>
+              
+              <div className="relative group">
+                <pre className="bg-slate-950 p-5 rounded-2xl font-mono text-xs overflow-x-auto text-blue-300 border border-slate-800 select-all">
+{`CREATE TABLE IF NOT EXISTS public.quote_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  quantity TEXT NOT NULL,
+  message TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Atur kebijakan RLS agar semua pengunjung bisa menginput data
+ALTER TABLE public.quote_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public inserts to quote_requests" 
+ON public.quote_requests FOR INSERT 
+WITH CHECK (true);
+
+CREATE POLICY "Allow authenticated reads to quote_requests" 
+ON public.quote_requests FOR SELECT 
+TO authenticated
+USING (true);`}
+                </pre>
+                <div className="absolute top-3 right-3 opacity-100 transition-opacity">
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`CREATE TABLE IF NOT EXISTS public.quote_requests (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name TEXT NOT NULL,\n  email TEXT NOT NULL,\n  quantity TEXT NOT NULL,\n  message TEXT,\n  created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.quote_requests ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY "Allow public inserts to quote_requests" \nON public.quote_requests FOR INSERT \nWITH CHECK (true);\n\nCREATE POLICY "Allow authenticated reads to quote_requests" \nON public.quote_requests FOR SELECT \nTO authenticated\nUSING (true);`);
+                      showToast('SQL disalin!', 'success');
+                    }}
+                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[10px] font-bold"
+                  >
+                    Salin SQL
+                  </button>
+                </div>
+              </div>
+              
+              <p className="text-[10px] text-slate-500 italic leading-relaxed">
+                *Catatan: Jika tabel belum Anda buat, website Anda tetap aman karena sistem telah dilengkapi fallback otomatis ke LocalStorage browser sehingga data quote tetap terekam lokal dan tidak hilang.
+              </p>
+            </div>
+          </div>
+        )}
+
         {activeView === 'editor' && homeContent && (
           <div className="space-y-12">
             <div className="bg-white rounded-t-3xl border-x border-t border-slate-200">
