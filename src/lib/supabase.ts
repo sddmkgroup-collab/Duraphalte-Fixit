@@ -106,21 +106,45 @@ export const deleteBlogPost = async (id: any) => {
 };
 
 export const logVisitor = async (path: string) => {
+  const newLog = {
+    id: 'local-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
+    page_path: path,
+    referrer: document.referrer || 'direct',
+    user_agent: navigator.userAgent,
+    screen_width: window.innerWidth,
+    language: navigator.language,
+    created_at: new Date().toISOString()
+  };
+
+  // 1. Save locally for instant real-time visualization on preview
+  try {
+    const localData = safeLocalStorage.getItem('duraphalte_visits');
+    const localVisits = localData ? JSON.parse(localData) : [];
+    localVisits.unshift(newLog);
+    if (localVisits.length > 500) localVisits.pop();
+    safeLocalStorage.setItem('duraphalte_visits', JSON.stringify(localVisits));
+  } catch (err) {
+    console.error('Failed to log visitor locally:', err);
+  }
+
+  // 2. Try Supabase
   if (!supabaseUrl || !supabaseAnonKey) return;
   try {
     await supabase
       .from('visitor_logs')
       .insert([
         {
-          page_path: path,
-          referrer: document.referrer || 'direct',
-          user_agent: navigator.userAgent,
-          screen_width: window.innerWidth,
-          language: navigator.language,
+          id: newLog.id,
+          page_path: newLog.page_path,
+          referrer: newLog.referrer,
+          user_agent: newLog.user_agent,
+          screen_width: newLog.screen_width,
+          language: newLog.language,
+          created_at: newLog.created_at
         }
       ]);
   } catch (err) {
-    console.error('Failed to log visitor:', err);
+    console.warn('Failed to log visitor to Supabase:', err);
   }
 };
 

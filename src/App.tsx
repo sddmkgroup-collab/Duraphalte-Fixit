@@ -165,27 +165,15 @@ const Footer = () => {
           <p className="mb-6 leading-relaxed">
             Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi. Part of DMK Group.
           </p>
-          <div className="flex gap-4">
-            <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white hover:bg-blue-600 transition-all hover:scale-110 shadow-lg shadow-black/20" title="Website">
-              <Globe className="w-5 h-5" />
+          <div className="flex gap-5 items-center">
+            <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="Website">
+              <img src="https://cdn-icons-png.flaticon.com/512/12890/12890046.png" className="w-8 h-8 object-contain" alt="Website" referrerPolicy="no-referrer" />
             </a>
-            <a href="mailto:ask@dmkgroup.co.id" className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-white hover:bg-red-600 transition-all hover:scale-110 shadow-lg shadow-black/20" title="Email">
-              <Mail className="w-5 h-5" />
+            <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="Instagram">
+              <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" className="w-8 h-8 object-contain" alt="Instagram" referrerPolicy="no-referrer" />
             </a>
-            <a href="https://wa.me/628113016262" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center text-white hover:bg-[#128C7E] transition-all hover:scale-110 shadow-lg shadow-[#25D366]/20" title="WhatsApp">
-              <svg 
-                viewBox="0 0 24 24" 
-                className="w-5 h-5 fill-current text-white" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-              </svg>
-            </a>
-            <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center text-white hover:opacity-90 transition-all hover:scale-110 shadow-lg shadow-[#DD2A7B]/20" title="Instagram">
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white hover:bg-slate-900 transition-all hover:scale-110 shadow-lg shadow-black/40" title="TikTok">
-              <TikTokIcon className="w-5 h-5" />
+            <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="TikTok">
+              <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" className="w-8 h-8 object-contain" alt="TikTok" referrerPolicy="no-referrer" />
             </a>
           </div>
         </div>
