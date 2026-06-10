@@ -7,6 +7,16 @@
   --font-menseal: "Menseal-Bold-ITALIC", "Menseal-BoldItalic", "Menseal Bold Italic", "Menseal", "Eurostile Bold Italic Extended", "Eurostile Extended Bold Italic", "EurostileLTStd-BoldEx2", "EurostileLTStd-BoldEx", "Eurostile-BoldItalic", "Eurostile Extended", "Eurostile", "Arial Black", "Montserrat", "Michroma", "Syncopate", "Arial Black", sans-serif;
   --font-menseal-bold: "Menseal-Bold", "Menseal Bold", "Menseal", "Eurostile Bold Extended", "Eurostile Extended Bold", "EurostileLTStd-BoldEx2", "EurostileLTStd-BoldEx", "Eurostile Extended", "Eurostile", "Arial Black", "Montserrat", "Michroma", "Syncopate", "Arial Black", sans-serif;
   --font-eurostile: var(--font-menseal);
+  --color-blue-50: #f4f7fb;
+  --color-blue-100: #e7eff8;
+  --color-blue-200: #c2d5ed;
+  --color-blue-300: #9cbce2;
+  --color-blue-400: #76a2d7;
+  --color-blue-500: #5189cb;
+  --color-blue-600: #4477c2;
+  --color-blue-700: #3a6ab2;
+  --color-blue-800: #2d548d;
+  --color-blue-900: #203c64;
 }
 
 :root {

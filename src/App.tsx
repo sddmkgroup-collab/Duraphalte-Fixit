@@ -89,7 +89,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
           to="/"
           className="flex items-center group"
         >
-          <span className="text-2xl md:text-3xl font-menseal-logo text-[#0066FF] select-none">
+          <span className="px-3.5 py-1.5 bg-[#3a6ab2] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
             DURAPHALTE
           </span>
         </Link>
@@ -109,7 +109,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
         <div className="flex items-center gap-6">
           <button 
             onClick={onQuoteClick}
-            className="bg-[#004497] text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block"
+            className="bg-blue-700 text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block"
           >
             Get Quote
           </button>
@@ -144,7 +144,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
                   setIsMobileMenuOpen(false);
                   onQuoteClick();
                 }}
-                className="bg-[#004497] text-white px-6 py-3 font-semibold rounded-lg text-center"
+                className="bg-blue-700 text-white px-6 py-3 font-semibold rounded-lg text-center"
               >
                 Get Quote
               </button>
@@ -161,7 +161,11 @@ const Footer = () => {
     <footer id="contact" className="w-full pt-20 pb-10 bg-slate-900 text-slate-400 text-sm">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 px-8 max-w-7xl mx-auto">
         <div className="md:col-span-4">
-          <div className="text-2xl md:text-3xl font-menseal-logo text-white mb-6 select-none">DURAPHALTE</div>
+          <div className="mb-6">
+            <span className="px-3.5 py-1.5 bg-[#3a6ab2] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
+              DURAPHALTE
+            </span>
+          </div>
           <p className="mb-6 leading-relaxed">
             Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi. Part of DMK Group.
           </p>
@@ -217,7 +221,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-8 mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
-        <p>© 2024 DURAPHALTE. All rights reserved.</p>
+        <p>© 2026 DURAPHALTE. All rights reserved.</p>
         <div className="flex gap-6 text-xs font-semibold uppercase tracking-widest opacity-50">
           <span>Certified Quality</span>
           <span>Indonesian Made</span>
@@ -300,7 +304,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
           >
             <button 
               onClick={() => navigate('/products')}
-              className="bg-[#004497] text-white px-8 py-3.5 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95 text-sm"
+              className="bg-blue-700 text-white px-8 py-3.5 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95 text-sm"
             >
               Pesan Sekarang
             </button>
@@ -328,7 +332,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
         <button onClick={prevSlide} className="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-colors shadow-sm">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <button onClick={nextSlide} className="p-2.5 bg-[#004497] text-white rounded-full hover:bg-blue-800 transition-colors shadow-lg">
+        <button onClick={nextSlide} className="p-2.5 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors shadow-lg">
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
