@@ -181,14 +181,14 @@ const Footer = () => {
             Pemimpin industri dalam solusi perbaikan aspal instan dan material konstruksi berkinerja tinggi. Part of DMK Group.
           </p>
           <div className="flex gap-5 items-center">
-            <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="Website">
-              <img src="https://cdn-icons-png.flaticon.com/512/12890/12890046.png" className="w-8 h-8 object-contain" alt="Website" referrerPolicy="no-referrer" />
+            <a href="https://www.dmkgroup.co.id/" target="_blank" rel="noreferrer" className="flex items-center justify-center w-14 h-14 rounded-full bg-[#006ae4] transition-all hover:opacity-80 hover:scale-105 active:scale-95 shadow-md" title="Website">
+              <img src="https://cdn-icons-png.flaticon.com/512/5795/5795679.png" className="w-[30px] h-[30px] object-contain brightness-0 invert" alt="Website" referrerPolicy="no-referrer" />
             </a>
-            <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="Instagram">
-              <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" className="w-8 h-8 object-contain" alt="Instagram" referrerPolicy="no-referrer" />
+            <a href="https://instagram.com/dmkaspal" target="_blank" rel="noreferrer" className="flex items-center justify-center w-14 h-14 rounded-full bg-[#006ae4] transition-all hover:opacity-80 hover:scale-105 active:scale-95 shadow-md" title="Instagram">
+              <img src="https://cdn-icons-png.flaticon.com/512/3670/3670274.png" className="w-[30px] h-[30px] object-contain brightness-0 invert" alt="Instagram" referrerPolicy="no-referrer" />
             </a>
-            <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="transition-all hover:opacity-80 hover:scale-105 active:scale-95" title="TikTok">
-              <img src="https://cdn-icons-png.flaticon.com/512/3046/3046121.png" className="w-8 h-8 object-contain" alt="TikTok" referrerPolicy="no-referrer" />
+            <a href="https://tiktok.com/@kangaspalid" target="_blank" rel="noreferrer" className="flex items-center justify-center w-14 h-14 rounded-full bg-[#006ae4] transition-all hover:opacity-80 hover:scale-105 active:scale-95 shadow-md" title="TikTok">
+              <img src="https://cdn-icons-png.flaticon.com/512/3669/3669950.png" className="w-[30px] h-[30px] object-contain brightness-0 invert" alt="TikTok" referrerPolicy="no-referrer" />
             </a>
           </div>
         </div>
@@ -638,7 +638,7 @@ const HomePage = ({ content }: { content: any }) => {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 lg:mb-10 gap-4">
             <div className="space-y-2">
-              <h2 className="text-2xl lg:text-3xl font-extrabold text-[#141d23] tracking-tight uppercase italic">Varian Produk Kami</h2>
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-[#141d23] tracking-tight uppercase">Varian Produk Kami</h2>
               <p className="text-slate-500 text-xs sm:text-sm max-w-md">Pilih kapasitas yang sesuai dengan kebutuhan proyek perbaikan Anda.</p>
             </div>
             <Link to="/products" className="text-blue-700 font-bold flex items-center gap-2 hover:underline text-xs sm:text-sm shrink-0">
