@@ -246,7 +246,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
   }, []);
 
   return (
-    <section className="relative min-h-[500px] lg:h-[580px] flex items-center overflow-hidden bg-slate-50 pt-20 lg:pt-16">
+    <section className="relative min-h-[500px] lg:h-[580px] flex items-center overflow-hidden bg-slate-900 pt-20 lg:pt-16">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -261,6 +261,8 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             className="w-full h-full object-cover opacity-100" 
             alt="Hero background"
           />
+          {/* Soft overlay to ensure readability against dynamic dark-asphalt background textures */}
+          <div className="absolute inset-0 bg-slate-950/50"></div>
         </motion.div>
       </AnimatePresence>
 
@@ -270,9 +272,9 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             key={`badge-${currentSlide}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/10 text-blue-700 font-bold text-xs rounded mb-4 uppercase tracking-wider"
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-slate-100 backdrop-blur-md border border-white/20 font-bold text-xs rounded mb-4 uppercase tracking-wider"
           >
-            <span className="w-2 h-2 rounded-full bg-blue-700 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#006ceb] animate-pulse"></span>
             {slides[currentSlide].badge}
           </motion.div>
           <motion.h1
@@ -280,10 +282,10 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-[42px] font-extrabold text-[#141d23] mb-4 leading-[1.1]"
+            className="text-[42px] font-extrabold text-white mb-4 leading-[1.1] drop-shadow-sm"
           >
             {slides[currentSlide].title.split(" ").map((word, i) => (
-              <span key={i} className={word === "Instan" ? "text-blue-700" : ""}>{word} </span>
+              <span key={i} className={(word === "Instan" || word === "Berkualitas") ? "text-[#006ceb]" : ""}>{word} </span>
             ))}
           </motion.h1>
           <motion.p
@@ -291,7 +293,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base text-slate-600 mb-6 max-w-xl leading-relaxed"
+            className="text-base text-slate-200 mb-6 max-w-xl leading-relaxed drop-shadow-sm"
           >
             {slides[currentSlide].description}
           </motion.p>
@@ -303,13 +305,13 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
           >
             <button 
               onClick={() => navigate('/products')}
-              className="bg-blue-700 text-white px-8 py-3.5 font-bold rounded-lg hover:shadow-xl transition-all active:scale-95 text-sm"
+              className="bg-[#006ceb] text-white px-8 py-3.5 font-bold rounded-lg hover:bg-blue-600 hover:shadow-xl transition-all active:scale-95 text-sm"
             >
               Pesan Sekarang
             </button>
             <button 
               onClick={() => navigate('/about')}
-              className="border-2 border-[#141d23] text-[#141d23] px-8 py-3.5 font-bold rounded-lg hover:bg-[#141d23] hover:text-white transition-all active:scale-95 text-sm"
+              className="border-2 border-white text-white bg-white/5 backdrop-blur-sm px-8 py-3.5 font-bold rounded-lg hover:bg-white hover:text-slate-900 transition-all active:scale-95 text-sm"
             >
               Tentang Kami
             </button>
@@ -318,10 +320,10 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
       </div>
 
       <div className="absolute bottom-6 right-8 z-20 flex gap-2">
-        <button onClick={prevSlide} className="p-2.5 bg-white border border-slate-200 rounded-full hover:bg-slate-50 transition-colors shadow-sm">
+        <button onClick={prevSlide} className="p-2.5 bg-white/10 border border-white/20 text-white backdrop-blur-md rounded-full hover:bg-white/20 transition-colors shadow-sm">
           <ChevronLeft className="w-5 h-5" />
         </button>
-        <button onClick={nextSlide} className="p-2.5 bg-blue-700 text-white rounded-full hover:bg-blue-800 transition-colors shadow-lg">
+        <button onClick={nextSlide} className="p-2.5 bg-[#006ceb] text-white rounded-full hover:bg-blue-600 transition-colors shadow-lg">
           <ChevronRight className="w-5 h-5" />
         </button>
       </div>
@@ -331,7 +333,7 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
           <button 
             key={i} 
             onClick={() => setCurrentSlide(i)}
-            className={`h-1.5 transition-all duration-300 rounded-full ${currentSlide === i ? 'w-10 bg-blue-700' : 'w-3.5 bg-slate-200'}`}
+            className={`h-1.5 transition-all duration-300 rounded-full ${currentSlide === i ? 'w-10 bg-[#006ceb]' : 'w-3.5 bg-white/20'}`}
           />
         ))}
       </div>
