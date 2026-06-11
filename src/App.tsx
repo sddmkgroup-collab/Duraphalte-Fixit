@@ -405,7 +405,30 @@ const QuoteForm = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      // 1. Save to database / local management console
       await saveQuoteRequest({ name, email, quantity, message });
+      
+      // 2. Kirim email di latar belakang ke ask@dmkgroup.co.id secara langsung tanpa melibatkan interaksi client/mail-app
+      try {
+        await fetch("https://formsubmit.co/ajax/ask@dmkgroup.co.id", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            _subject: `Permintaan Quote Baru - Duraphalte (${name})`,
+            "Nama Lengkap": name,
+            "Email Perusahaan": email,
+            "Estimasi Kebutuhan": quantity,
+            "Pesan / Keterangan": message || 'Tidak ada pesan tambahan.',
+            _honey: ""
+          })
+        });
+      } catch (emailErr) {
+        console.warn("Failed background email transmission:", emailErr);
+      }
+      
       setIsSuccess(true);
       setName('');
       setEmail('');
@@ -428,9 +451,8 @@ const QuoteForm = () => {
         <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
           <CheckCircle className="w-10 h-10" />
         </div>
-        <h3 className="text-2xl font-black mb-3">Terkirim Langsung!</h3>
-        <p className="text-slate-600 mb-6 text-sm leading-relaxed">
-          Terima kasih! Permintaan penawaran Anda telah berhasil dikirim secara langsung ke sistem kami. Tim sales kami akan segera meninjau dan menghubungi Anda kembali melalui email.
+        <p className="text-slate-800 text-lg mb-6 font-bold leading-relaxed">
+          Terima kasih! Permintaan Penawaran Anda telah Berhasil Terikirim.
         </p>
         <button 
           onClick={() => setIsSuccess(false)}

@@ -954,57 +954,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
               )}
             </div>
 
-            {/* SQL Guide Section */}
-            <div className="bg-slate-900 text-slate-100 p-6 lg:p-8 rounded-3xl space-y-4 shadow-xl border border-slate-800">
-              <div className="flex items-center gap-3">
-                <Database className="w-6 h-6 text-blue-400" />
-                <h3 className="font-extrabold text-lg text-white">Petunjuk Setup Database Supabase</h3>
-              </div>
-              <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
-                Ya, perubahan alur ini membutuhkan satu tabel baru di database bernama <code className="bg-slate-800 px-1.5 py-0.5 rounded text-blue-300 font-mono">quote_requests</code> agar semua data dari customer dapat ditampung langsung. Jalankan perintah SQL berikut di dashboard Supabase Anda di menu <strong>SQL Editor</strong> &gt; <strong>New Query</strong> untuk membuatnya secara instan:
-              </p>
-              
-              <div className="relative group">
-                <pre className="bg-slate-950 p-5 rounded-2xl font-mono text-xs overflow-x-auto text-blue-300 border border-slate-800 select-all">
-{`CREATE TABLE IF NOT EXISTS public.quote_requests (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  quantity TEXT NOT NULL,
-  message TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
-);
 
--- Atur kebijakan RLS agar semua pengunjung bisa menginput data
-ALTER TABLE public.quote_requests ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow public inserts to quote_requests" 
-ON public.quote_requests FOR INSERT 
-WITH CHECK (true);
-
-CREATE POLICY "Allow authenticated reads to quote_requests" 
-ON public.quote_requests FOR SELECT 
-TO authenticated
-USING (true);`}
-                </pre>
-                <div className="absolute top-3 right-3 opacity-100 transition-opacity">
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`CREATE TABLE IF NOT EXISTS public.quote_requests (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name TEXT NOT NULL,\n  email TEXT NOT NULL,\n  quantity TEXT NOT NULL,\n  message TEXT,\n  created_at TIMESTAMPTZ DEFAULT now()\n);\n\nALTER TABLE public.quote_requests ENABLE ROW LEVEL SECURITY;\n\nCREATE POLICY "Allow public inserts to quote_requests" \nON public.quote_requests FOR INSERT \nWITH CHECK (true);\n\nCREATE POLICY "Allow authenticated reads to quote_requests" \nON public.quote_requests FOR SELECT \nTO authenticated\nUSING (true);`);
-                      showToast('SQL disalin!', 'success');
-                    }}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[10px] font-bold"
-                  >
-                    Salin SQL
-                  </button>
-                </div>
-              </div>
-              
-              <p className="text-[10px] text-slate-500 italic leading-relaxed">
-                *Catatan: Jika tabel belum Anda buat, website Anda tetap aman karena sistem telah dilengkapi fallback otomatis ke LocalStorage browser sehingga data quote tetap terekam lokal dan tidak hilang.
-              </p>
-            </div>
           </div>
         )}
 
