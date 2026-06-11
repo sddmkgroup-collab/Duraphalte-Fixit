@@ -464,7 +464,17 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
         role: formData.get(`testi${i}_role`) as string,
         content: formData.get(`testi${i}_content`) as string,
         avatar: formData.get(`testi${i}_avatar`) as string,
-      }))
+      })),
+      productsHeader: {
+        image: formData.get('products_header_image') as string || (homeContent.productsHeader?.image || ''),
+        title: formData.get('products_header_title') as string || (homeContent.productsHeader?.title || 'Our Industrial Catalog'),
+        desc: formData.get('products_header_desc') as string || (homeContent.productsHeader?.desc || 'High-performance material solutions engineered for the most demanding civil engineering environments.')
+      },
+      blogHeader: {
+        image: formData.get('blog_header_image') as string || (homeContent.blogHeader?.image || ''),
+        title: formData.get('blog_header_title') as string || (homeContent.blogHeader?.title || 'Industrial Insights & Updates'),
+        desc: formData.get('blog_header_desc') as string || (homeContent.blogHeader?.desc || 'Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan.')
+      }
     };
 
     try {
@@ -1397,6 +1407,58 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+
+                  {/* Products & Blog Page Headers Section */}
+                  <div className="space-y-8 pt-8 border-t border-slate-100">
+                    <h3 className="text-xl font-bold border-b border-slate-100 pb-4 text-[#141d23]">Products & Blog Page Headers</h3>
+                    <p className="text-slate-500 text-sm">Sesuaikan gambar latar belakang dan teks untuk tajuk halaman Katalog Produk dan halaman Knowledge Hub (Blog).</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-sans">
+                      {/* Products Page Header */}
+                      <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                        <h4 className="font-bold text-base text-slate-800">Tajuk Halaman Produk (Products Page Header)</h4>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Judul Utama</label>
+                          <input name="products_header_title" defaultValue={homeContent.productsHeader?.title || 'Our Industrial Catalog'} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Deskripsi</label>
+                          <textarea name="products_header_desc" defaultValue={homeContent.productsHeader?.desc || 'High-performance material solutions engineered for the most demanding civil engineering environments.'} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                        </div>
+                        <ImageUpload 
+                          label="Gambar Latar Belakang (Products)" 
+                          currentImage={homeContent.productsHeader?.image} 
+                          onImageChange={(base64) => setHomeContent({ 
+                            ...homeContent, 
+                            productsHeader: { ...homeContent.productsHeader, image: base64 } 
+                          })} 
+                        />
+                        <input type="hidden" name="products_header_image" value={homeContent.productsHeader?.image || ''} />
+                      </div>
+
+                      {/* Blog Page Header */}
+                      <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-4">
+                        <h4 className="font-bold text-base text-slate-800">Tajuk Halaman Blog (Knowledge Hub Header)</h4>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Judul Utama</label>
+                          <input name="blog_header_title" defaultValue={homeContent.blogHeader?.title || 'Industrial Insights & Updates'} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Deskripsi</label>
+                          <textarea name="blog_header_desc" defaultValue={homeContent.blogHeader?.desc || 'Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan.'} className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-24" />
+                        </div>
+                        <ImageUpload 
+                          label="Gambar Latar Belakang (Blog)" 
+                          currentImage={homeContent.blogHeader?.image} 
+                          onImageChange={(base64) => setHomeContent({ 
+                            ...homeContent, 
+                            blogHeader: { ...homeContent.blogHeader, image: base64 } 
+                          })} 
+                        />
+                        <input type="hidden" name="blog_header_image" value={homeContent.blogHeader?.image || ''} />
+                      </div>
                     </div>
                   </div>
 

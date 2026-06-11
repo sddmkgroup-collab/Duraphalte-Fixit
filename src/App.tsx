@@ -836,17 +836,27 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
   );
 };
 
-const BlogPage = ({ posts }: { posts: any[] }) => {
+const BlogPage = ({ posts, headerContent }: { posts: any[], headerContent?: any }) => {
   const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
+  
+  const title = headerContent?.title || "Industrial Insights & Updates";
+  const desc = headerContent?.desc || "Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan.";
+  const bgImage = headerContent?.image || "https://lh3.googleusercontent.com/aida-public/AB6AXuCcBpXewE9Sfz8TVcY-jBUJcHusRpZf7ONgj0m-HIkrMcZWDE282bJWzDCis6VS-A4WZSaMGewL28-e25ORTxve5CGJcA1VyfyHpb2oeYg5ueNpTBersRDSKB7-4fMLOdnMba4sH1XQ6fORMqCH1MoKHBk02PJ0P73fKz__YLL6CBgpNoVp1jqjMJgABJwrT_-hJa_YDJYp9FXECwQJdkO5000Fz9Rw2Xje0psKGvP2QrvklG9uHVjt7tZ8JLzi-giIDVlDrRk9BDGR";
+
   return (
-    <div className="animate-in fade-in duration-700 mt-16 lg:mt-20">
-      <section className="bg-slate-900 py-16 lg:py-32 px-4 sm:px-8 text-center text-white relative overflow-hidden">
-        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
-          <span className="text-blue-400 font-black tracking-[0.3em] uppercase text-[10px] lg:text-xs">Knowledge Hub</span>
-          <h1 className="text-4xl lg:text-7xl font-black leading-tight text-balance">Industrial Insights & Updates</h1>
-          <p className="text-base lg:text-xl text-slate-400 max-w-2xl mx-auto">Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan.</p>
+    <div className="animate-in fade-in duration-700">
+      <section className="relative min-h-[300px] lg:min-h-[400px] flex items-center justify-center bg-slate-900 pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-center text-white overflow-hidden">
+        {/* Background Image of blog header */}
+        <div className="absolute inset-0 z-0">
+          <img src={bgImage} className="w-full h-full object-cover opacity-100" alt="Blog Header Background" />
+          <div className="absolute inset-0 bg-slate-950/60"></div>
         </div>
-        <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+
+        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
+          <span className="text-[#006ceb] font-black tracking-[0.3em] uppercase text-xs lg:text-sm bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-white/10 inline-block">Knowledge Hub</span>
+          <h1 className="text-4xl lg:text-7xl font-black leading-tight text-white drop-shadow-md">{title}</h1>
+          <p className="text-base lg:text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">{desc}</p>
+        </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -1035,7 +1045,17 @@ export default function App() {
         content: "Saya telah mencoba berbagai jenis aspal dingin, tapi Duraphalte Fixit memiliki daya rekat yang luar biasa terutama di kondisi lembap. Sangat direkomendasikan.",
         avatar: "https://i.pravatar.cc/150?u=andi"
       }
-    ]
+    ],
+    productsHeader: {
+      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDP4l6nSKUZpFNoPplHoonNEcEiqSv0_2cjTjuP8cWcwFVmg2eyFaZzE8jj002jyrKA6CjbxR5hg-W9UZ_OLrEiKq0rmXM9HGmahdqiNrHZ6lNz4i17Vpd_OKwgcIktHSwnLbrBWJLdWJ-n0KY99OKQeA74UecSwE714q6RCNIQcNnyjSYpe-VBwT-rdKvyVB6fRp8H2KzIjnvPaN0tFGU1ADpJB-6oHhBWAvh050yFGFEZzbSmeqyNucq-dufq4ioOy1WgXV9JiUWx",
+      title: "Our Industrial Catalog",
+      desc: "High-performance material solutions engineered for the most demanding civil engineering environments."
+    },
+    blogHeader: {
+      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCcBpXewE9Sfz8TVcY-jBUJcHusRpZf7ONgj0m-HIkrMcZWDE282bJWzDCis6VS-A4WZSaMGewL28-e25ORTxve5CGJcA1VyfyHpb2oeYg5ueNpTBersRDSKB7-4fMLOdnMba4sH1XQ6fORMqCH1MoKHBk02PJ0P73fKz__YLL6CBgpNoVp1jqjMJgABJwrT_-hJa_YDJYp9FXECwQJdkO5000Fz9Rw2Xje0psKGvP2QrvklG9uHVjt7tZ8JLzi-giIDVlDrRk9BDGR",
+      title: "Industrial Insights & Updates",
+      desc: "Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan."
+    }
   };
 
   const initialBlogPosts = [
@@ -1227,10 +1247,10 @@ export default function App() {
         } />
         <Route path="/" element={<PublicLayout homeContent={homeContent} blogPosts={blogPosts} />}>
           <Route index element={<HomePage content={homeContent} />} />
-          <Route path="products" element={<ProductsPage products={(homeContent.products || []).filter((p: any) => !p.hidden)} />} />
+          <Route path="products" element={<ProductsPage products={(homeContent.products || []).filter((p: any) => !p.hidden)} headerContent={homeContent.productsHeader} />} />
           <Route path="product/:id" element={<ProductDetailPage products={homeContent.products} />} />
           <Route path="about" element={<AboutPage content={aboutContent} />} />
-          <Route path="blog" element={<BlogPage posts={blogPosts} />} />
+          <Route path="blog" element={<BlogPage posts={blogPosts} headerContent={homeContent.blogHeader} />} />
           <Route path="*" element={<HomePage content={homeContent} />} />
         </Route>
       </Routes>
@@ -1238,7 +1258,7 @@ export default function App() {
   );
 }
 
-const ProductsPage = ({ products }: { products: any[] }) => {
+const ProductsPage = ({ products, headerContent }: { products: any[], headerContent?: any }) => {
   const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
   const navigate = useNavigate();
   const [itemsPerPage, setItemsPerPage] = useState<number>(6);
@@ -1268,19 +1288,35 @@ const ProductsPage = ({ products }: { products: any[] }) => {
     }
   };
 
-  return (
-    <div className="pt-24 lg:pt-32 pb-16 lg:pb-24 px-4 sm:px-8 max-w-7xl mx-auto space-y-12 lg:space-y-20">
-       <div className="text-center space-y-4">
-          <h1 className="text-4xl lg:text-5xl font-black text-[#141d23] leading-tight">Our Industrial Catalog</h1>
-          <p className="text-base lg:text-lg text-slate-500 max-w-2xl mx-auto">High-performance material solutions engineered for the most demanding civil engineering environments.</p>
-       </div>
+  const title = headerContent?.title || "Our Industrial Catalog";
+  const desc = headerContent?.desc || "High-performance material solutions engineered for the most demanding civil engineering environments.";
+  const bgImage = headerContent?.image || "https://lh3.googleusercontent.com/aida-public/AB6AXuDP4l6nSKUZpFNoPplHoonNEcEiqSv0_2cjTjuP8cWcwFVmg2eyFaZzE8jj002jyrKA6CjbxR5hg-W9UZ_OLrEiKq0rmXM9HGmahdqiNrHZ6lNz4i17Vpd_OKwgcIktHSwnLbrBWJLdWJ-n0KY99OKQeA74UecSwE714q6RCNIQcNnyjSYpe-VBwT-rdKvyVB6fRp8H2KzIjnvPaN0tFGU1ADpJB-6oHhBWAvh050yFGFEZzbSmeqyNucq-dufq4ioOy1WgXV9JiUWx";
 
-       {/* Control Section: Selection Filter for Items Limit */}
-       <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-slate-50 p-4 sm:p-6 rounded-3xl gap-4 border border-slate-100 shadow-sm">
-         <div className="text-sm font-semibold text-slate-500">
-           Menampilkan <span className="text-[#141d23] font-black">{totalProducts > 0 ? indexOfFirstProduct + 1 : 0}-{Math.min(indexOfLastProduct, totalProducts)}</span> dari <span className="text-[#141d23] font-black">{totalProducts}</span> Produk
-         </div>
-         <div className="flex items-center gap-3">
+  return (
+    <div className="animate-in fade-in duration-700">
+      {/* Hero Full Width Section with Background Image & Transparent Overlay */}
+      <section className="relative min-h-[300px] lg:min-h-[400px] flex items-center justify-center bg-slate-900 pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-center text-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img src={bgImage} className="w-full h-full object-cover opacity-100 animate-in fade-in zoom-in duration-700" alt="Products Header Background" />
+          {/* Soft darker overlay for amazing readability like on Home and About */}
+          <div className="absolute inset-0 bg-slate-950/60"></div>
+        </div>
+        
+        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
+          <span className="text-[#006ceb] font-black tracking-[0.3em] uppercase text-xs lg:text-sm bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-white/10 inline-block animate-pulse">Product Catalog</span>
+          <h1 className="text-4xl lg:text-7xl font-black leading-tight text-white drop-shadow-md">{title}</h1>
+          <p className="text-base lg:text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">{desc}</p>
+        </div>
+      </section>
+
+      {/* Main Container below Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 lg:py-24 space-y-12 lg:space-y-20">
+        {/* Control Section: Selection Filter for Items Limit */}
+        <div className="flex flex-col sm:flex-row sm:justify-between items-center bg-slate-50 p-4 sm:p-6 rounded-3xl gap-4 border border-slate-100 shadow-sm">
+          <div className="text-sm font-semibold text-slate-500">
+            Menampilkan <span className="text-[#141d23] font-black">{totalProducts > 0 ? indexOfFirstProduct + 1 : 0}-{Math.min(indexOfLastProduct, totalProducts)}</span> dari <span className="text-[#141d23] font-black">{totalProducts}</span> Produk
+          </div>
+          <div className="flex items-center gap-3">
            <label htmlFor="items-per-page-select" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
              Tampilkan per halaman:
            </label>
@@ -1406,6 +1442,7 @@ const ProductsPage = ({ products }: { products: any[] }) => {
           </div>
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
        </div>
+      </div>
     </div>
   );
 };
