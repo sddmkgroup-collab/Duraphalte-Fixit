@@ -629,7 +629,7 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
       <aside className={`fixed left-0 top-0 bottom-0 w-64 border-r border-slate-200 bg-white flex flex-col z-[70] transition-transform duration-300 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <div className="p-8 border-b border-slate-100 mb-6 flex justify-between items-center">
           <div>
-            <span className="px-3 py-1 bg-[#3a6ab2] text-white rounded bg-opacity-100 font-menseal-logo text-base select-none leading-none inline-block shadow-sm">
+            <span className="px-3 py-1 bg-[#006ceb] text-white rounded bg-opacity-100 font-menseal-logo text-base select-none leading-none inline-block shadow-sm">
               DURAPHALTE
             </span>
             <div className="text-[10px] font-black uppercase text-slate-400 mt-1 tracking-[0.2em]">Management Console</div>

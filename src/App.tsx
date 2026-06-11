@@ -89,7 +89,7 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
           to="/"
           className="flex items-center group"
         >
-          <span className="px-3.5 py-1.5 bg-[#3a6ab2] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
+          <span className="px-3.5 py-1.5 bg-[#006ceb] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
             DURAPHALTE
           </span>
         </Link>
@@ -162,7 +162,7 @@ const Footer = () => {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-12 px-8 max-w-7xl mx-auto">
         <div className="md:col-span-4">
           <div className="mb-6">
-            <span className="px-3.5 py-1.5 bg-[#3a6ab2] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
+            <span className="px-3.5 py-1.5 bg-[#006ceb] text-white rounded-lg font-menseal-logo text-xl md:text-2xl select-none leading-none inline-block shadow-sm">
               DURAPHALTE
             </span>
           </div>
@@ -258,10 +258,9 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
         >
           <img 
             src={slides[currentSlide].image} 
-            className="w-full h-full object-cover opacity-30" 
+            className="w-full h-full object-cover opacity-100" 
             alt="Hero background"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
         </motion.div>
       </AnimatePresence>
 
@@ -315,16 +314,6 @@ const HeroCarousel = ({ slides, onCtaClick }: { slides: any[], onCtaClick: () =>
               Tentang Kami
             </button>
           </motion.div>
-        </div>
-        <div className="relative hidden lg:block">
-           <motion.div
-             key={`img-${currentSlide}`}
-             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-             animate={{ opacity: 1, scale: 1, rotate: 0 }}
-             className="relative z-10 w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border-4 border-white"
-           >
-             <img src={slides[currentSlide].image} className="w-full h-full object-cover" alt="Banner" />
-           </motion.div>
         </div>
       </div>
 

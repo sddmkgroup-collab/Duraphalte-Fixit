@@ -1,9 +1,10 @@
+@import url('https://fonts.cdnfonts.com/css/neue-regrade');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Work+Sans:wght@300;400;500;600;700&family=Michroma&family=Syncopate:wght@700&family=Montserrat:ital,wght@1,900&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Work Sans", sans-serif;
+  --font-body: "Neue Regrade", "Work Sans", sans-serif;
   --font-menseal: "Menseal-Bold-ITALIC", "Menseal-BoldItalic", "Menseal Bold Italic", "Menseal", "Eurostile Bold Italic Extended", "Eurostile Extended Bold Italic", "EurostileLTStd-BoldEx2", "EurostileLTStd-BoldEx", "Eurostile-BoldItalic", "Eurostile Extended", "Eurostile", "Arial Black", "Montserrat", "Michroma", "Syncopate", "Arial Black", sans-serif;
   --font-menseal-bold: "Menseal-Bold", "Menseal Bold", "Menseal", "Eurostile Bold Extended", "Eurostile Extended Bold", "EurostileLTStd-BoldEx2", "EurostileLTStd-BoldEx", "Eurostile Extended", "Eurostile", "Arial Black", "Montserrat", "Michroma", "Syncopate", "Arial Black", sans-serif;
   --font-eurostile: var(--font-menseal);
@@ -14,7 +15,7 @@
   --color-blue-400: #76a2d7;
   --color-blue-500: #5189cb;
   --color-blue-600: #4477c2;
-  --color-blue-700: #3a6ab2;
+  --color-blue-700: #006ceb;
   --color-blue-800: #2d548d;
   --color-blue-900: #203c64;
 }
