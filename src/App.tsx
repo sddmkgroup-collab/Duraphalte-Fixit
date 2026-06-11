@@ -99,7 +99,11 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
             <Link
               key={link.label}
               to={link.path}
-              className="font-menseal-bold transition-all duration-200 text-slate-600 hover:text-blue-600 tracking-wide text-sm"
+              className={`font-menseal-bold transition-all duration-200 tracking-wide text-sm ${
+                isScrolled 
+                  ? 'text-slate-600 hover:text-blue-600' 
+                  : 'text-white hover:text-[#006ceb]'
+              }`}
             >
               {link.label}
             </Link>
@@ -109,11 +113,18 @@ const Navbar = ({ onQuoteClick }: { onQuoteClick: () => void }) => {
         <div className="flex items-center gap-6">
           <button 
             onClick={onQuoteClick}
-            className="bg-blue-700 text-white px-6 py-2.5 font-semibold rounded-lg hover:bg-blue-800 active:scale-95 transition-all duration-200 hidden sm:block"
+            className={`font-semibold rounded-lg active:scale-95 transition-all duration-200 hidden sm:block px-6 py-2.5 ${
+              isScrolled
+                ? 'bg-blue-700 text-white hover:bg-blue-800'
+                : 'bg-white text-[#006ceb] hover:bg-white/90'
+            }`}
           >
             Get Quote
           </button>
-          <button className="md:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button 
+            className={`md:hidden transition-colors duration-250 ${isScrolled ? 'text-slate-800' : 'text-white'}`} 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
             {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
