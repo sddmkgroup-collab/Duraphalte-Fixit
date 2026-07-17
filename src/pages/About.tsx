@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { Target, Eye, Award, CheckCircle2, ArrowRight, ShieldCheck, Globe2, Users } from 'lucide-react';
+import { Target, Eye, Award, CheckCircle2, ArrowRight, ShieldCheck, Globe2, Users, Building2, Briefcase } from 'lucide-react';
 
 const AboutPage = ({ content }: { content: any }) => {
   const navigate = useNavigate();
@@ -10,41 +10,109 @@ const AboutPage = ({ content }: { content: any }) => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-[#141d23] overflow-hidden">
-        {content.hero.image && (
-          <div className="absolute inset-0 opacity-20">
-            <img src={content.hero.image} className="w-full h-full object-cover" alt="Hero background" />
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 bg-gradient-to-br from-[#0c1216] via-[#141d23] to-[#1e2930] overflow-hidden border-b border-slate-800">
+        {/* Subtle grid pattern for technical theme */}
+        <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left Column: Left-aligned Premium Typography */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#006ae4]/10 border border-[#006ae4]/30 backdrop-blur-md rounded-full text-[#006ae4] text-xs font-black uppercase tracking-[0.25em]"
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                {content.hero.badge}
+              </motion.div>
+              
+              <motion.h1 
+                initial={{ opacity: 0, x: -35 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-[1.05]"
+              >
+                {content.hero.title}
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.25 }}
+                className="text-slate-300 text-base sm:text-lg lg:text-xl max-w-2xl leading-relaxed font-sans"
+              >
+                {content.hero.desc}
+              </motion.p>
+
+              {/* Unique Quick Fact Banner on About Page to increase interactive feedback */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="pt-6 flex flex-wrap gap-6 border-t border-white/10"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
+                    <Briefcase className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-white font-black text-sm uppercase">Proyek Nasional</p>
+                    <p className="text-slate-400 text-xs">Dipercaya oleh BUMN & Swasta</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-blue-400">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-white font-black text-sm uppercase">Sertifikasi ISO</p>
+                    <p className="text-slate-400 text-xs">Standardisasi Mutu Tinggi</p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right Column: Layered, Floating Architectural Picture Card */}
+            <div className="lg:col-span-5 relative mt-6 lg:mt-0">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="relative mx-auto max-w-md lg:max-w-none"
+              >
+                {/* Decorative border outline block */}
+                <div className="absolute -inset-4 rounded-3xl border-2 border-dashed border-blue-500/20 pointer-events-none -translate-x-2 translate-y-3"></div>
+                
+                {/* Main image card */}
+                {content.hero.image && (
+                  <div className="relative aspect-[4/3] sm:aspect-[1.4] rounded-2xl overflow-hidden shadow-2xl shadow-blue-950/40 border-4 border-slate-700/50 group">
+                    <img 
+                      src={content.hero.image} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                      alt="DMK Group Industrial Headquarters" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-4 left-4 right-4 bg-slate-900/90 backdrop-blur-md p-3.5 rounded-xl border border-white/10 text-left">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[#006ae4]">PT DHISA MANUNGGAL KARYA</span>
+                      <p className="text-white text-xs font-bold leading-tight">Unit Produksi & Pengawasan Mutu Aspal Instan</p>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Highlight badge floating behind */}
+                <div className="absolute -top-4 -right-4 bg-[#006ae4]/90 text-white font-black text-xs px-4 py-2 rounded-xl shadow-lg uppercase tracking-wider backdrop-blur-sm">
+                  Tentang Kami
+                </div>
+              </motion.div>
+            </div>
           </div>
-        )}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 relative z-10 text-center">
-          <motion.span 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-blue-400 font-black uppercase tracking-[0.3em] text-xs mb-4 block"
-          >
-            {content.hero.badge}
-          </motion.span>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl lg:text-7xl font-black text-white leading-tight mb-8"
-          >
-            {content.hero.title}
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-400 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed"
-          >
-            {content.hero.desc}
-          </motion.p>
         </div>
         
-        {/* Background Visual */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[30rem] font-black text-white/[0.02] pointer-events-none select-none whitespace-nowrap -z-0">
-          {content.hero.bgText}
+        {/* Background Visual text accent */}
+        <div className="absolute bottom-4 right-8 text-[12rem] font-black text-white/[0.015] pointer-events-none select-none whitespace-nowrap z-0 tracking-tighter uppercase font-eurostile">
+          {content.hero.bgText || "DMK GROUP"}
         </div>
       </section>
 

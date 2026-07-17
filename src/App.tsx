@@ -10,6 +10,7 @@ import {
 import { logVisitor, loadSiteContent, loadBlogPosts, loadProducts, safeLocalStorage, saveQuoteRequest } from './lib/supabase';
 import AdminPage from './pages/Admin';
 import AboutPage from './pages/About';
+import BlogPostDetailPage from './pages/BlogPostDetail';
 
 // --- Types ---
 type Page = 'home' | 'products' | 'product-detail' | 'blog';
@@ -838,6 +839,7 @@ const ProductDetailPage = ({ products }: { products: any[] }) => {
 
 const BlogPage = ({ posts, headerContent }: { posts: any[], headerContent?: any }) => {
   const { onQuoteClick } = useOutletContext<{ onQuoteClick: () => void }>();
+  const navigate = useNavigate();
   
   const title = headerContent?.title || "Industrial Insights & Updates";
   const desc = headerContent?.desc || "Edukasi, tren teknologi, dan studi kasus terbaru dalam pemeliharaan infrastruktur jalan.";
@@ -845,17 +847,69 @@ const BlogPage = ({ posts, headerContent }: { posts: any[], headerContent?: any 
 
   return (
     <div className="animate-in fade-in duration-700">
-      <section className="relative min-h-[300px] lg:min-h-[400px] flex items-center justify-center bg-slate-900 pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-center text-white overflow-hidden">
-        {/* Background Image of blog header */}
-        <div className="absolute inset-0 z-0">
-          <img src={bgImage} className="w-full h-full object-cover opacity-100" alt="Blog Header Background" />
-          <div className="absolute inset-0 bg-slate-950/60"></div>
-        </div>
+      {/* Premium Dark Editorial Magazine Hero Section */}
+      <section className="relative bg-[#0d1117] pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-white overflow-hidden border-b border-slate-800">
+        {/* Subtle dot matrix overlay for editorial paper/draft feel */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '24px_24px' }}></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-900/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
-          <span className="text-[#006ceb] font-black tracking-[0.3em] uppercase text-xs lg:text-sm bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-white/10 inline-block">Knowledge Hub</span>
-          <h1 className="text-4xl lg:text-7xl font-black leading-tight text-white drop-shadow-md">{title}</h1>
-          <p className="text-base lg:text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">{desc}</p>
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Left Column: Left-aligned bold magazine typography */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/35 rounded text-xs font-black uppercase tracking-[0.2em] text-red-400">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                DMK JOURNAL / PUBLIKASI
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-white tracking-tight">
+                {title}
+              </h1>
+              
+              <div className="w-16 h-1.5 bg-blue-600 rounded"></div>
+
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl font-sans">
+                {desc}
+              </p>
+
+              {/* Journal Meta specifications */}
+              <div className="pt-4 flex items-center gap-6 text-xs font-bold text-slate-400 border-t border-slate-800/80">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  Riset & Studi Kasus
+                </span>
+                <span className="text-slate-600">|</span>
+                <span>Diperbarui Secara Berkala</span>
+              </div>
+            </div>
+
+            {/* Right Column: Polaroid-style high contrast featured showcase */}
+            <div className="lg:col-span-5 relative flex justify-center mt-6 lg:mt-0">
+              <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-none">
+                {/* Visual shadow layer */}
+                <div className="absolute -inset-2 bg-gradient-to-tr from-blue-700/10 to-red-650/10 rounded-3xl blur-xl opacity-80 pointer-events-none"></div>
+                
+                {/* Magazine Front Cover style */}
+                <div className="relative bg-white p-5 rounded-2xl shadow-2xl-strong border border-slate-200 transform hover:rotate-1 hover:scale-102 transition-all duration-500 text-left">
+                  {/* Photo area */}
+                  <div className="aspect-[4/3] rounded-lg overflow-hidden bg-slate-900 border border-slate-100 relative">
+                    <img src={bgImage} className="w-full h-full object-cover opacity-95" alt="Featured Article Background" />
+                    <div className="absolute top-3 left-3 bg-red-650 text-white font-black text-[9px] uppercase tracking-widest px-2.5 py-1 rounded">
+                      Featured Focus
+                    </div>
+                  </div>
+                  
+                  {/* Bottom Text Area inside Polaroid card */}
+                  <div className="pt-4 space-y-2">
+                    <p className="text-[10px] font-black uppercase text-[#006ceb] tracking-wider">Kajian Teknik Sipil & Pemeliharaan Aspal</p>
+                    <p className="text-[#141d23] font-extrabold text-sm leading-snug">Metode Modern Mengatasi Kerusakan Jalan Secara Instan, Efisien dan Tahan Lama.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 
@@ -866,8 +920,7 @@ const BlogPage = ({ posts, headerContent }: { posts: any[], headerContent?: any 
               key={post.id} 
               className="group cursor-pointer"
               onClick={() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                alert(`Membuka artikel: ${post.title}\n(Halaman detail sedang dalam pengembangan)`);
+                navigate(`/blog/${post.id}`);
               }}
             >
               <div className="aspect-[21/9] rounded-3xl overflow-hidden mb-8 shadow-sm">
@@ -1065,7 +1118,8 @@ export default function App() {
       category: "TECHNICAL",
       date: "MAY 04, 2026",
       title: "5 Cara Mengoptimalkan Perbaikan Jalan dengan Aspal Dingin",
-      excerpt: "Temukan rahasia teknis untuk mendapatkan hasil perbaikan yang paling tahan lama di segala cuaca."
+      excerpt: "Temukan rahasia teknis untuk mendapatkan hasil perbaikan yang paling tahan lama di segala cuaca.",
+      content: "Perbaikan jalan berlubang dengan aspal dingin (cold mix asphalt) kini menjadi pilihan utama karena kepraktisan dan kecepatannya. Namun, untuk memastikan hasil perbaikan memiliki daya tahan maksimal seperti aspal konvensional (hot mix), terdapat beberapa langkah teknis penting yang wajib diperhatikan:\n\n1. Persiapan Area Kerja Secara Sempurna\nLangkah krusial pertama adalah membersihkan area lubang. Pastikan tidak ada genangan air, lumpur, pasir, atau sisa dedaunan di dasar lubang. Gunakan sapu keras atau blower udara. Permukaan yang bersih memastikan molekul pengikat Duraphalte Fixit menempel langsung pada material fondasi jalan yang solid.\n\n2. Pemotongan Tepi Lubang (Splicing/Squaring)\nBila memungkinkan, potong tepi lubang secara tegak lurus (berbentuk kotak) menggunakan pemotong aspal atau pahat beton. Sisi lubang yang vertikal akan menahan material aspal dingin dengan lebih kokoh dibanding tepi lubang yang landai atau miring.\n\n3. Pengisian Bertahap untuk Lubang yang Dalam\nJika lubang jalan memiliki kedalaman lebih dari 5 cm, jangan langsung menuangkan aspal sekaligus. Lakukan pengisian secara bertahap setiap ketebalan 2-3 cm, lalu padatkan secara parsial sebelum menuangkan lapisan berikutnya. Hal ini mencegah terjadinya deformasi atau gelombang pada permukaan aspal setelah dilewati kendaraan berat.\n\n4. Pemadatan Maksimal\nSetelah menuangkan lapisan terakhir (berikan sisa tinggi sekitar 1 cm di atas level jalan untuk kompensasi penurunan), lakukan pemadatan menyeluruh. Anda bisa menggunakan alat pemadat tangan (hand stamper), pelat penggetar (vibro plate), atau untuk hasil yang paling efisien, manfaatkan ban kendaraan roda empat untuk melindas permukaan aspal dingin berulang kali.\n\n5. Penguncian dan Penggunaan Pasir Pengisi (Opsional)\nUntuk mencegah kelekatan awal pada ban kendaraan saat baru diaplikasikan, taburkan sedikit pasir halus di atas permukaan aspal yang baru saja dipadatkan. Cara ini mempercepat penyatuan lapisan permukaan dan langsung mengizinkan lalu lintas untuk melintas tanpa merusak tambalan."
     },
     {
       id: 2,
@@ -1073,7 +1127,8 @@ export default function App() {
       category: "SAFETY",
       date: "MAY 02, 2026",
       title: "Standar Keselamatan Pekerja Jalan Raya Modern",
-      excerpt: "Panduan lengkap mengenai prosedur keselamatan saat melakukan pemeliharaan infrastruktur."
+      excerpt: "Panduan lengkap mengenai prosedur keselamatan saat melakukan pemeliharaan infrastruktur.",
+      content: "Keselamatan kerja dalam pemeliharaan infrastruktur jalan raya adalah prioritas utama yang tidak boleh diabaikan. Jalan raya merupakan lingkungan kerja yang dinamis dan berisiko tinggi karena interaksi langsung dengan kendaraan berkecepatan tinggi. Berikut adalah panduan standar keselamatan modern bagi seluruh tim pemeliharaan jalan:\n\n1. Penggunaan Alat Pelindung Diri (APD) Lengkap\nSeluruh personel wajib mengenakan APD bersertifikat sepanjang waktu berada di area kerja. Ini mencakup:\n- Rompi Keselamatan High-Visibility (berwarna kuning stabilo atau oranye terang dilengkapi pita reflektif untuk memantulkan cahaya di malam hari).\n- Helm Pelindung (Safety Helmet) untuk melindungi kepala dari benturan.\n- Sepatu Keselamatan (Safety Shoes) dengan pelindung jari berbahan baja.\n- Sarung Tangan Pelindung untuk menjaga tangan dari bahan kimia aspal dan material tajam.\n\n2. Sistem Penandaan dan Rambu Peringatan Dini\nPemasangan rambu lalu lintas sementara harus diletakkan jauh sebelum area pengerjaan aktual (minimal 50-100 meter tergantung kecepatan jalan). Gunakan kerucut lalu lintas (traffic cones) dengan jarak yang rapat untuk mengarahkan pengalihan arus lalu lintas secara halus tanpa mengejutkan pengemudi.\n\n3. Penyediaan Petugas Pengatur Lalu Lintas (Flagman)\nPetugas Flagman yang terlatih harus ditempatkan di garis depan sebelum zona kerja untuk memberi instruksi visual yang jelas kepada pengemudi menggunakan bendera merah/hijau atau lampu tongkat menyala (light stick).\n\n4. Manajemen Jam Kerja dan Pencahayaan\nUntuk jalan dengan kepadatan lalu lintas sangat tinggi, perbaikan sebaiknya dijadwalkan pada malam hari (off-peak hours). Di malam hari, sistem pencahayaan area kerja (floodlight) wajib diaktifkan secara maksimal agar pekerja terlihat jelas oleh pengendara dan dapat bekerja dengan presisi."
     },
     {
       id: 3,
@@ -1081,7 +1136,8 @@ export default function App() {
       category: "CASE STUDY",
       date: "APR 28, 2026",
       title: "Implementasi Duraphalte di Kawasan Industri Bekasi",
-      excerpt: "Bagaimana aspal dingin kami membantu mempercepat maintenance di jalur logistik tersibuk."
+      excerpt: "Bagaimana aspal dingin kami membantu mempercepat maintenance di jalur logistik tersibuk.",
+      content: "Kawasan Industri Bekasi merupakan salah satu pusat logistik tersibuk di Indonesia dengan lalu lintas harian yang didominasi oleh truk kontainer 40 kaki dan angkutan material berat. Kerusakan jalan di wilayah ini sering kali mengancam kelancaran suplai rantai pasok dan membahayakan keselamatan pengemudi.\n\nBaru-baru ini, PT Dhisa Manunggal Karya bekerja sama dengan pengelola kawasan melakukan perbaikan taktis menggunakan Duraphalte Fixit. Berikut adalah rangkuman studi kasus implementasi tersebut:\n\nTantangan Utama:\n- Kepadatan Lalu Lintas Ekstrem: Perbaikan jalan konvensional menggunakan aspal panas memerlukan waktu penutupan jalan yang lama dan alat berat besar, yang berpotensi menimbulkan kemacetan total.\n- Beban Muatan Berlebih (Overload): Struktur tambalan harus mampu menahan beban gandar truk logistik yang sangat berat sesaat setelah diaplikasikan.\n\nSolusi yang Diterapkan:\nTim pemeliharaan memutuskan untuk menggunakan teknologi aspal instan Duraphalte Fixit kemasan 25kg. Proses pengerjaan dibagi menjadi beberapa tim kecil yang menyisir lubang secara mobile pada jam 11 malam hingga 3 pagi.\n\nHasil Implementasi:\n1. Zero Downtime: Jalan berlubang dibersihkan, diisi aspal dingin, dipadatkan dalam waktu kurang dari 15 menit per titik. Jalan langsung dibuka kembali tanpa perlu menunggu waktu pengeringan.\n2. Ketahanan Luar Biasa: Tambalan aspal dingin menyatu sempurna dengan aspal lama dan tidak mengalami deformasi meskipun dilalui ratusan kontainer berat setiap harinya.\n3. Efisiensi Biaya: Menghilangkan kebutuhan mobilisasi alat berat, pemanas aspal, serta menekan biaya tenaga kerja hingga 60% dibandingkan perbaikan konvensional."
     }
   ];
 
@@ -1251,6 +1307,7 @@ export default function App() {
           <Route path="product/:id" element={<ProductDetailPage products={homeContent.products} />} />
           <Route path="about" element={<AboutPage content={aboutContent} />} />
           <Route path="blog" element={<BlogPage posts={blogPosts} headerContent={homeContent.blogHeader} />} />
+          <Route path="blog/:id" element={<BlogPostDetailPage posts={blogPosts} />} />
           <Route path="*" element={<HomePage content={homeContent} />} />
         </Route>
       </Routes>
@@ -1294,18 +1351,66 @@ const ProductsPage = ({ products, headerContent }: { products: any[], headerCont
 
   return (
     <div className="animate-in fade-in duration-700">
-      {/* Hero Full Width Section with Background Image & Transparent Overlay */}
-      <section className="relative min-h-[300px] lg:min-h-[400px] flex items-center justify-center bg-slate-900 pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-center text-white overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img src={bgImage} className="w-full h-full object-cover opacity-100 animate-in fade-in zoom-in duration-700" alt="Products Header Background" />
-          {/* Soft darker overlay for amazing readability like on Home and About */}
-          <div className="absolute inset-0 bg-slate-950/60"></div>
-        </div>
+      {/* Sleek Engineering Blueprint Hero Section */}
+      <section className="relative bg-[#0d1520] pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-8 text-white overflow-hidden border-b border-[#1b2d42]">
+        {/* Glowing technical structural grids */}
+        <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(0,110,235,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,110,235,0.06)_1px,transparent_1px)] bg-[size:30px_30px]" />
         
-        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
-          <span className="text-[#006ceb] font-black tracking-[0.3em] uppercase text-xs lg:text-sm bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-lg border border-white/10 inline-block animate-pulse">Product Catalog</span>
-          <h1 className="text-4xl lg:text-7xl font-black leading-tight text-white drop-shadow-md">{title}</h1>
-          <p className="text-base lg:text-xl text-slate-200 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">{desc}</p>
+        {/* Subtle decorative target crosses / technical overlays */}
+        <div className="absolute top-1/4 left-[8%] w-6 h-6 border-l border-t border-blue-500/30 opacity-40 pointer-events-none"></div>
+        <div className="absolute bottom-1/4 right-[8%] w-6 h-6 border-r border-b border-blue-500/30 opacity-40 pointer-events-none"></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            
+            {/* Left Box: Technical Specifications/Introduction */}
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#006ceb]/15 border border-[#006ceb]/35 rounded-lg text-[10px] font-black uppercase tracking-[0.25em] text-[#3393ff]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#006ceb] animate-pulse"></span>
+                MATERIAL CATALOG
+              </div>
+              
+              <h1 className="text-4.5xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white">
+                {title}
+              </h1>
+              
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl font-sans">
+                {desc}
+              </p>
+
+              {/* Technical Indicator Badges */}
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-slate-800/80">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#006ceb]">Total Item</span>
+                  <p className="text-2xl font-black text-white font-mono">{totalProducts} <span className="text-xs text-slate-400">Tipe</span></p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#006ceb]">Ketahanan</span>
+                  <p className="text-2xl font-black text-white font-mono">100%</p>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#006ceb]">Standar</span>
+                  <p className="text-2xl font-black text-white font-mono">SNI</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Box: Technical Hexagonal Mask Frame showing background image */}
+            <div className="lg:col-span-5 relative flex justify-center mt-4 lg:mt-0">
+              <div className="relative w-full max-w-[340px] sm:max-w-[400px] lg:max-w-none aspect-square">
+                {/* Outer complex architectural frame */}
+                <div className="absolute inset-0 border-2 border-blue-500/20 rounded-[2.5rem] rotate-3 scale-[1.02] pointer-events-none"></div>
+                <div className="absolute inset-0 border border-slate-500/20 rounded-[2.5rem] -rotate-3 scale-[0.98] pointer-events-none"></div>
+                
+                {/* Main image container */}
+                <div className="absolute inset-4 rounded-[2rem] overflow-hidden shadow-2xl bg-slate-950 border-2 border-[#006ceb]/30">
+                  <img src={bgImage} className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-700" alt="Industrial Catalog" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#0d1520]/80 via-transparent to-transparent opacity-60"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
       </section>
 

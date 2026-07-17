@@ -1693,6 +1693,19 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                             className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-20" 
                           />
                         </div>
+                        <div>
+                          <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Written Article Content (Isi Lengkap Artikel)</label>
+                          <textarea 
+                            value={post.content || ''} 
+                            onChange={(e) => {
+                              const newPosts = [...blogPosts];
+                              newPosts[i].content = e.target.value;
+                              setBlogPosts(newPosts);
+                            }}
+                            placeholder="Tulis artikel lengkap di sini..."
+                            className="w-full p-3 bg-white border border-slate-200 rounded-lg text-sm h-48 font-sans leading-relaxed" 
+                          />
+                        </div>
                       </div>
                       <div className="w-48 space-y-4">
                         <ImageUpload 
@@ -1724,7 +1737,8 @@ const AdminDashboard = ({ onLogout, homeContent, setHomeContent, aboutContent, s
                     category: "NEW",
                     date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }).toUpperCase(),
                     title: "Untitled Article",
-                    excerpt: "Start writing your article summary here..."
+                    excerpt: "Start writing your article summary here...",
+                    content: "Tulis isi lengkap artikel baru Anda di sini..."
                   };
                   setBlogPosts([newPost, ...blogPosts]);
                 }}
